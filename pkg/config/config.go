@@ -15,13 +15,15 @@ type PgConfig struct {
 }
 
 type DbConfig struct {
-	Name     string `yaml:"name"`     // 数据库标识
-	Host     string `yaml:"host"`     // 数据库地址
-	Port     int    `yaml:"port"`     // 数据库端口
-	Username string `yaml:"username"` // 数据库用户名
-	Password string `yaml:"password"` // 数据库密码
-	Dbname   string `yaml:"dbname"`   // 数据库名
-	Charset  string `yaml:"charset"`  // 字符集
+	DriverName string `yaml:"driver_name"` //数据库类型
+	DSN        string `yaml:"dsn"`         //可以直接输入设置dsn,也可以不设置dsn而是设置其他信息
+	Name       string `yaml:"name"`        // 数据库标识
+	Host       string `yaml:"host"`        // 数据库地址
+	Port       int    `yaml:"port"`        // 数据库端口
+	Username   string `yaml:"username"`    // 数据库用户名
+	Password   string `yaml:"password"`    // 数据库密码
+	Dbname     string `yaml:"dbname"`      // 数据库名
+	Charset    string `yaml:"charset"`     // 字符集
 }
 
 type InspectorConfig struct {
