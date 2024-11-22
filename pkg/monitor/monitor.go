@@ -29,3 +29,12 @@ func (m *BaseMonitor) InitConfig() {
 	}
 	m.Error = m.DB.Ping()
 }
+
+func Query[T float64 | int | int8 | int64](bm *BaseMonitor, query string, args ...string) T {
+	var res T
+	err := bm.DB.QueryRow(query, args).Scan(&res)
+	if err != nil {
+		bm.Error = err
+	}
+	return res
+}
