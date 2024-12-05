@@ -4,6 +4,7 @@ import (
 	"PgInspector/pkg/config"
 	"database/sql"
 	"fmt"
+	"github.com/wg00001/wgo-sdk/wg_log"
 )
 
 type BaseMonitor struct {
@@ -17,12 +18,11 @@ var _ Monitor = (*BaseMonitor)(nil)
 func (m *BaseMonitor) InitConfig() {
 	if m.DBConfig.DSN != "" {
 		m.Error = fmt.Errorf("DSN is empty, but no driver implement to get default value")
-		return
 	}
 	if m.DBConfig.Driver == "" {
 		m.Error = fmt.Errorf("DriverName is empty,but no driver implement to get default value")
-		return
 	}
+	wg_log.FatalIfErr(m.Error)
 	m.DB, m.Error = sql.Open(m.DBConfig.Driver, m.DBConfig.DSN)
 	if m.Error != nil {
 		return
