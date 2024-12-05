@@ -1,46 +1,68 @@
 package config
 
-import "time"
-
 type Config struct {
-	GlobalConfig
-	PgConfigs []PgConfig
-	LogDB     DbConfig
-}
-
-type PgConfig struct {
-	DbConfig
-	InspectorConfig
-	AlertConfig
-}
-
-type DbConfig struct {
-	DriverName string `yaml:"driver_name"` //数据库类型
-	DSN        string `yaml:"dsn"`         //可以直接输入设置dsn,也可以不设置dsn而是设置其他信息
-	Name       string `yaml:"name"`        // 数据库标识
-	Host       string `yaml:"host"`        // 数据库地址
-	Port       int    `yaml:"port"`        // 数据库端口
-	Username   string `yaml:"username"`    // 数据库用户名
-	Password   string `yaml:"password"`    // 数据库密码
-	Dbname     string `yaml:"dbname"`      // 数据库名
-	Charset    string `yaml:"charset"`     // 字符集
-}
-
-type InspectorConfig struct {
-	CheckInterval time.Duration `yaml:"check_interval"` // 巡检间隔
-	AlertEmail    []string      `yaml:"alert_email"`    // 报警通知的邮箱列表
-}
-
-type AlertConfig struct {
-	QueryTimeout   time.Duration `yaml:"query_timeout"`   // 查询超时阈值
-	MaxConnections int           `yaml:"max_connections"` // 最大连接数
-	LogLevel       string        `yaml:"log_level"`       // 日志级别
-	LogFile        string        `yaml:"log_file"`        // 日志文件路径
-}
-
-type GlobalConfig struct {
-	LogLevel        int  `yaml:"log_level"`        // 全局日志级别
-	AlertEnabled    bool `yaml:"alert_enabled"`    // 是否启用报警
-	SaveToDB        bool `yaml:"save_to_db"`       // 是否保存巡检结果到数据库
+	LogLevel        int  `yaml:"log_level"`        // 全局默认日志级别
+	AlertEnabled    bool `yaml:"alert_level"`      // 全局默认报警级别
 	ResultRetention int  `yaml:"result_retention"` // 巡检结果保留天数
+	DBConfigs       map[dbName]*DBConfig
+	TableConfigs    map[tableName]*TableConfig
+	TaskConfigs     map[taskName]*TaskConfig
+	LogConfigs      map[logLevel]*LogConfig
+	AlertConfigs    map[alterLevel]*AlertConfig
+}
+
+type dbName string
+type DBConfig struct {
+	DBName     dbName `yaml:"db_name"` // 对应yaml的第二层,解析时在循环中获取
+	Driver     string `yaml:"driver"`  // 数据源类型
+	DSN        string `yaml:"dsn"`     // DSN
+	AlterLevel int    `yaml:"alter_level"`
+	LogLevel   int    `yaml:"log_level"`
+	*AlertConfig
+	*LogConfig
+}
+
+type tableName string
+type TableConfig struct {
+	TableName  tableName `yaml:"table_name"`
+	DBName     string    `yaml:"db_name"`
+	AlterLevel int       `yaml:"alter_level"`
+	LogLevel   int       `yaml:"log_level"`
+	*DBConfig
+	*AlertConfig
+	*LogConfig
+}
+
+type taskName string
+
+// TaskConfig 用于控制Inspector是否执行
+type TaskConfig struct {
+	TaskName     taskName `yaml:"task_name"`
+	CheckCycle   int      `yaml:"check_cycle"` // 巡检周期 (秒)
+	AllInspector bool     `yaml:"do_all"`
+	TodoList     []string `yaml:"todo"`
+	NotDoList    []string `yaml:"notdo"`
+}
+
+type logLevel int
+
+// todo
+type LogConfig struct {
+	LogLevel     int          `yaml:"log_level"` //主键
+	LogTableName string       `yaml:"table_name"`
+	LogTable     *TableConfig //将数据库作为导出
+	LogFilePath  string       `yaml:"file_path"`
+}
+
+type alterLevel int
+
+// todo
+type AlertConfig struct { //
+	AlterLevel int `yaml:"alter_level"`
+	FeishuUrl  string
+}
+
+// todo
+type GrafanaConfig struct {
+	Url string
 }

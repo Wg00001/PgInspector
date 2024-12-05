@@ -16,14 +16,14 @@ var _ monitor.Monitor = (*PostgreMonitor)(nil)
 var _ monitor.DBMonitor = (*PostgreMonitor)(nil)
 
 func (m *PostgreMonitor) InitConfig() {
-	if m.DbConfig.DSN != "" {
-		m.DbConfig.DSN = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-			m.DbConfig.Host, m.DbConfig.Port, m.DbConfig.Username, m.DbConfig.Password, m.DbConfig.Dbname)
+	if m.DBConfig.DSN != "" {
+		m.Error = fmt.Errorf("DSN is empty, but no driver implement to get default value")
+		return
 	}
-	if m.DbConfig.DriverName == "" {
-		m.DbConfig.DriverName = config.DiverNamePostgreSQL
+	if m.DBConfig.Driver == "" {
+		m.DBConfig.Driver = config.DiverNamePostgreSQL
 	}
-	m.DB, m.Error = sql.Open(m.DbConfig.DriverName, m.DbConfig.DSN)
+	m.DB, m.Error = sql.Open(m.DBConfig.Driver, m.DBConfig.DSN)
 	if m.Error != nil {
 		return
 	}

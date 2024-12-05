@@ -1,4 +1,4 @@
-package model
+package task
 
 type DBMonitorData struct {
 	DBName            string

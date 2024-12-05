@@ -8,22 +8,22 @@ import (
 
 type BaseMonitor struct {
 	DB *sql.DB
-	*config.DbConfig
+	*config.DBConfig
 	Error error
 }
 
 var _ Monitor = (*BaseMonitor)(nil)
 
 func (m *BaseMonitor) InitConfig() {
-	if m.DbConfig.DSN != "" {
+	if m.DBConfig.DSN != "" {
 		m.Error = fmt.Errorf("DSN is empty, but no driver implement to get default value")
 		return
 	}
-	if m.DbConfig.DriverName == "" {
+	if m.DBConfig.Driver == "" {
 		m.Error = fmt.Errorf("DriverName is empty,but no driver implement to get default value")
 		return
 	}
-	m.DB, m.Error = sql.Open(m.DbConfig.DriverName, m.DbConfig.DSN)
+	m.DB, m.Error = sql.Open(m.DBConfig.Driver, m.DBConfig.DSN)
 	if m.Error != nil {
 		return
 	}
