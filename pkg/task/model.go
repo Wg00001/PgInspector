@@ -1,5 +1,7 @@
 package task
 
+import "time"
+
 type DBMonitorData struct {
 	DBName            string
 	DSN               string  //连接该数据库的DSN,账号密码需要进行加密
@@ -13,4 +15,14 @@ type DBMonitorData struct {
 	ReadIO            int64   // 读 IO 数量
 	WriteIO           int64   // 写 IO 数量
 	IOOps             int64   // IO 操作总数
+}
+
+type Task struct {
+	Time      time.Time
+	TaskName  string
+	DBName    string
+	TableName string
+	Metrics   map[string]float32
+
+	LogTableName string
 }
