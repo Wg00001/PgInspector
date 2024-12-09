@@ -1,7 +1,7 @@
 package monitor
 
 import (
-	"PgInspector/pkg/config"
+	"PgInspector/domain/config"
 	"database/sql"
 	"fmt"
 	"github.com/wg00001/wgo-sdk/wg_log"

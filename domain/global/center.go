@@ -1,7 +1,7 @@
 package global
 
 import (
-	"PgInspector/pkg/task"
+	"PgInspector/domain/task"
 	"database/sql"
 )
 

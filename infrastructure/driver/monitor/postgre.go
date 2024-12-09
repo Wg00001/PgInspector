@@ -1,8 +1,8 @@
-package driver
+package monitor
 
 import (
-	"PgInspector/pkg/config"
-	"PgInspector/pkg/monitor"
+	"PgInspector/domain/config"
+	"PgInspector/domain/monitor"
 	"database/sql"
 	"fmt"
 )
