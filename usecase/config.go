@@ -79,6 +79,6 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TableConfig | 
 			globalConfig.Alert[val.AlertLevel] = val
 		})
 	default:
-		log.Printf("type of config nonsupport to Add: %s\n", t)
+		log.Printf("type of config_reader nonsupport to Add: %s\n", t)
 	}
 }
