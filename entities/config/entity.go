@@ -13,44 +13,45 @@ import (
 
 type Config struct {
 	Default DefaultConfig
-	DB      map[name]*DBConfig
-	Table   map[name]*TableConfig
-	Task    map[name]*TaskConfig
-	Log     map[level]*LogConfig
-	Alert   map[level]*AlertConfig
+	DB      map[Name]DBConfig
+	Table   map[Name]TableConfig
+	Task    map[Name]TaskConfig
+	Log     map[Level]LogConfig
+	Alert   map[Level]AlertConfig
 }
 
-type name string
-type level int
+type Name string
+type Level int
 
 type DefaultConfig struct {
 	DefaultDriver     string
-	DefaultLogLevel   level
-	DefaultAlertLevel level
+	DefaultLogLevel   Level
+	DefaultAlertLevel Level
 }
 
 type DBConfig struct {
-	DBName name
+	DBName Name
 	Driver string
 	DSN    string
 }
 
 type TableConfig struct {
-	TableName name
+	TableName Name
 	DBConfig  string
 }
 
 type TaskConfig struct {
-	TaskName   name
+	Async      bool
+	TaskName   Name
 	CheckCycle time.Duration
 	Todo       []*inspector.Inspect
 }
 
 type LogConfig struct {
-	LogLevel level
+	LogLevel Level
 	Table    *TableConfig
 }
 
 type AlertConfig struct {
-	AlertLevel level
+	AlertLevel Level
 }
