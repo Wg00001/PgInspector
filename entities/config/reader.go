@@ -7,6 +7,14 @@ package config
  */
 
 type Reader interface {
-	ReadFromSource()
+	ReadFromSource() error
 	SaveIntoConfig()
+}
+
+func InitConfig(reader Reader) {
+	err := reader.ReadFromSource()
+	if err != nil {
+		panic(err)
+	}
+	reader.SaveIntoConfig()
 }

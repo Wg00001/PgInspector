@@ -41,8 +41,8 @@ type TableConfig struct {
 }
 
 type TaskConfig struct {
-	Async      bool
 	TaskName   Name
+	Async      bool
 	CheckCycle time.Duration
 	Todo       []*inspector.Inspect
 }
