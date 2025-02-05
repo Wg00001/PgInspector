@@ -1,7 +1,7 @@
 package main
 
 import (
-	"PgInspector/adapters/config_reader/local_yaml"
+	"PgInspector/adapters/config_reader"
 	"PgInspector/entities/config"
 )
 
@@ -12,5 +12,5 @@ import (
  */
 
 func main() {
-	config.InitConfig(&local_yaml.ConfigReaderYaml{FilePath: "app/config/config.yaml"})
+	config.InitConfig(config_reader.BuildReader("yaml", "app/config/config.yaml"))
 }
