@@ -10,7 +10,7 @@ import (
 )
 
 /**
- * @description: inspector
+ * @description: insp
  * @author Wg
  * @date 2025/1/19
  */
@@ -21,12 +21,13 @@ type ConfigReaderYaml struct {
 }
 
 type ConfigYaml struct {
-	Default      config.DefaultConfig `yaml:"defaultconfig"`
-	DBConfigs    []config.DBConfig    `yaml:"dbconfig"`
-	TableConfigs []config.TableConfig `yaml:"tableconfig"`
-	TaskConfigs  []config.TaskConfig  `yaml:"taskconfig"`
-	LogConfig    []config.LogConfig   `yaml:"logconfig"`
-	AlertConfig  []config.AlertConfig `yaml:"alertconfig"`
+	Default       config.DefaultConfig `yaml:"default"`
+	DBConfigs     []config.DBConfig    `yaml:"db"`
+	TaskConfigs   []config.TaskConfig  `yaml:"task"`
+	LogConfig     []config.LogConfig   `yaml:"log"`
+	AlertConfig   []config.AlertConfig `yaml:"alert"`
+	InspectConfig map[string]string    `yaml:"inspect"`
+	//InspectConfig interface{} `yaml:"inspect"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)
@@ -49,9 +50,16 @@ func (c *ConfigReaderYaml) SaveIntoConfig() {
 	usecase.InitConfig()
 	usecase.AddConfigs(c.cyaml.DBConfigs...)
 	usecase.AddConfigs(c.cyaml.TaskConfigs...)
-	usecase.AddConfigs(c.cyaml.TableConfigs...)
 	usecase.AddConfigs(c.cyaml.LogConfig...)
 	usecase.AddConfigs(c.cyaml.AlertConfig...)
+	insp := make([]config.InspectConfig, 0, len(c.cyaml.InspectConfig))
+	for name, sql := range c.cyaml.InspectConfig {
+		insp = append(insp, config.InspectConfig{
+			InspName: config.Name(name),
+			SQL:      sql,
+		})
+	}
+	usecase.AddConfigs(insp...)
 	fmt.Printf("%+v\n", c.cyaml)
 	fmt.Printf("%+v", usecase.GetConfig())
 }

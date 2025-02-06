@@ -13,30 +13,30 @@ import (
  */
 
 var (
-	globalConfig config.Config
-	mu           sync.RWMutex
+	Config config.Config
+	mu     sync.RWMutex
 )
 
 func GetConfig() config.Config {
 	mu.RLock()
 	defer mu.RUnlock()
-	return globalConfig
+	return Config
 }
 
 func InitConfig() {
 	mu.Lock()
 	defer mu.Unlock()
-	globalConfig = config.Config{
+	Config = config.Config{
 		Default: config.DefaultConfig{},
-		DB:      make(map[config.Name]config.DBConfig),
-		Table:   make(map[config.Name]config.TableConfig),
 		Task:    make(map[config.Name]config.TaskConfig),
+		DB:      make(map[config.Name]config.DBConfig),
 		Log:     make(map[config.Level]config.LogConfig),
 		Alert:   make(map[config.Level]config.AlertConfig),
+		Insp:    make(map[config.Name]config.InspectConfig),
 	}
 }
 
-func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TableConfig | config.TaskConfig | config.LogConfig | config.AlertConfig](configs ...T) {
+func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.InspectConfig](configs ...T) {
 	if configs == nil || len(configs) == 0 {
 		log.Println("AddConfigs params is nil or empty")
 		return
@@ -51,32 +51,32 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TableConfig | 
 	switch t := any(configs[0]).(type) {
 	case config.DefaultConfig:
 		rangeFunc(func(cfg T) {
-			globalConfig.Default = any(cfg).(config.DefaultConfig)
-		})
-	case config.TableConfig:
-		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.TableConfig)
-			globalConfig.Table[val.TableName] = val
+			Config.Default = any(cfg).(config.DefaultConfig)
 		})
 	case config.DBConfig:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.DBConfig)
-			globalConfig.DB[val.DBName] = val
+			Config.DB[val.Name] = val
 		})
 	case config.TaskConfig:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.TaskConfig)
-			globalConfig.Task[val.TaskName] = val
+			Config.Task[val.TaskName] = val
 		})
 	case config.LogConfig:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.LogConfig)
-			globalConfig.Log[val.LogLevel] = val
+			Config.Log[val.LogLevel] = val
 		})
 	case config.AlertConfig:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.AlertConfig)
-			globalConfig.Alert[val.AlertLevel] = val
+			Config.Alert[val.AlertLevel] = val
+		})
+	case config.InspectConfig:
+		rangeFunc(func(cfg T) {
+			val := any(cfg).(config.InspectConfig)
+			Config.Insp[val.InspName] = val
 		})
 	default:
 		log.Printf("type of config_reader nonsupport to Add: %s\n", t)

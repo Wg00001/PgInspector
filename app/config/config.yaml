@@ -1,9 +1,9 @@
-DefaultConfig:
+Default:
   DefaultDriver: "mysql"
   DefaultLogLevel: 2
   DefaultAlertLevel: 3
 
-DBConfig:
+DB:
   - DBName: "example_db1"
     Driver: "mysql"
     DSN: "user:password@tcp(127.0.0.1:3306)/example_db1"
@@ -11,13 +11,13 @@ DBConfig:
     Driver: "postgres"
     DSN: "host=127.0.0.1 port=5432 user=user dbname=example_db2 password=password sslmode=disable"
 
-TableConfig:
+Table:
   - TableName: "example_table1"
     DBConfig: "example_db1"
   - TableName: "example_table2"
     DBConfig: "example_db2"
 
-TaskConfig:
+Task:
   - Async: true
     TaskName: "example_task1"
     CheckCycle: 5m
@@ -25,7 +25,7 @@ TaskConfig:
     TaskName: "example_task2"
     CheckCycle: 10m
 
-LogConfig:
+Log:
   - LogLevel: 2
     Table:
       TableName: "log_table1"
@@ -35,6 +35,13 @@ LogConfig:
       TableName: "log_table2"
       DBConfig: "example_db2"
 
-AlertConfig:
+Alert:
   - AlertLevel: 3
   - AlertLevel: 4
+
+Inspect:
+  1: "1"
+  2: "2"
+  3: "3"
+  4: "4"
+  5: "5"

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"PgInspector/entities/inspector"
 	"time"
 )
 
@@ -13,9 +12,9 @@ import (
 
 type Config struct {
 	Default DefaultConfig
-	DB      map[Name]DBConfig
-	Table   map[Name]TableConfig
 	Task    map[Name]TaskConfig
+	DB      map[Name]DBConfig
+	Insp    map[Name]InspectConfig
 	Log     map[Level]LogConfig
 	Alert   map[Level]AlertConfig
 }
@@ -30,28 +29,39 @@ type DefaultConfig struct {
 }
 
 type DBConfig struct {
-	DBName Name
+	Name   Name
 	Driver string
 	DSN    string
 }
 
-type TableConfig struct {
-	TableName Name
-	DBConfig  string
-}
-
-type TaskConfig struct {
-	TaskName   Name
-	Async      bool
-	CheckCycle time.Duration
-	Todo       []*inspector.Inspect
+type InspectConfig struct {
+	InspName Name
+	SQL      string
 }
 
 type LogConfig struct {
-	LogLevel Level
-	Table    *TableConfig
+	LogLevel  Level
+	TableName Name
+	//todo:log
 }
 
 type AlertConfig struct {
 	AlertLevel Level
+	//todo:alert
+}
+
+type TaskConfig struct {
+	TaskName     Name
+	Priority     int
+	Async        bool
+	AllInspector bool
+	CheckCycle   time.Duration //todo:定时任务
+
+	TargetDB    []Name
+	TargetTable []Name
+	LogLevel    Level
+	AlertLevel  Level
+
+	Todo    []Name
+	NotTodo []Name
 }

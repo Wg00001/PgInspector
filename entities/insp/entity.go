@@ -1,4 +1,4 @@
-package inspector
+package insp
 
 /**
  * @description: TODO
@@ -7,4 +7,6 @@ package inspector
  */
 
 type Inspect struct {
+	SQL    string
+	Result string
 }
