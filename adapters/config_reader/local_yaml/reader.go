@@ -61,5 +61,5 @@ func (c *ConfigReaderYaml) SaveIntoConfig() {
 	}
 	usecase.AddConfigs(insp...)
 	fmt.Printf("%+v\n", c.cyaml)
-	fmt.Printf("%+v", usecase.GetConfig())
+	fmt.Printf("%+v\n", usecase.GetConfig())
 }

@@ -12,11 +12,11 @@ import (
 
 type Config struct {
 	Default DefaultConfig
-	Task    map[Name]TaskConfig
-	DB      map[Name]DBConfig
-	Insp    map[Name]InspectConfig
-	Log     map[Level]LogConfig
-	Alert   map[Level]AlertConfig
+	Task    map[Name]*TaskConfig
+	DB      map[Name]*DBConfig
+	Insp    map[Name]*InspectConfig
+	Log     map[Level]*LogConfig
+	Alert   map[Level]*AlertConfig
 }
 
 type Name string

@@ -4,10 +4,10 @@ Default:
   DefaultAlertLevel: 3
 
 DB:
-  - DBName: "example_db1"
+  - Name: "example1"
     Driver: "mysql"
-    DSN: "user:password@tcp(127.0.0.1:3306)/example_db1"
-  - DBName: "example_db2"
+    DSN: "root:03719@tcp(127.0.0.1:3306)/example1"
+  - Name: "example_db2"
     Driver: "postgres"
     DSN: "host=127.0.0.1 port=5432 user=user dbname=example_db2 password=password sslmode=disable"
 

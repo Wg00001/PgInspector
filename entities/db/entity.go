@@ -1,4 +1,4 @@
-package linker
+package db
 
 /**
  * @description: TODO
@@ -6,5 +6,7 @@ package linker
  * @date 2025/2/6
  */
 
-type TableLinker interface {
+type ConnEntity interface {
+	Connect()
+	Error() error
 }
