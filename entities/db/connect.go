@@ -2,7 +2,6 @@ package db
 
 import (
 	"PgInspector/entities/config"
-	"PgInspector/entities/db"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
@@ -11,7 +10,7 @@ import (
 /**
  * @description: TODO
  * @author Wg
- * @date 2025/2/7
+ * @date 2025/2/6
  */
 
 type SqlDB struct {
@@ -27,8 +26,6 @@ func (c *SqlDB) Connect() {
 func (c *SqlDB) Error() error {
 	return c.err
 }
-
-var _ db.ConnEntity = (*SqlDB)(nil)
 
 func Connect(dbConfig *config.DBConfig) (*SqlDB, error) {
 	if dbConfig == nil {

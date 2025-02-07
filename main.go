@@ -3,8 +3,9 @@ package main
 import (
 	"PgInspector/adapters/config_reader"
 	"PgInspector/entities/config"
+	"PgInspector/entities/db"
 	"PgInspector/usecase"
-	"PgInspector/usecase/db"
+
 	"fmt"
 )
 
@@ -28,5 +29,5 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Printf("res : %+v", res)
+	fmt.Printf("res: %+v", res)
 }
