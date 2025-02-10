@@ -1,5 +1,10 @@
 package task
 
+import (
+	"PgInspector/entities/config"
+	"PgInspector/entities/insp"
+)
+
 /**
  * @description: TODO
  * @author Wg
@@ -7,4 +12,7 @@ package task
  */
 
 type Task struct {
+	Config   *config.TaskConfig
+	TargetDB []*config.DBConfig
+	Inspects []*insp.Inspect
 }

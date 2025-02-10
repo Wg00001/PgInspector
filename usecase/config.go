@@ -7,7 +7,7 @@ import (
 )
 
 /**
- * @description: configs usecase
+ * @description: 配置中心
  * @author Wg
  * @date 2025/2/4
  */
@@ -23,10 +23,10 @@ func GetConfig() *config.Config {
 	return &Config
 }
 
-func GetDbConfig(name string) *config.DBConfig {
+func GetDbConfig(name config.Name) *config.DBConfig {
 	mu.RLock()
 	defer mu.RUnlock()
-	return Config.DB[config.Name(name)]
+	return Config.DB[name]
 }
 
 func InitConfig() {

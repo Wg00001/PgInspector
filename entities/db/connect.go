@@ -3,7 +3,6 @@ package db
 import (
 	"PgInspector/entities/config"
 	"database/sql"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -14,24 +13,15 @@ import (
  */
 
 type SqlDB struct {
+	*sql.DB
 	Config *config.DBConfig
-	DB     *sql.DB
-	err    error
+	Err    error
 }
 
 func (c *SqlDB) Connect() {
-	c.DB, c.err = sql.Open(c.Config.Driver, c.Config.DSN)
+	c.DB, c.Err = sql.Open(c.Config.Driver, c.Config.DSN)
 }
 
 func (c *SqlDB) Error() error {
-	return c.err
-}
-
-func Connect(dbConfig *config.DBConfig) (*SqlDB, error) {
-	if dbConfig == nil {
-		return nil, fmt.Errorf("db config is nil")
-	}
-	cur := &SqlDB{Config: dbConfig}
-	cur.Connect()
-	return cur, cur.err
+	return c.Err
 }

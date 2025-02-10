@@ -57,10 +57,9 @@ type TaskConfig struct {
 	AllInspector bool
 	CheckCycle   time.Duration //todo:定时任务
 
-	TargetDB    []Name
-	TargetTable []Name
-	LogLevel    Level
-	AlertLevel  Level
+	TargetDB   []Name
+	LogLevel   Level
+	AlertLevel Level
 
 	Todo    []Name
 	NotTodo []Name
