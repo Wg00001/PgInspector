@@ -27,5 +27,12 @@ func BuildTask(taskCfg *config.TaskConfig) *task.Task {
 	for _, val := range taskCfg.TargetDB {
 		res.TargetDB = append(res.TargetDB, usecase.GetDbConfig(val))
 	}
+	if taskCfg.AllInspector {
+		res.Inspects = make([]*insp.Inspect, len(usecase.GetAllInsp()))
+
+	}
+	for _, val := range taskCfg.Todo {
+
+	}
 	return res
 }

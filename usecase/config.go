@@ -26,7 +26,23 @@ func GetConfig() *config.Config {
 func GetDbConfig(name config.Name) *config.DBConfig {
 	mu.RLock()
 	defer mu.RUnlock()
-	return Config.DB[name]
+	if res, ok := Config.DB[name]; ok {
+		return res
+	}
+	return nil
+}
+
+func GetInsp(name config.Name) *config.Inspect {
+	mu.RLock()
+	defer mu.RUnlock()
+	if res, ok := Config.Insp[name]; ok {
+		return res
+	}
+	return nil
+}
+
+func GetAllInsp() []*config.Inspect {
+	return Config.AllInsp
 }
 
 func InitConfig() {
@@ -38,11 +54,12 @@ func InitConfig() {
 		DB:      make(map[config.Name]*config.DBConfig),
 		Log:     make(map[config.Level]*config.LogConfig),
 		Alert:   make(map[config.Level]*config.AlertConfig),
-		Insp:    make(map[config.Name]*config.InspectConfig),
+		Insp:    make(map[config.Name]*config.Inspect),
+		AllInsp: []*config.Inspect{},
 	}
 }
 
-func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.InspectConfig](configs ...T) {
+func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.Inspect](configs ...T) {
 	if configs == nil || len(configs) == 0 {
 		log.Println("AddConfigs params is nil or empty")
 		return
@@ -79,9 +96,9 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 			val := any(cfg).(config.AlertConfig)
 			Config.Alert[val.AlertLevel] = &val
 		})
-	case config.InspectConfig:
+	case config.Inspect:
 		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.InspectConfig)
+			val := any(cfg).(config.Inspect)
 			Config.Insp[val.InspName] = &val
 		})
 	default:

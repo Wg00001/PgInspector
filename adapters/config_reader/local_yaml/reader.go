@@ -27,7 +27,7 @@ type ConfigYaml struct {
 	LogConfig     []config.LogConfig   `yaml:"log"`
 	AlertConfig   []config.AlertConfig `yaml:"alert"`
 	InspectConfig map[string]string    `yaml:"inspect"`
-	//InspectConfig interface{} `yaml:"inspect"`
+	//Inspect interface{} `yaml:"inspect"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)
@@ -52,9 +52,9 @@ func (c *ConfigReaderYaml) SaveIntoConfig() {
 	usecase.AddConfigs(c.cyaml.TaskConfigs...)
 	usecase.AddConfigs(c.cyaml.LogConfig...)
 	usecase.AddConfigs(c.cyaml.AlertConfig...)
-	insp := make([]config.InspectConfig, 0, len(c.cyaml.InspectConfig))
+	insp := make([]config.Inspect, 0, len(c.cyaml.InspectConfig))
 	for name, sql := range c.cyaml.InspectConfig {
-		insp = append(insp, config.InspectConfig{
+		insp = append(insp, config.Inspect{
 			InspName: config.Name(name),
 			SQL:      sql,
 		})

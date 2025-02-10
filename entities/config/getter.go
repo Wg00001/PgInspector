@@ -17,10 +17,23 @@ func (n Name) GetName() Name {
 func (n DBConfig) GetName() Name {
 	return n.Name
 }
+
 func (n TaskConfig) GetName() Name {
 	return n.TaskName
 }
 
 func GetName(n NameGetter) Name {
 	return n.GetName()
+}
+
+func GetNameT(origin any) Name {
+	switch t := origin.(type) {
+	case string:
+		return Name(t)
+	case Name:
+		return t
+	case NameGetter:
+		return t.GetName()
+	}
+	return ""
 }

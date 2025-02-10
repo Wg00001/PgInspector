@@ -16,8 +16,8 @@ import (
 
 var pool = sync.Map{}
 
-func Connect[T config.Name | config.DBConfig](arg T) *db.SqlDB {
-	dbConfig := usecase.GetDbConfig(config.GetName(arg))
+func Connect[T config.Name | config.DBConfig | string](arg T) *db.SqlDB {
+	dbConfig := usecase.GetDbConfig(config.GetNameT(arg))
 	if dbConfig == nil {
 		return &db.SqlDB{Err: fmt.Errorf("db config is nil")}
 	}
@@ -27,13 +27,13 @@ func Connect[T config.Name | config.DBConfig](arg T) *db.SqlDB {
 	return cur
 }
 
-func Get[T config.Name | config.DBConfig](arg T) *db.SqlDB {
-	if val, ok := pool.Load(config.GetName(arg)); ok {
+func Get[T config.Name | config.DBConfig | string](arg T) *db.SqlDB {
+	if val, ok := pool.Load(config.GetNameT(arg)); ok {
 		return val.(*db.SqlDB)
 	}
 	return nil
 }
 
-func Delete[T config.Name | config.DBConfig](arg T) {
-	pool.Delete(config.GetName(arg))
+func Delete[T config.Name | config.DBConfig | string](arg T) {
+	pool.Delete(config.GetNameT(arg))
 }
