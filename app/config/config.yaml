@@ -19,8 +19,10 @@ Table:
 
 Task:
   - Async: true
-    TaskName: "example_task1"
+    TaskName: "task1"
     CheckCycle: 5m
+    TargetDB: "example1","example2"
+    Todo: "1","2"
   - Async: false
     TaskName: "example_task2"
     CheckCycle: 10m

@@ -2,4 +2,6 @@
 2: "SHOW VARIABLES LIKE 'innodb_buffer_pool_size';"
 3: "SELECT @@max_connections;"
 4: "SHOW ENGINE INNODB STATUS;"
-5: "SELECT table_name, engine, table_rows, data_length, index_length FROM information_schema.tables WHERE table_schema = 'your_database_name';"
+5:
+  5-1: "SELECT table_name, engine, table_rows, data_length, index_length FROM information_schema.tables WHERE table_schema = 'your_database_name';"
+  5-2: "SHOW ENGINE INNODB STATUS;"

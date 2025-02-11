@@ -14,5 +14,5 @@ import (
 type Task struct {
 	Config   *config.TaskConfig
 	TargetDB []*config.DBConfig
-	Inspects []*insp.Inspect
+	Inspects []*insp.Node
 }

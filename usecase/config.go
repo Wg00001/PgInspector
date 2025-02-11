@@ -39,6 +39,21 @@ func GetInsp(path config.Name) *insp.Node {
 	return Config.Insp.GetNode(path.Str())
 }
 
+func GetAllInsp() []*insp.Node {
+	mu.RLock()
+	defer mu.RUnlock()
+	return Config.Insp.AllInsp
+}
+
+func GetTaskConfig(name config.Name) *config.TaskConfig {
+	mu.RLock()
+	defer mu.RUnlock()
+	if res, ok := Config.Task[name]; ok {
+		return res
+	}
+	return nil
+}
+
 func InitConfig() {
 	mu.Lock()
 	defer mu.Unlock()

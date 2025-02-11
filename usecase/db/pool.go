@@ -3,7 +3,6 @@ package db
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/db"
-	"PgInspector/usecase"
 	"fmt"
 	"sync"
 )
@@ -16,8 +15,7 @@ import (
 
 var pool = sync.Map{}
 
-func Connect[T config.Name | config.DBConfig | string](arg T) *db.SqlDB {
-	dbConfig := usecase.GetDbConfig(config.GetNameT(arg))
+func Connect(dbConfig *config.DBConfig) *db.SqlDB {
 	if dbConfig == nil {
 		return &db.SqlDB{Err: fmt.Errorf("db config is nil")}
 	}
