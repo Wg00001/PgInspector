@@ -17,7 +17,7 @@ type Config struct {
 	DB      map[Name]*DBConfig
 	Log     map[Level]*LogConfig
 	Alert   map[Level]*AlertConfig
-	Insp    insp.Tree
+	Insp    *insp.Tree
 }
 
 type Name string

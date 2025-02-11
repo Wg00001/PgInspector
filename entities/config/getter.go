@@ -37,3 +37,7 @@ func GetNameT(origin any) Name {
 	}
 	return ""
 }
+
+func (n Name) Str() string {
+	return string(n)
+}

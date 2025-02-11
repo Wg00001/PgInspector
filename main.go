@@ -14,7 +14,7 @@ import (
  */
 
 func main() {
-	config.InitConfig(config_reader.BuildReader("yaml", "app/config/config.yaml"))
+	config.InitConfig(config_reader.NewReader("yaml", "app/config"))
 	conn := db.Connect("example1")
 	if conn.Error() != nil {
 		fmt.Println("\n", conn.Error())

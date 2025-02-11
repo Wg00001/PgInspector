@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"PgInspector/entities/config"
+	"PgInspector/entities/insp"
 	"log"
 	"sync"
 )
@@ -32,17 +33,10 @@ func GetDbConfig(name config.Name) *config.DBConfig {
 	return nil
 }
 
-func GetInsp(name config.Name) *config.Inspect {
+func GetInsp(path config.Name) *insp.Node {
 	mu.RLock()
 	defer mu.RUnlock()
-	if res, ok := Config.Insp[name]; ok {
-		return res
-	}
-	return nil
-}
-
-func GetAllInsp() []*config.Inspect {
-	return Config.AllInsp
+	return Config.Insp.GetNode(path.Str())
 }
 
 func InitConfig() {
@@ -54,12 +48,11 @@ func InitConfig() {
 		DB:      make(map[config.Name]*config.DBConfig),
 		Log:     make(map[config.Level]*config.LogConfig),
 		Alert:   make(map[config.Level]*config.AlertConfig),
-		Insp:    make(map[config.Name]*config.Inspect),
-		AllInsp: []*config.Inspect{},
+		Insp:    insp.NewTree(),
 	}
 }
 
-func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.Inspect](configs ...T) {
+func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | *insp.Tree](configs ...T) {
 	if configs == nil || len(configs) == 0 {
 		log.Println("AddConfigs params is nil or empty")
 		return
@@ -96,10 +89,10 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 			val := any(cfg).(config.AlertConfig)
 			Config.Alert[val.AlertLevel] = &val
 		})
-	case config.Inspect:
+	case *insp.Tree:
 		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.Inspect)
-			Config.Insp[val.InspName] = &val
+			val := any(cfg).(*insp.Tree)
+			Config.Insp = val
 		})
 	default:
 		log.Printf("type of config_reader nonsupport to Add: %s\n", t)

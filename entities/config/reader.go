@@ -1,5 +1,7 @@
 package config
 
+import "fmt"
+
 /**
  * @description: TODO
  * @author Wg
@@ -7,12 +9,21 @@ package config
  */
 
 type Reader interface {
-	ReadFromSource() error
+	ReadConfig() error
+	ReadInspector() error
 	SaveIntoConfig()
+	FormatFilename()
 }
 
 func InitConfig(reader Reader) {
-	err := reader.ReadFromSource()
+	reader.FormatFilename()
+	fmt.Println(reader)
+	err := reader.ReadConfig()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%+v\n", reader)
+	err = reader.ReadInspector()
 	if err != nil {
 		panic(err)
 	}

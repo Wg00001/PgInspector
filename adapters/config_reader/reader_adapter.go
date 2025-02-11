@@ -11,7 +11,7 @@ import (
  * @date 2025/2/5
  */
 
-func BuildReader(configType, filepath string) config.Reader {
+func NewReader(configType, filepath string) config.Reader {
 	switch configType {
 	case "yaml":
 		return &local_yaml.ConfigReaderYaml{FilePath: filepath}
