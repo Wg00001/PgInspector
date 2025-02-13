@@ -29,7 +29,7 @@ func Get[T config.Name | config.DBConfig | string](arg T) *db.SqlDB {
 	if val, ok := pool.Load(config.GetNameT(arg)); ok {
 		return val.(*db.SqlDB)
 	}
-	return nil
+	return &db.SqlDB{Err: fmt.Errorf("db config is nil")}
 }
 
 func Delete[T config.Name | config.DBConfig | string](arg T) {

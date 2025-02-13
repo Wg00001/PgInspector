@@ -4,11 +4,12 @@ import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/task"
 	"PgInspector/usecase"
+	"fmt"
 	"sync"
 )
 
 /**
- * @description: TODO
+ * @description: task pool
  * @author Wg
  * @date 2025/2/11
  */
@@ -28,10 +29,14 @@ func Get(name config.Name) *task.Task {
 	return nil
 }
 
-func Do() {
-
-}
-
 func Delete(name config.Name) {
 	pool.Delete(name)
+}
+
+func Do(name config.Name) error {
+	t := Get(name)
+	if t == nil {
+		return fmt.Errorf("name of task not exist, name: %s\n", name)
+	}
+	return t.Do()
 }

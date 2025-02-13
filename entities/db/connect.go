@@ -25,3 +25,10 @@ func (c *SqlDB) Connect() {
 func (c *SqlDB) Error() error {
 	return c.Err
 }
+
+func (c *SqlDB) Query(query string, args ...any) (*sql.Rows, error) {
+	if c.Err != nil {
+		return nil, c.Err
+	}
+	return c.DB.Query(query, args...)
+}

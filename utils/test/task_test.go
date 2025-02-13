@@ -11,9 +11,12 @@ import (
 )
 
 func TestTask(t *testing.T) {
-	//todo:
 	config.InitConfig(config_reader.NewReader("yaml", "../../app/config"))
 	db.Connect(usecase.GetDbConfig("example1"))
 	task.Init(usecase.GetTaskConfig("task1"))
-	fmt.Printf("%+v\n", task.Get("task1"))
+	err := task.Do("task1")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
