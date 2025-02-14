@@ -48,10 +48,10 @@ type AlertConfig struct {
 
 type TaskConfig struct {
 	TaskName     Name
-	Priority     int
-	Async        bool
+	Time         *Time
 	AllInspector bool
-	CheckCycle   time.Duration
+	//Priority     int
+	//Async        bool
 	//todo:定时任务
 
 	TargetDB   []Name
@@ -60,4 +60,11 @@ type TaskConfig struct {
 
 	Todo    []Name
 	NotTodo []Name
+}
+
+type Time struct {
+	Duration time.Duration
+	AtTime   []string
+	Weekly   []time.Weekday
+	Monthly  []int
 }

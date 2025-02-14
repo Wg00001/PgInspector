@@ -2,6 +2,7 @@ package test
 
 import (
 	"PgInspector/adapters/config_reader"
+	"PgInspector/adapters/task/cron"
 	"PgInspector/entities/config"
 	"PgInspector/usecase"
 	"PgInspector/usecase/db"
@@ -18,5 +19,16 @@ func TestTask(t *testing.T) {
 	if err != nil {
 		fmt.Println(err)
 		return
+	}
+}
+
+func TestCron(t *testing.T) {
+	config.InitConfig(config_reader.NewReader("yaml", "../../app/config"))
+	db.Connect(usecase.GetDbConfig("example1"))
+	task.Init(usecase.GetTaskConfig("task1"))
+	cron.Init()
+	cron.AddTask(task.Get("task1"))
+	cron.Start()
+	for {
 	}
 }

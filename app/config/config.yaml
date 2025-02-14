@@ -27,6 +27,10 @@ Task:
     Todo:
       - "1"
       - "2"
+    Time:
+#      Duration: 10s
+      AtTime:
+      - "13:00:01"
   - Async: false
     TaskName: "example_task2"
     CheckCycle: 10m
