@@ -6,6 +6,7 @@ import (
 	"PgInspector/entities/logger"
 	"PgInspector/usecase/db"
 	"PgInspector/utils"
+	"time"
 )
 
 /**
@@ -15,6 +16,7 @@ import (
  */
 
 type Task struct {
+	Identity string //批次编号, task每次启动会生成一个
 	Config   *config.TaskConfig
 	TargetDB []*config.DBConfig
 	Inspects []*insp.Node
@@ -24,7 +26,7 @@ type Task struct {
 func (t *Task) Do() error {
 	logFunc := utils.PrintQuery
 	if t.Logger != nil {
-		logFunc = t.Logger.Gout
+		logFunc = t.Logger.Log
 	}
 	for _, inspect := range t.Inspects {
 		for _, tdb := range t.TargetDB {
@@ -35,7 +37,11 @@ func (t *Task) Do() error {
 			if err != nil {
 				return err
 			}
-			logFunc(query)
+			logFunc(logger.InspLog{
+				Timestamp: time.Now(),
+				TaskName:  t.Config.GetName(),
+				DBName:    tdb.Name,
+			}, query)
 		}
 	}
 	return nil

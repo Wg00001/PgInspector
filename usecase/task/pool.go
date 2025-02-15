@@ -3,7 +3,6 @@ package task
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/task"
-	"PgInspector/usecase"
 	"fmt"
 	"sync"
 )
@@ -16,10 +15,12 @@ import (
 
 var pool = sync.Map{}
 
-func Init(arg *config.TaskConfig) *task.Task {
-	cur := BuildTask(usecase.GetTaskConfig(config.GetNameT(arg)))
-	pool.Store(cur.Config.TaskName, cur)
-	return cur
+func Register(t *task.Task) error {
+	if t == nil {
+		return fmt.Errorf("task init err, build task fail")
+	}
+	pool.Store(t.Config.TaskName, t)
+	return nil
 }
 
 func Get(name config.Name) *task.Task {

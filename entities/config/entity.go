@@ -15,18 +15,18 @@ type Config struct {
 	Default DefaultConfig
 	Task    map[Name]*TaskConfig
 	DB      map[Name]*DBConfig
-	Log     map[Level]*LogConfig
-	Alert   map[Level]*AlertConfig
+	Log     map[ID]*LogConfig
+	Alert   map[ID]*AlertConfig
 	Insp    *insp.Tree
 }
 
 type Name string
-type Level int
+type ID int
 
 type DefaultConfig struct {
 	DefaultDriver     string
-	DefaultLogLevel   Level
-	DefaultAlertLevel Level
+	DefaultLogLevel   ID
+	DefaultAlertLevel ID
 }
 
 type DBConfig struct {
@@ -36,33 +36,33 @@ type DBConfig struct {
 }
 
 type LogConfig struct {
-	LogLevel  Level
-	TableName Name
-	//todo:log
+	LogID  ID
+	Driver string
+	Header map[string]string
 }
 
 type AlertConfig struct {
-	AlertLevel Level
+	AlertLevel ID
 	//todo:alert
 }
 
 type TaskConfig struct {
 	TaskName     Name
-	Time         *Time
+	Time         *Cron
 	AllInspector bool
 	//Priority     int
 	//Async        bool
 	//todo:定时任务
 
 	TargetDB   []Name
-	LogLevel   Level
-	AlertLevel Level
+	LogLevel   ID
+	AlertLevel ID
 
 	Todo    []Name
 	NotTodo []Name
 }
 
-type Time struct {
+type Cron struct {
 	Duration time.Duration
 	AtTime   []string
 	Weekly   []time.Weekday

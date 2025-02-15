@@ -1,0 +1,29 @@
+package logger
+
+import (
+	"PgInspector/entities/config"
+	"PgInspector/entities/logger"
+	"fmt"
+	"sync"
+)
+
+/**
+ * @description: TODO
+ * @author Wg
+ * @date 2025/2/15
+ */
+
+var (
+	pool = make(map[config.ID]logger.Logger)
+	mu   sync.Mutex
+)
+
+func Register(lg logger.Logger) error {
+	if pool == nil {
+		return fmt.Errorf("init logger fail: logger pool is nil")
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	pool[lg.GetID()] = lg
+	return nil
+}

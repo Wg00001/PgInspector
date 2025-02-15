@@ -15,14 +15,12 @@ import (
 
 var pool = sync.Map{}
 
-func Connect(dbConfig *config.DBConfig) *db.SqlDB {
-	if dbConfig == nil {
-		return &db.SqlDB{Err: fmt.Errorf("db config is nil")}
+func Register(sqlDB *db.SqlDB) error {
+	if _, ok := pool.Load(sqlDB.Config.GetName()); ok {
+		return fmt.Errorf("sql db is already exist, db name: %s\n", sqlDB.Config.GetName())
 	}
-	cur := &db.SqlDB{Config: dbConfig}
-	cur.Connect()
-	pool.Store(dbConfig.Name, cur)
-	return cur
+	pool.Store(sqlDB.Config.GetName(), sqlDB)
+	return nil
 }
 
 func Get[T config.Name | config.DBConfig | string](arg T) *db.SqlDB {
@@ -32,6 +30,26 @@ func Get[T config.Name | config.DBConfig | string](arg T) *db.SqlDB {
 	return &db.SqlDB{Err: fmt.Errorf("db config is nil")}
 }
 
-func Delete[T config.Name | config.DBConfig | string](arg T) {
-	pool.Delete(config.GetNameT(arg))
+func Close[T config.Name | config.DBConfig | string](arg T) error {
+	if val, ok := pool.LoadAndDelete(config.GetNameT(arg)); ok {
+		err := val.(*db.SqlDB).Close()
+		if err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("DB not exist")
+	}
+	return nil
+}
+
+func CloseAll() error {
+	var err error
+	pool.Range(func(key, value any) bool {
+		er := Close(key.(config.Name))
+		if er != nil {
+			err = er
+		}
+		return true
+	})
+	return err
 }

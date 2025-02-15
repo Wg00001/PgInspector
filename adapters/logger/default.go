@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"PgInspector/entities/config"
 	"PgInspector/entities/logger"
 	"PgInspector/utils"
 	"database/sql"
@@ -15,8 +16,12 @@ import (
 type DefaultLogger struct {
 }
 
-func (d DefaultLogger) Gout(rows *sql.Rows) {
-	utils.PrintQuery(rows)
+func (d DefaultLogger) GetID() config.ID {
+	return 0
+}
+
+func (d DefaultLogger) Log(l logger.InspLog, rows *sql.Rows) {
+	utils.PrintQuery(l, rows)
 }
 
 var _ logger.Logger = (*DefaultLogger)(nil)

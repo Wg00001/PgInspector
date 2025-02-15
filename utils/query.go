@@ -1,13 +1,14 @@
 package utils
 
 import (
+	"PgInspector/entities/logger"
 	"database/sql"
 	"fmt"
 	"strings"
 )
 
 // PrintQuery 打印查询结果
-func PrintQuery(query *sql.Rows) {
+func PrintQuery(task logger.InspLog, query *sql.Rows) {
 	// 获取列名
 	columns, err := query.Columns()
 	if err != nil {

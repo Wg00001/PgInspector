@@ -1,6 +1,11 @@
 package logger
 
-import "database/sql"
+import (
+	"PgInspector/entities/config"
+	"database/sql"
+	"encoding/json"
+	"time"
+)
 
 /**
  * @description: TODO
@@ -8,6 +13,32 @@ import "database/sql"
  * @date 2025/1/19
  */
 
+//根据config来设置多个logger，不同实现的logger的配置格式不同，在usecase中转换成标准格式送到adapter中各自解析。
+//用户配置task时可以指定loggerId，没有指定则使用0号。
+
 type Logger interface {
-	Gout(*sql.Rows)
+	Log(InspLog, *sql.Rows)
+	GetID() config.ID
+}
+
+type InspLog struct {
+	Timestamp time.Time
+	TaskName  config.Name
+	DBName    config.Name
+	TaskID    string //task批次编号
+	Result    string
+}
+
+func (l InspLog) WithErr(err error) InspLog {
+	l.Result = err.Error()
+	return l
+}
+
+func (l InspLog) WithJSON(val any) InspLog {
+	marshal, err := json.Marshal(val)
+	if err != nil {
+		return l.WithErr(err)
+	}
+	l.Result = string(marshal)
+	return l
 }

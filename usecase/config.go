@@ -61,8 +61,8 @@ func InitConfig() {
 		Default: config.DefaultConfig{},
 		Task:    make(map[config.Name]*config.TaskConfig),
 		DB:      make(map[config.Name]*config.DBConfig),
-		Log:     make(map[config.Level]*config.LogConfig),
-		Alert:   make(map[config.Level]*config.AlertConfig),
+		Log:     make(map[config.ID]*config.LogConfig),
+		Alert:   make(map[config.ID]*config.AlertConfig),
 		Insp:    insp.NewTree(),
 	}
 }
@@ -97,7 +97,7 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 	case config.LogConfig:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.LogConfig)
-			Config.Log[val.LogLevel] = &val
+			Config.Log[val.LogID] = &val
 		})
 	case config.AlertConfig:
 		rangeFunc(func(cfg T) {

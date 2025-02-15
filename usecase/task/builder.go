@@ -5,7 +5,8 @@ import (
 	"PgInspector/entities/insp"
 	"PgInspector/entities/task"
 	"PgInspector/usecase"
-	"log"
+	"fmt"
+	"time"
 )
 
 /**
@@ -14,12 +15,17 @@ import (
  * @date 2025/2/10
  */
 
-func BuildTask(taskCfg *config.TaskConfig) *task.Task {
+func InitTask(taskCfg *config.TaskConfig) (res *task.Task, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("init task fail: %s", err.Error())
+		}
+	}()
 	if taskCfg == nil {
-		log.Println("config is nil")
-		return nil
+		return nil, fmt.Errorf("config is nil")
 	}
-	res := &task.Task{
+	res = &task.Task{
+		Identity: taskCfg.TaskName.Str() + time.Now().Format(time.RFC3339),
 		Config:   taskCfg,
 		TargetDB: make([]*config.DBConfig, 0, len(taskCfg.TargetDB)),
 		Inspects: []*insp.Node{},
@@ -48,5 +54,5 @@ func BuildTask(taskCfg *config.TaskConfig) *task.Task {
 		}
 	}
 	res.Inspects = newArr
-	return res
+	return res, nil
 }
