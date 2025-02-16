@@ -1,6 +1,8 @@
 package test
 
 import (
+	"PgInspector/adapters/task/cron"
+	"PgInspector/usecase/task"
 	"testing"
 )
 
@@ -11,6 +13,12 @@ import (
  */
 
 func TestLogger(t *testing.T) {
-	initTest()
-
+	initConfig()
+	initDB()
+	initTask()
+	cron.Init()
+	cron.AddTask(task.Get("task1"))
+	cron.Start()
+	for {
+	}
 }

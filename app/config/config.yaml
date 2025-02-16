@@ -7,9 +7,9 @@ DB:
   - Name: "example1"
     Driver: "mysql"
     DSN: "root:03719@tcp(127.0.0.1:3306)/example1"
-  - Name: "example_db2"
+  - Name: "example1"
     Driver: "postgres"
-    DSN: "host=127.0.0.1 port=5432 user=user dbname=example_db2 password=password sslmode=disable"
+    DSN: "host=127.0.0.1 port=5432 user=postgres dbname=postgres password=03719 sslmode=disable"
 
 Table:
   - TableName: "example_table1"
@@ -28,7 +28,7 @@ Task:
       - "1"
       - "2"
     Time:
-#      Duration: 10s
+      Duration: 10s
       AtTime:
       - "13:00:01"
   - Async: false
@@ -36,14 +36,10 @@ Task:
     CheckCycle: 10m
 
 Log:
-  - LogLevel: 2
-    Table:
-      TableName: "log_table1"
-      DBConfig: "example_db1"
-  - LogLevel: 3
-    Table:
-      TableName: "log_table2"
-      DBConfig: "example_db2"
+  - ID: 0
+    Driver:
+    DBName: "example2"
+    TableName: "log_table"
 
 Alert:
   - AlertLevel: 3

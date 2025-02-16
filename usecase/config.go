@@ -14,8 +14,15 @@ import (
  */
 
 var (
-	Config config.Config
-	mu     sync.RWMutex
+	Config = config.Config{
+		Default: config.DefaultConfig{},
+		Task:    make(map[config.Name]*config.TaskConfig),
+		DB:      make(map[config.Name]*config.DBConfig),
+		Log:     make(map[config.ID]*config.LogConfig),
+		Alert:   make(map[config.ID]*config.AlertConfig),
+		Insp:    insp.NewTree(),
+	}
+	mu sync.RWMutex
 )
 
 func GetConfig() *config.Config {
@@ -54,17 +61,13 @@ func GetTaskConfig(name config.Name) *config.TaskConfig {
 	return nil
 }
 
-func InitConfig() {
-	mu.Lock()
-	defer mu.Unlock()
-	Config = config.Config{
-		Default: config.DefaultConfig{},
-		Task:    make(map[config.Name]*config.TaskConfig),
-		DB:      make(map[config.Name]*config.DBConfig),
-		Log:     make(map[config.ID]*config.LogConfig),
-		Alert:   make(map[config.ID]*config.AlertConfig),
-		Insp:    insp.NewTree(),
+func GetLoggerConfig(id config.ID) *config.LogConfig {
+	mu.RLock()
+	defer mu.RUnlock()
+	if res, ok := Config.Log[id]; ok {
+		return res
 	}
+	return nil
 }
 
 func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | *insp.Tree](configs ...T) {
@@ -110,6 +113,6 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 			Config.Insp = val
 		})
 	default:
-		log.Printf("type of config_reader nonsupport to Add: %s\n", t)
+		log.Printf("type of config_adapter nonsupport to Add: %s\n", t)
 	}
 }

@@ -1,4 +1,4 @@
-package logger
+package logger_adapter
 
 import (
 	"PgInspector/entities/config"
@@ -13,15 +13,15 @@ import (
  * @date 2025/1/19
  */
 
-type DefaultLogger struct {
+type LogDefault struct {
 }
 
-func (d DefaultLogger) GetID() config.ID {
+func (d LogDefault) GetID() config.ID {
 	return 0
 }
 
-func (d DefaultLogger) Log(l logger.InspLog, rows *sql.Rows) {
+func (d LogDefault) Log(l logger.InspLog, rows *sql.Rows) {
 	utils.PrintQuery(l, rows)
 }
 
-var _ logger.Logger = (*DefaultLogger)(nil)
+var _ logger.Logger = (*LogDefault)(nil)

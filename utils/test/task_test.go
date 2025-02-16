@@ -8,12 +8,16 @@ import (
 )
 
 func TestTask(t *testing.T) {
-	initTest()
+	initConfig()
+	initDB()
+	initTask()
 	fmt.Println(task.Do("task1"))
 }
 
 func TestCron(t *testing.T) {
-	initTest()
+	initConfig()
+	initDB()
+	initTask()
 	cron.Init()
 	cron.AddTask(task.Get("task1"))
 	cron.Start()

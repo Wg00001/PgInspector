@@ -5,6 +5,7 @@ import (
 	"PgInspector/entities/insp"
 	"PgInspector/entities/task"
 	"PgInspector/usecase"
+	"PgInspector/usecase/logger"
 	"fmt"
 	"time"
 )
@@ -24,11 +25,16 @@ func InitTask(taskCfg *config.TaskConfig) (res *task.Task, err error) {
 	if taskCfg == nil {
 		return nil, fmt.Errorf("config is nil")
 	}
+	log := logger.Get(taskCfg.LogLevel)
+	if log == nil {
+		return nil, fmt.Errorf("taskname:  %s\ntask init err: log id not exist, please check log config or init log before init task\n", taskCfg.TaskName)
+	}
 	res = &task.Task{
 		Identity: taskCfg.TaskName.Str() + time.Now().Format(time.RFC3339),
 		Config:   taskCfg,
 		TargetDB: make([]*config.DBConfig, 0, len(taskCfg.TargetDB)),
 		Inspects: []*insp.Node{},
+		Logger:   log,
 	}
 	for _, val := range taskCfg.TargetDB {
 		res.TargetDB = append(res.TargetDB, usecase.GetDbConfig(val))

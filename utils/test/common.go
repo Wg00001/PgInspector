@@ -1,12 +1,13 @@
 package test
 
 import (
-	"PgInspector/adapters/config_reader"
+	"PgInspector/adapters/config_adapter"
+	"PgInspector/adapters/logger_adapter"
 	"PgInspector/entities/config"
 	"PgInspector/usecase"
 	"PgInspector/usecase/db"
+	"PgInspector/usecase/logger"
 	"PgInspector/usecase/task"
-	"fmt"
 )
 
 /**
@@ -15,21 +16,40 @@ import (
  * @date 2025/2/15
  */
 
-// init config,db,task
-func initTest() {
-	config.InitConfig(config_reader.NewReader("yaml", "../../app/config"))
+func initConfig() {
+	config.InitConfig(config_adapter.NewReader("yaml", "../../app/config"))
 
-	initDB, err := db.InitDB(usecase.GetDbConfig("example1"))
+}
+
+func initDB() {
+	d, err := db.InitDB(usecase.GetDbConfig("example1"))
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
-	db.Register(initDB)
+	err = db.Register(d)
+	if err != nil {
+		panic(err)
+	}
+}
 
+func initTask() {
 	t1, err := task.InitTask(usecase.GetTaskConfig("task1"))
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
-	task.Register(t1)
+	err = task.Register(t1)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func initLogger() {
+	lg, err := logger_adapter.NewLogger(usecase.GetLoggerConfig(1))
+	if err != nil {
+		panic(err)
+	}
+	err = logger.Register(lg)
+	if err != nil {
+		panic(err)
+	}
 }

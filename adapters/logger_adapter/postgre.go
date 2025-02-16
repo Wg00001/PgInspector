@@ -1,4 +1,4 @@
-package logger
+package logger_adapter
 
 import (
 	"PgInspector/entities/config"
@@ -16,7 +16,7 @@ import (
  * @date 2025/1/19
  */
 
-func BuildLogPostgre(cfg config.LogConfig) (*LogPostgre, error) {
+func BuildLogPostgre(cfg *config.LogConfig) (*LogPostgre, error) {
 	dbName, ok := cfg.Header["DBName"]
 	if !ok {
 		return nil, fmt.Errorf("Log target db is not exist, dbName:%s\n", dbName)
@@ -29,7 +29,7 @@ func BuildLogPostgre(cfg config.LogConfig) (*LogPostgre, error) {
 }
 
 type LogPostgre struct {
-	Config       config.LogConfig
+	Config       *config.LogConfig
 	LogDBName    config.Name
 	LogTableName config.Name
 }
@@ -56,21 +56,23 @@ func (l LogPostgre) Output(res logger.InspLog) {
 		return
 	}
 
-	// 检查表是否存在
-	exists, err := checkTableExists(logDB.DB, l.LogTableName)
-	if err != nil {
-		log.Printf("Failed to check table existence: %v", err)
-		return
-	}
-
-	// 如果表不存在，则创建表
-	if !exists {
-		err = createTable(logDB.DB, l.LogTableName)
+	if l.LogTableName == "" {
+		l.LogTableName = "inspect_log"
+		// 检查表是否存在
+		exists, err := checkTableExists(logDB.DB, l.LogTableName)
 		if err != nil {
-			log.Printf("Failed to create table: %v", err)
+			log.Printf("Failed to check table existence: %v", err)
 			return
 		}
-		log.Println("Table created successfully")
+
+		// 如果表不存在，则创建表
+		if !exists {
+			err = createTable(logDB.DB, l.LogTableName)
+			if err != nil {
+				log.Printf("Failed to create table: %v", err)
+				return
+			}
+		}
 	}
 
 	// 构建插入 SQL 语句
@@ -80,7 +82,7 @@ func (l LogPostgre) Output(res logger.InspLog) {
     `, l.LogTableName)
 
 	// 执行插入操作
-	_, err = logDB.DB.Exec(insertQuery, res.Timestamp, res.TaskName, res.DBName, res.TaskID, res.Result)
+	_, err := logDB.DB.Exec(insertQuery, res.Timestamp, res.TaskName, res.DBName, res.TaskID, res.Result)
 	if err != nil {
 		log.Printf("Failed to insert log data: %v", err)
 	}

@@ -1,12 +1,12 @@
-package local_yaml
+package config_adapter
 
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/insp"
 	"PgInspector/usecase"
 	"PgInspector/utils"
-	"fmt"
 	"gopkg.in/yaml.v3"
+	"log"
 	"os"
 	"strings"
 )
@@ -26,11 +26,12 @@ type ConfigReaderYaml struct {
 }
 
 type ConfigYaml struct {
-	Default     config.DefaultConfig `yaml:"default"`
-	DBConfigs   []config.DBConfig    `yaml:"db"`
-	TaskConfigs []config.TaskConfig  `yaml:"task"`
-	LogConfig   []config.LogConfig   `yaml:"log"`
-	AlertConfig []config.AlertConfig `yaml:"alert"`
+	Default         config.DefaultConfig     `yaml:"default"`
+	DBConfigs       []config.DBConfig        `yaml:"db"`
+	TaskConfigs     []config.TaskConfig      `yaml:"task"`
+	LogConfigOrigin []map[string]interface{} `yaml:"log"`
+	LogConfig       []config.LogConfig       `yaml:"-"`
+	AlertConfig     []config.AlertConfig     `yaml:"alert"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)
@@ -46,6 +47,29 @@ func (c *ConfigReaderYaml) ReadConfig() error {
 		return err
 	}
 
+	//处理logger设置
+	c.cyaml.LogConfig = make([]config.LogConfig, 0, len(c.cyaml.LogConfigOrigin))
+	for _, o := range c.cyaml.LogConfigOrigin {
+		c.cyaml.LogConfig = append(c.cyaml.LogConfig,
+			func(origin map[string]interface{}) config.LogConfig {
+				defer func() {
+					if r := recover(); r != nil {
+						log.Println(r)
+					}
+				}()
+				cur := config.LogConfig{
+					LogID:  config.ID(origin["id"].(int)),
+					Driver: origin["driver"].(string),
+					Header: make(map[string]string),
+				}
+				for k, v := range origin {
+					if str, ok := v.(string); ok {
+						cur.Header[k] = str
+					}
+				}
+				return cur
+			}(o))
+	}
 	return nil
 }
 
@@ -78,15 +102,11 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 }
 
 func (c *ConfigReaderYaml) SaveIntoConfig() {
-	usecase.InitConfig()
 	usecase.AddConfigs(c.cyaml.DBConfigs...)
 	usecase.AddConfigs(c.cyaml.TaskConfigs...)
 	usecase.AddConfigs(c.cyaml.LogConfig...)
 	usecase.AddConfigs(c.cyaml.AlertConfig...)
 	usecase.AddConfigs(c.insp)
-	fmt.Printf("%+v\n", c.cyaml)
-	fmt.Printf("%+v\n", c.insp)
-	fmt.Printf("%+v\n", usecase.GetConfig())
 }
 
 func (c *ConfigReaderYaml) FormatFilename() {
