@@ -17,11 +17,11 @@ import (
  */
 
 func BuildLogPostgre(cfg *config.LogConfig) (*LogPostgre, error) {
-	dbName, ok := cfg.Header["DBName"]
+	dbName, ok := cfg.Header["dbname"]
 	if !ok {
 		return nil, fmt.Errorf("Log target db is not exist, dbName:%s\n", dbName)
 	}
-	tableName, ok := cfg.Header["TableName"]
+	tableName, ok := cfg.Header["tablename"]
 	if !ok {
 		tableName = "inspect_log"
 	}

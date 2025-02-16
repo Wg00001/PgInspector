@@ -14,7 +14,9 @@ import (
 
 func TestLogger(t *testing.T) {
 	initConfig()
-	initDB()
+	initDB("example1")
+	initDB("example2")
+	initLogger()
 	initTask()
 	cron.Init()
 	cron.AddTask(task.Get("task1"))

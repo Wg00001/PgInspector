@@ -54,7 +54,7 @@ func (c *ConfigReaderYaml) ReadConfig() error {
 			func(origin map[string]interface{}) config.LogConfig {
 				defer func() {
 					if r := recover(); r != nil {
-						log.Println(r)
+						log.Println("fail to read logger config")
 					}
 				}()
 				cur := config.LogConfig{

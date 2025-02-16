@@ -18,6 +18,9 @@ const (
 )
 
 func NewLogger(cfg *config.LogConfig) (logger.Logger, error) {
+	if cfg == nil {
+		return nil, fmt.Errorf("init logger err, logger config is nil")
+	}
 	return NewLoggerWithDriver(cfg.Driver, cfg)
 }
 

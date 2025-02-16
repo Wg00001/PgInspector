@@ -21,8 +21,8 @@ func initConfig() {
 
 }
 
-func initDB() {
-	d, err := db.InitDB(usecase.GetDbConfig("example1"))
+func initDB(name string) {
+	d, err := db.InitDB(usecase.GetDbConfig(config.Name(name)))
 	if err != nil {
 		panic(err)
 	}
@@ -44,7 +44,7 @@ func initTask() {
 }
 
 func initLogger() {
-	lg, err := logger_adapter.NewLogger(usecase.GetLoggerConfig(1))
+	lg, err := logger_adapter.NewLogger(usecase.GetLoggerConfig(0))
 	if err != nil {
 		panic(err)
 	}

@@ -45,7 +45,7 @@ func AddTask(task *task.Task) {
 		return
 	}
 	_, err = s.NewJob(
-		definition, // Cron 表达式
+		definition,
 		gocron.NewTask(func() {
 			err := task.Do()
 			if err != nil {
@@ -68,6 +68,7 @@ func Monitor() {
 
 }
 
+// 将task中的时间设置读取到cron的对象中
 func jobDefinition(t *task.Task) (gocron.JobDefinition, error) {
 	if t.Config.Time == nil {
 		return nil, fmt.Errorf("gocron add task err, time not define, taskname: %s\n", t.Config.TaskName)
