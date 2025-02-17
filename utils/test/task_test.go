@@ -22,6 +22,5 @@ func TestCron(t *testing.T) {
 	cron.Init()
 	cron.AddTask(task.Get("task1"))
 	cron.Start()
-	for {
-	}
+	select {}
 }

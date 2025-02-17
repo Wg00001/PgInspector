@@ -1,6 +1,8 @@
 package config
 
-import "fmt"
+import (
+	"log"
+)
 
 /**
  * @description: TODO
@@ -17,15 +19,14 @@ type Reader interface {
 
 func InitConfig(reader Reader) {
 	reader.FormatFilename()
-	fmt.Println(reader)
 	err := reader.ReadConfig()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v\n", reader)
 	err = reader.ReadInspector()
 	if err != nil {
 		panic(err)
 	}
 	reader.SaveIntoConfig()
+	log.Println("config initiated...")
 }

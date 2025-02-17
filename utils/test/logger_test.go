@@ -1,6 +1,7 @@
 package test
 
 import (
+	"PgInspector/adapters/start"
 	"PgInspector/adapters/task/cron"
 	"PgInspector/usecase/task"
 	"testing"
@@ -21,6 +22,11 @@ func TestLogger(t *testing.T) {
 	cron.Init()
 	cron.AddTask(task.Get("task1"))
 	cron.Start()
-	for {
-	}
+	select {}
+}
+
+func TestStart(t *testing.T) {
+	start.SetConfigPath("../../app/config", "yaml")
+	start.Init()
+	start.Run()
 }

@@ -25,6 +25,14 @@ var (
 	mu sync.RWMutex
 )
 
+func RLock() {
+	mu.RLock()
+}
+
+func RUnlock() {
+	mu.RUnlock()
+}
+
 func GetConfig() *config.Config {
 	mu.RLock()
 	defer mu.RUnlock()

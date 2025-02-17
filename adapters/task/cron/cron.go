@@ -61,7 +61,7 @@ func AddTask(task *task.Task) {
 
 func Start() {
 	s.Start()
-	fmt.Println("cron start...")
+	log.Println("cron start...")
 }
 
 func Monitor() {

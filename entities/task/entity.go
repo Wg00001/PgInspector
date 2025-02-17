@@ -6,7 +6,7 @@ import (
 	"PgInspector/entities/logger"
 	"PgInspector/usecase/db"
 	"PgInspector/utils"
-	"fmt"
+	"log"
 	"time"
 )
 
@@ -45,6 +45,6 @@ func (t *Task) Do() error {
 			}, query)
 		}
 	}
-	fmt.Printf("task finish: %s\n", t.Config.TaskName)
+	log.Printf("task finish: %s\n", t.Config.TaskName)
 	return nil
 }
