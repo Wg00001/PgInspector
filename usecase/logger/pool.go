@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"PgInspector/adapters/logger_adapter"
 	"PgInspector/entities/config"
 	"PgInspector/entities/logger"
 	"fmt"
@@ -13,26 +14,24 @@ import (
  * @date 2025/2/15
  */
 
-var (
-	pool = make(map[config.ID]logger.Logger)
-	mu   sync.Mutex
-)
+var pool = sync.Map{}
 
 func Register(lg logger.Logger) error {
-	if pool == nil {
-		return fmt.Errorf("init logger_adapter fail: logger_adapter pool is nil")
+	if _, ok := pool.Load(lg.GetID()); ok {
+		return fmt.Errorf("logger register fail: logger is already exsit, loggerID repeat")
 	}
-	mu.Lock()
-	defer mu.Unlock()
-	pool[lg.GetID()] = lg
+	pool.Store(lg.GetID(), lg)
 	return nil
 }
 
 func Get(id config.ID) logger.Logger {
-	mu.Lock()
-	defer mu.Unlock()
-	if val, ok := pool[id]; ok {
-		return val
+	val, ok := pool.Load(id)
+	if !ok {
+		return logger_adapter.LogDefault{}
 	}
-	return nil
+	t, ok := val.(logger.Logger)
+	if !ok {
+		return logger_adapter.LogDefault{}
+	}
+	return t
 }

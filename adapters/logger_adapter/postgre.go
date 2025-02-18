@@ -2,7 +2,7 @@ package logger_adapter
 
 import (
 	"PgInspector/entities/config"
-	"PgInspector/entities/insp"
+	db2 "PgInspector/entities/db"
 	"PgInspector/entities/logger"
 	"PgInspector/usecase/db"
 	"database/sql"
@@ -38,7 +38,7 @@ func (l LogPostgre) GetID() config.ID {
 	return l.Config.LogID
 }
 
-func (l LogPostgre) Log(inspLog logger.InspLog, result insp.Result) {
+func (l LogPostgre) Log(inspLog logger.Content, result db2.Result) {
 	//res, err := insp.RowsToMap(rows)
 	//if err != nil {
 	//	l.Output(inspLog.WithErr(err))
@@ -47,7 +47,7 @@ func (l LogPostgre) Log(inspLog logger.InspLog, result insp.Result) {
 	l.Output(inspLog.WithJSON(result))
 }
 
-func (l LogPostgre) Output(res logger.InspLog) {
+func (l LogPostgre) Output(res logger.Content) {
 	db.Get(l.LogDBName)
 	// 获取数据库连接
 	logDB := db.Get(l.LogDBName)

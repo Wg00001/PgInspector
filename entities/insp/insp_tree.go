@@ -1,6 +1,7 @@
 package insp
 
 import (
+	"PgInspector/entities/alerter"
 	"PgInspector/entities/config"
 	"fmt"
 	"sort"
@@ -20,7 +21,7 @@ type Node struct {
 	Children Map
 
 	AlertID   config.ID
-	AlertFunc func(Result) error //包括检查是否符合报警条件，并且发送报警
+	AlertFunc func(alerter.Content) error //包括检查是否符合报警条件，并且发送报警
 }
 
 type Tree struct {

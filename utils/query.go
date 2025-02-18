@@ -8,7 +8,7 @@ import (
 )
 
 // PrintQuery 打印查询结果
-func PrintQuery(task logger.InspLog, query *sql.Rows) {
+func PrintQuery(task logger.Content, query *sql.Rows) {
 	// 获取列名
 	columns, err := query.Columns()
 	if err != nil {

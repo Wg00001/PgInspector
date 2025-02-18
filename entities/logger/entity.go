@@ -2,7 +2,7 @@ package logger
 
 import (
 	"PgInspector/entities/config"
-	"PgInspector/entities/insp"
+	"PgInspector/entities/db"
 	"encoding/json"
 	"time"
 )
@@ -17,11 +17,11 @@ import (
 //用户配置task时可以指定loggerId，没有指定则使用0号。
 
 type Logger interface {
-	Log(InspLog, insp.Result)
+	Log(Content, db.Result)
 	GetID() config.ID
 }
 
-type InspLog struct {
+type Content struct {
 	Timestamp time.Time
 	TaskName  config.Name
 	DBName    config.Name
@@ -29,12 +29,12 @@ type InspLog struct {
 	Result    string
 }
 
-func (l InspLog) WithErr(err error) InspLog {
+func (l Content) WithErr(err error) Content {
 	l.Result = err.Error()
 	return l
 }
 
-func (l InspLog) WithJSON(val any) InspLog {
+func (l Content) WithJSON(val any) Content {
 	marshal, err := json.Marshal(val)
 	if err != nil {
 		return l.WithErr(err)

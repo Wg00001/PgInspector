@@ -2,6 +2,8 @@ package alerter
 
 import (
 	"PgInspector/entities/config"
+	"PgInspector/entities/db"
+	"time"
 )
 
 /**
@@ -10,11 +12,31 @@ import (
  * @date 2025/1/19
  */
 
-type Alert struct {
-	*config.AlertConfig
-	Alerter //insp发现超过阈值后，调用此接口来发送alert
+type Alerter interface {
+	Send(Content) error
 }
 
-type Alerter interface {
-	Send(any)
+type Content struct {
+	TimeStamp    time.Time
+	TaskName     config.Name
+	DBName       config.Name
+	InspName     string
+	Result       db.Result
+	AlertWhen    string
+	AlertBecause string
+}
+
+func (c Content) AddAlertInfo(when, because string) Content {
+	c.AlertWhen = when
+	c.AlertBecause = because
+	return c
+}
+
+func (c Content) AddWhen(when string) Content {
+	c.AlertWhen = when
+	return c
+}
+func (c Content) AddBecause(because string) Content {
+	c.AlertBecause = because
+	return c
 }

@@ -1,4 +1,4 @@
-package insp
+package db
 
 import (
 	"database/sql"

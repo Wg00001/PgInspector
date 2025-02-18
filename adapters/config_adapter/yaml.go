@@ -89,13 +89,13 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 	dfs = func(nowPath string, node map[string]interface{}) {
 		for k, v := range node {
 			switch t := v.(type) {
+			//todo:alerter_adapter config
 			case map[string]interface{}:
 				c.insp.AddChild(nowPath, &insp.Node{Name: k})
 				dfs(nowPath+k, t)
 			case string:
 				c.insp.AddChild(nowPath, &insp.Node{Name: k, SQL: t})
 			case []interface{}:
-				//todo:alerter_adapter config
 			}
 		}
 	}

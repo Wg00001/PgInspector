@@ -1,7 +1,9 @@
 package task
 
 import (
+	"PgInspector/entities/alerter"
 	"PgInspector/entities/config"
+	db2 "PgInspector/entities/db"
 	"PgInspector/entities/insp"
 	"PgInspector/entities/logger"
 	"PgInspector/usecase/db"
@@ -33,19 +35,29 @@ func (t *Task) Do() error {
 			if err != nil {
 				return err
 			}
-			result, err := insp.RowsToMap(query)
+			result, err := db2.RowsToMap(query)
 			if err != nil {
 				return err
 			}
-			err = inspect.AlertFunc(result)
-			if err != nil {
-				return err
-			}
-			t.Logger.Log(logger.InspLog{
+
+			//记录
+			t.Logger.Log(logger.Content{
 				Timestamp: time.Now(),
 				TaskName:  t.Config.GetName(),
 				DBName:    tdb.Name,
 			}, result)
+
+			//报警
+			err = inspect.AlertFunc(alerter.Content{
+				TimeStamp: time.Now(),
+				TaskName:  t.Config.GetName(),
+				DBName:    tdb.Name,
+				InspName:  inspect.Name,
+				Result:    result,
+			})
+			if err != nil {
+				return err
+			}
 		}
 	}
 	log.Printf("task finish: %s\n", t.Config.TaskName)
