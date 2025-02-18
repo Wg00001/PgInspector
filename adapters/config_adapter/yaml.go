@@ -31,7 +31,7 @@ type ConfigYaml struct {
 	TaskConfigs     []config.TaskConfig      `yaml:"task"`
 	LogConfigOrigin []map[string]interface{} `yaml:"log"`
 	LogConfig       []config.LogConfig       `yaml:"-"`
-	AlertConfig     []config.AlertConfig     `yaml:"alert"`
+	AlertConfig     []config.AlertConfig     `yaml:"alerter_adapter"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)
@@ -94,6 +94,8 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 				dfs(nowPath+k, t)
 			case string:
 				c.insp.AddChild(nowPath, &insp.Node{Name: k, SQL: t})
+			case []interface{}:
+				//todo:alerter_adapter config
 			}
 		}
 	}

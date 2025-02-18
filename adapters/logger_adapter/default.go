@@ -2,9 +2,9 @@ package logger_adapter
 
 import (
 	"PgInspector/entities/config"
+	"PgInspector/entities/insp"
 	"PgInspector/entities/logger"
-	"PgInspector/utils"
-	"database/sql"
+	"fmt"
 )
 
 /**
@@ -20,8 +20,9 @@ func (d LogDefault) GetID() config.ID {
 	return 0
 }
 
-func (d LogDefault) Log(l logger.InspLog, rows *sql.Rows) {
-	utils.PrintQuery(l, rows)
+func (d LogDefault) Log(l logger.InspLog, result insp.Result) {
+	//utils.PrintQuery(l, rows)
+	fmt.Println(result)
 }
 
 var _ logger.Logger = (*LogDefault)(nil)

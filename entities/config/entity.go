@@ -42,8 +42,9 @@ type LogConfig struct {
 }
 
 type AlertConfig struct {
-	AlertLevel ID
-	//todo:alert
+	AlertID ID
+	Driver  string
+	Header  map[string]string
 }
 
 type TaskConfig struct {
@@ -52,7 +53,7 @@ type TaskConfig struct {
 	AllInspector bool
 	//Priority     int
 	//Async        bool
-	//todo:定时任务
+	//todo:async
 
 	TargetDB   []Name
 	LogLevel   ID

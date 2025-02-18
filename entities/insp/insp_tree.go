@@ -1,6 +1,7 @@
 package insp
 
 import (
+	"PgInspector/entities/config"
 	"fmt"
 	"sort"
 	"strings"
@@ -17,6 +18,9 @@ type Node struct {
 	Name     string
 	SQL      string
 	Children Map
+
+	AlertID   config.ID
+	AlertFunc func(Result) error //包括检查是否符合报警条件，并且发送报警
 }
 
 type Tree struct {
@@ -73,7 +77,7 @@ func (m Map) Arr() []*Node {
 }
 
 func (n *Node) IsInsp() bool {
-	return n.Children == nil
+	return n.SQL != ""
 }
 
 // GetAllInsp 获取该节点的所有insp节点，会寻找至叶子节点

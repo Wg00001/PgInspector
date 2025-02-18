@@ -5,7 +5,6 @@ import (
 	"PgInspector/entities/insp"
 	"PgInspector/entities/logger"
 	"PgInspector/usecase/db"
-	"PgInspector/utils"
 	"log"
 	"time"
 )
@@ -25,10 +24,6 @@ type Task struct {
 }
 
 func (t *Task) Do() error {
-	logFunc := utils.PrintQuery
-	if t.Logger != nil {
-		logFunc = t.Logger.Log
-	}
 	for _, inspect := range t.Inspects {
 		for _, tdb := range t.TargetDB {
 			if tdb == nil {
@@ -38,11 +33,19 @@ func (t *Task) Do() error {
 			if err != nil {
 				return err
 			}
-			logFunc(logger.InspLog{
+			result, err := insp.RowsToMap(query)
+			if err != nil {
+				return err
+			}
+			err = inspect.AlertFunc(result)
+			if err != nil {
+				return err
+			}
+			t.Logger.Log(logger.InspLog{
 				Timestamp: time.Now(),
 				TaskName:  t.Config.GetName(),
 				DBName:    tdb.Name,
-			}, query)
+			}, result)
 		}
 	}
 	log.Printf("task finish: %s\n", t.Config.TaskName)

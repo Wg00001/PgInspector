@@ -16,6 +16,8 @@ import (
  * @date 2025/2/10
  */
 
+// InitTask
+// alert如果没有设置，那么应该继承父节点的alertID
 func InitTask(taskCfg *config.TaskConfig) (res *task.Task, err error) {
 	defer func() {
 		if r := recover(); r != nil {

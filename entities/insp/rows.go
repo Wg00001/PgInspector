@@ -1,4 +1,4 @@
-package utils
+package insp
 
 import (
 	"database/sql"
@@ -11,10 +11,12 @@ import (
  * @date 2025/2/15
  */
 
+type Result []map[string]interface{}
+
 // RowsToMap 将 sql.Rows 转换为 []map[string]interface{} 结构
 // 每行数据转为 map，键为列名，值为对应数据（自动处理类型转换）
 // 返回结果切片及可能发生的错误
-func RowsToMap(rows *sql.Rows) ([]map[string]interface{}, error) {
+func RowsToMap(rows *sql.Rows) (Result, error) {
 	// 获取列名集合
 	columns, err := rows.Columns()
 	if err != nil {

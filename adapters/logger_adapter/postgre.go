@@ -2,9 +2,9 @@ package logger_adapter
 
 import (
 	"PgInspector/entities/config"
+	"PgInspector/entities/insp"
 	"PgInspector/entities/logger"
 	"PgInspector/usecase/db"
-	"PgInspector/utils"
 	"database/sql"
 	"fmt"
 	"log"
@@ -38,13 +38,13 @@ func (l LogPostgre) GetID() config.ID {
 	return l.Config.LogID
 }
 
-func (l LogPostgre) Log(inspLog logger.InspLog, rows *sql.Rows) {
-	res, err := utils.RowsToMap(rows)
-	if err != nil {
-		l.Output(inspLog.WithErr(err))
-		return
-	}
-	l.Output(inspLog.WithJSON(res))
+func (l LogPostgre) Log(inspLog logger.InspLog, result insp.Result) {
+	//res, err := insp.RowsToMap(rows)
+	//if err != nil {
+	//	l.Output(inspLog.WithErr(err))
+	//	return
+	//}
+	l.Output(inspLog.WithJSON(result))
 }
 
 func (l LogPostgre) Output(res logger.InspLog) {
@@ -111,7 +111,7 @@ func createTable(db *sql.DB, tableName config.Name) error {
             task_name TEXT,
             db_name TEXT,
             task_id TEXT,
-            result TEXT
+            result JSONB
         )
     `, tableName.Str())
 	_, err := db.Exec(createQuery)

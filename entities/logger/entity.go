@@ -2,7 +2,7 @@ package logger
 
 import (
 	"PgInspector/entities/config"
-	"database/sql"
+	"PgInspector/entities/insp"
 	"encoding/json"
 	"time"
 )
@@ -17,7 +17,7 @@ import (
 //用户配置task时可以指定loggerId，没有指定则使用0号。
 
 type Logger interface {
-	Log(InspLog, *sql.Rows)
+	Log(InspLog, insp.Result)
 	GetID() config.ID
 }
 
