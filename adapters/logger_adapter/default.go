@@ -16,6 +16,10 @@ import (
 type LogDefault struct {
 }
 
+func (d LogDefault) Init(cfg *config.LogConfig) (logger.Logger, error) {
+	return LogDefault{}, nil
+}
+
 func (d LogDefault) GetID() config.ID {
 	return 0
 }

@@ -19,6 +19,7 @@ import (
 type Logger interface {
 	Log(Content, db.Result)
 	GetID() config.ID
+	Init(cfg *config.LogConfig) (Logger, error)
 }
 
 type Content struct {

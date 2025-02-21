@@ -29,7 +29,7 @@ func NewLoggerWithDriver(driver string, cfg *config.LogConfig) (logger.Logger, e
 	case Default, "":
 		return LogDefault{}, nil
 	case PostgreSQL:
-		return BuildLogPostgre(cfg)
+		return LogPostgre{}.Init(cfg)
 	}
 	return nil, fmt.Errorf("get logger_adapter err, driver is not exist: %s\n", driver)
 }

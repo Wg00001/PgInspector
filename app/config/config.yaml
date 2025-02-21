@@ -18,9 +18,7 @@ Table:
     DBConfig: "example_db2"
 
 Task:
-  - Async: true
-    TaskName: "task1"
-    CheckCycle: 5m
+  - TaskName: "task1"
     TargetDB:
       - "example1"
     Todo:
@@ -38,5 +36,6 @@ Log:
     TableName: ""
 
 Alert:
-  - AlertLevel: 3
-  - AlertLevel: 4
+  - ID: 3
+    Driver: "feishu"
+    WebHook: "https://www.feishu.cn/flow/api/trigger-webhook/49e2149a6a2cbcfaa4baf7e46eadeae5"

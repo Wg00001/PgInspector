@@ -1,7 +1,6 @@
 package config
 
 import (
-	"PgInspector/entities/insp"
 	"time"
 )
 
@@ -17,7 +16,7 @@ type Config struct {
 	DB      map[Name]*DBConfig
 	Log     map[ID]*LogConfig
 	Alert   map[ID]*AlertConfig
-	Insp    *insp.Tree
+	//Insp    *insp.Tree
 }
 
 type Name string

@@ -1,6 +1,7 @@
 package insp
 
 import (
+	"PgInspector/adapters/alerter_adapter"
 	"PgInspector/entities/alerter"
 	"PgInspector/entities/config"
 	"PgInspector/entities/insp"
@@ -17,8 +18,9 @@ import (
  */
 
 const (
-	keyAlertId   = "_alertid"
-	keyAlertWhen = "_alertwhen"
+	keyAlertId   = "_alertId"
+	keyAlertWhen = "_alertWhen"
+	keySQL       = "_sql"
 )
 
 type NodeBuilder struct {
@@ -37,6 +39,13 @@ func (n NodeBuilder) WithName(name string) NodeBuilder {
 
 func (n NodeBuilder) WithSQL(sql string) NodeBuilder {
 	n.SQL = sql
+	return n
+}
+
+func (n NodeBuilder) WithEmptyAlert() NodeBuilder {
+	n.AlertFunc = func(content alerter.Content) error {
+		return alerter_adapter.AlertEmpty{}.Send(content)
+	}
 	return n
 }
 
@@ -59,8 +68,15 @@ func (n NodeBuilder) ParseMap(arg map[string]interface{}) NodeBuilder {
 	} else {
 		delete(arg, keyAlertWhen)
 	}
-
 	n.AlertFunc, n.error = buildAlertFunc(alertWhen.(string), n.AlertID)
+
+	sql, ok := arg[keySQL]
+	if !ok {
+		return n
+	} else {
+		n.SQL = sql.(string)
+		delete(arg, keySQL)
+	}
 
 	return n
 }
@@ -125,7 +141,7 @@ func buildAlertFunc(alertWhen string, alertId config.ID) (func(alerter.Content) 
 				fmt.Printf("[ALERT] Condition triggered: %s %s %s\n",
 					field, operator, expectedValue)
 				fmt.Printf("Current value: %v\n", actualValue)
-				err = alerter2.GetAlert(alertId).Send(content.AddBecause("")) //发送报警
+				err = alerter2.GetAlert(alertId).Send(content.AddWhen(alertWhen).AddBecause("TODO")) //发送报警
 				if err != nil {
 					return err
 				}

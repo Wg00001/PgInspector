@@ -124,12 +124,13 @@ func (t *Tree) AddChild(path string, node *Node) error {
 	//根目录层
 	if path == "" {
 		t.Roots[node.Name] = node
+		return nil
 	}
 
 	//子目录
 	n := t.GetNode(path)
 	if n == nil {
-		return fmt.Errorf("path is not exist: %s\n", path)
+		return fmt.Errorf("Insp tree err: path is not exist: %s\n", path)
 	}
 	if _, ok := n.Children[node.Name]; ok {
 		return fmt.Errorf("node is already exist, path: %s, name: %s \n", path, node.Name)

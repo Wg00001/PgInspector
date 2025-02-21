@@ -27,11 +27,11 @@ func Registry(id config.ID, alert alerter.Alerter) error {
 func GetAlert(id config.ID) alerter.Alerter {
 	val, ok := pool.Load(id)
 	if !ok {
-		return alerter_adapter.EmptyAlert{}
+		return alerter_adapter.AlerterDefault{}
 	}
 	t, ok := val.(alerter.Alerter)
 	if !ok {
-		return alerter_adapter.EmptyAlert{}
+		return alerter_adapter.AlerterDefault{}
 	}
 	return t
 }

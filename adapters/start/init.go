@@ -1,11 +1,13 @@
 package start
 
 import (
+	"PgInspector/adapters/alerter_adapter"
 	"PgInspector/adapters/config_adapter"
 	"PgInspector/adapters/logger_adapter"
 	"PgInspector/adapters/task/cron"
 	"PgInspector/entities/config"
 	"PgInspector/usecase"
+	"PgInspector/usecase/alerter"
 	"PgInspector/usecase/db"
 	"PgInspector/usecase/logger"
 	"PgInspector/usecase/task"
@@ -49,6 +51,7 @@ func Init() {
 	printErr(initLogger())
 	printErr(initTask())
 	printErr(initCron())
+	printErr(initAlert())
 	log.Println("System Init Succeed !!!")
 }
 
@@ -108,6 +111,23 @@ func initCron() error {
 	taskConfigs := wg.MapToValueSlice(usecase.Config.Task)
 	for _, cfg := range taskConfigs {
 		cron.AddTask(task.Get(cfg.TaskName))
+	}
+	return nil
+}
+
+func initAlert() error {
+	usecase.RLock()
+	defer usecase.RUnlock()
+	alertConfigs := wg.MapToValueSlice(usecase.Config.Alert)
+	for _, v := range alertConfigs {
+		a, err := alerter_adapter.NewAlerter(v)
+		if err != nil {
+			return err
+		}
+		err = alerter.Registry(v.AlertID, a)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

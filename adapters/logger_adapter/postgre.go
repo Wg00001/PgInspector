@@ -16,22 +16,23 @@ import (
  * @date 2025/1/19
  */
 
-func BuildLogPostgre(cfg *config.LogConfig) (*LogPostgre, error) {
+type LogPostgre struct {
+	Config       *config.LogConfig
+	LogDBName    config.Name
+	LogTableName config.Name
+}
+
+func (l LogPostgre) Init(cfg *config.LogConfig) (logger.Logger, error) {
 	dbName, ok := cfg.Header["dbname"]
 	if !ok {
-		return nil, fmt.Errorf("Log target db is not exist, dbName:%s\n", dbName)
+		return LogPostgre{}, fmt.Errorf("Log target db is not exist, dbName:%s\n", dbName)
 	}
 	tableName, ok := cfg.Header["tablename"]
 	if !ok {
 		tableName = "inspect_log"
 	}
-	return &LogPostgre{Config: cfg, LogDBName: config.Name(dbName), LogTableName: config.Name(tableName)}, nil
-}
+	return LogPostgre{Config: cfg, LogDBName: config.Name(dbName), LogTableName: config.Name(tableName)}, nil
 
-type LogPostgre struct {
-	Config       *config.LogConfig
-	LogDBName    config.Name
-	LogTableName config.Name
 }
 
 func (l LogPostgre) GetID() config.ID {

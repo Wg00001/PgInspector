@@ -2,6 +2,7 @@ package alerter_adapter
 
 import (
 	"PgInspector/entities/alerter"
+	"PgInspector/entities/config"
 	"fmt"
 )
 
@@ -11,11 +12,15 @@ import (
  * @date 2025/2/18
  */
 
-type EmptyAlert struct {
+type AlerterDefault struct {
 }
 
-func (e EmptyAlert) Send(alerter.Content) error {
+func (e AlerterDefault) Init(config *config.AlertConfig) (alerter.Alerter, error) {
+	return AlerterDefault{}, nil
+}
+
+func (e AlerterDefault) Send(alerter.Content) error {
 	return fmt.Errorf("Alert Err - Empty Alert: this alerter has not init, please check config ")
 }
 
-var _ alerter.Alerter = (*EmptyAlert)(nil)
+var _ alerter.Alerter = (*AlerterDefault)(nil)

@@ -4,9 +4,10 @@ import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/insp"
 	"PgInspector/usecase"
+	insp2 "PgInspector/usecase/insp"
 	"PgInspector/utils"
+	"fmt"
 	"gopkg.in/yaml.v3"
-	"log"
 	"os"
 	"strings"
 )
@@ -26,17 +27,18 @@ type ConfigReaderYaml struct {
 }
 
 type ConfigYaml struct {
-	Default         config.DefaultConfig     `yaml:"default"`
-	DBConfigs       []config.DBConfig        `yaml:"db"`
-	TaskConfigs     []config.TaskConfig      `yaml:"task"`
-	LogConfigOrigin []map[string]interface{} `yaml:"log"`
-	LogConfig       []config.LogConfig       `yaml:"-"`
-	AlertConfig     []config.AlertConfig     `yaml:"alerter_adapter"`
+	Default           config.DefaultConfig     `yaml:"default"`
+	DBConfigs         []config.DBConfig        `yaml:"db"`
+	TaskConfigs       []config.TaskConfig      `yaml:"task"`
+	LogConfigOrigin   []map[string]interface{} `yaml:"log"`
+	LogConfig         []config.LogConfig       `yaml:"-"`
+	AlertConfigOrigin []map[string]interface{} `yaml:"alert"`
+	AlertConfig       []config.AlertConfig     `yaml:"-"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)
 
-func (c *ConfigReaderYaml) ReadConfig() error {
+func (c *ConfigReaderYaml) ReadConfig() (err error) {
 	file, err := os.ReadFile(c.FilePath + c.ConfigName)
 	if err != nil {
 		return err
@@ -54,7 +56,7 @@ func (c *ConfigReaderYaml) ReadConfig() error {
 			func(origin map[string]interface{}) config.LogConfig {
 				defer func() {
 					if r := recover(); r != nil {
-						log.Println("fail to read logger config")
+						err = fmt.Errorf("fail to read logger config")
 					}
 				}()
 				cur := config.LogConfig{
@@ -70,6 +72,35 @@ func (c *ConfigReaderYaml) ReadConfig() error {
 				return cur
 			}(o))
 	}
+	if err != nil {
+		return err
+	}
+
+	c.cyaml.AlertConfig = make([]config.AlertConfig, 0, len(c.cyaml.AlertConfigOrigin))
+	for _, o := range c.cyaml.AlertConfigOrigin {
+		c.cyaml.AlertConfig = append(c.cyaml.AlertConfig,
+			func(origin map[string]interface{}) config.AlertConfig {
+				defer func() {
+					if r := recover(); r != nil {
+						err = fmt.Errorf("fail to read alert config")
+					}
+				}()
+				cur := config.AlertConfig{
+					AlertID: config.ID(origin["id"].(int)),
+					Driver:  origin["driver"].(string),
+					Header:  make(map[string]string),
+				}
+				for k, v := range origin {
+					if str, ok := v.(string); ok {
+						cur.Header[k] = str
+					}
+				}
+				return cur
+			}(o))
+	}
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -78,6 +109,7 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 	if err != nil {
 		return err
 	}
+
 	var origin map[string]interface{}
 	err = yaml.Unmarshal(file, &origin)
 	if err != nil {
@@ -85,22 +117,37 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 	}
 
 	c.insp = insp.NewTree()
-	var dfs func(nowPath string, node map[string]interface{})
-	dfs = func(nowPath string, node map[string]interface{}) {
+	var dfs func(nowPath string, node map[string]interface{}) error
+	dfs = func(nowPath string, node map[string]interface{}) error {
 		for k, v := range node {
 			switch t := v.(type) {
-			//todo:alerter_adapter config
 			case map[string]interface{}:
-				c.insp.AddChild(nowPath, &insp.Node{Name: k})
-				dfs(nowPath+k, t)
+				n, err := insp2.NodeBuilder{}.WithName(k).ParseMap(t).Build()
+				if err != nil {
+					return err
+				}
+				err = c.insp.AddChild(nowPath, &n)
+				if err != nil {
+					return err
+				}
+				err = dfs(nowPath+k, t)
+				if err != nil {
+					return err
+				}
 			case string:
-				c.insp.AddChild(nowPath, &insp.Node{Name: k, SQL: t})
-			case []interface{}:
+				n, err := insp2.NodeBuilder{}.WithName(k).WithSQL(t).WithEmptyAlert().Build()
+				if err != nil {
+					return err
+				}
+				err = c.insp.AddChild(nowPath, &n)
+				if err != nil {
+					return err
+				}
 			}
 		}
+		return nil
 	}
-	dfs("", origin)
-	return nil
+	return dfs("", origin)
 }
 
 func (c *ConfigReaderYaml) SaveIntoConfig() {

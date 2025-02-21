@@ -20,9 +20,9 @@ var (
 		DB:      make(map[config.Name]*config.DBConfig),
 		Log:     make(map[config.ID]*config.LogConfig),
 		Alert:   make(map[config.ID]*config.AlertConfig),
-		Insp:    insp.NewTree(),
 	}
-	mu sync.RWMutex
+	Insp = insp.NewTree()
+	mu   sync.RWMutex
 )
 
 func RLock() {
@@ -51,13 +51,13 @@ func GetDbConfig(name config.Name) *config.DBConfig {
 func GetInsp(path config.Name) *insp.Node {
 	mu.RLock()
 	defer mu.RUnlock()
-	return Config.Insp.GetNode(path.Str())
+	return Insp.GetNode(path.Str())
 }
 
 func GetAllInsp() []*insp.Node {
 	mu.RLock()
 	defer mu.RUnlock()
-	return Config.Insp.AllInsp
+	return Insp.AllInsp
 }
 
 func GetTaskConfig(name config.Name) *config.TaskConfig {
@@ -113,12 +113,12 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 	case config.AlertConfig:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.AlertConfig)
-			Config.Alert[val.AlertLevel] = &val
+			Config.Alert[val.AlertID] = &val
 		})
 	case *insp.Tree:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(*insp.Tree)
-			Config.Insp = val
+			Insp = val
 		})
 	default:
 		log.Printf("type of config_adapter nonsupport to Add: %s\n", t)

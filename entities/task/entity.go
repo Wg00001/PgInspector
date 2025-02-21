@@ -31,6 +31,7 @@ func (t *Task) Do() error {
 			if tdb == nil {
 				continue
 			}
+			//执行SQL
 			query, err := db.Get(tdb.Name).Query(inspect.SQL)
 			if err != nil {
 				return err

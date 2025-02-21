@@ -14,6 +14,7 @@ import (
 
 type Alerter interface {
 	Send(Content) error
+	Init(*config.AlertConfig) (Alerter, error)
 }
 
 type Content struct {
@@ -36,6 +37,7 @@ func (c Content) AddWhen(when string) Content {
 	c.AlertWhen = when
 	return c
 }
+
 func (c Content) AddBecause(because string) Content {
 	c.AlertBecause = because
 	return c
