@@ -20,6 +20,7 @@ type Alerter interface {
 type Content struct {
 	TimeStamp    time.Time
 	TaskName     config.Name
+	TaskID       string
 	DBName       config.Name
 	InspName     string
 	Result       db.Result

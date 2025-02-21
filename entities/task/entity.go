@@ -26,6 +26,7 @@ type Task struct {
 }
 
 func (t *Task) Do() error {
+	taskid := time.Now().Format("20060102_150405")
 	for _, inspect := range t.Inspects {
 		for _, tdb := range t.TargetDB {
 			if tdb == nil {
@@ -46,12 +47,14 @@ func (t *Task) Do() error {
 				Timestamp: time.Now(),
 				TaskName:  t.Config.GetName(),
 				DBName:    tdb.Name,
+				TaskID:    taskid,
 			}, result)
 
 			//报警
 			err = inspect.AlertFunc(alerter.Content{
 				TimeStamp: time.Now(),
 				TaskName:  t.Config.GetName(),
+				TaskID:    taskid,
 				DBName:    tdb.Name,
 				InspName:  inspect.Name,
 				Result:    result,
