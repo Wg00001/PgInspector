@@ -20,12 +20,14 @@ type Logger interface {
 	Log(Content, db.Result)
 	GetID() config.ID
 	Init(cfg *config.LogConfig) (Logger, error)
+	//todo：新增根据insp、task、time来获取历史记录的功能
 }
 
 type Content struct {
 	Timestamp time.Time
 	TaskName  config.Name
 	DBName    config.Name
+	InspName  string //todo: log insp name
 	TaskID    string //task批次编号
 	Result    string
 }

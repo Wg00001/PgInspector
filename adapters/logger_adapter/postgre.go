@@ -57,7 +57,7 @@ func (l LogPostgre) Output(res logger.Content) {
 		return
 	}
 
-	if l.LogTableName == "" {
+	if l.LogTableName == "" || l.LogTableName == "inspect_log" {
 		l.LogTableName = "inspect_log"
 		// 检查表是否存在
 		exists, err := checkTableExists(logDB.DB, l.LogTableName)

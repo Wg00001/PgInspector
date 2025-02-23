@@ -7,6 +7,7 @@ import (
 	"PgInspector/entities/insp"
 	"PgInspector/entities/logger"
 	"PgInspector/usecase/db"
+	logger2 "PgInspector/usecase/logger"
 	"log"
 	"time"
 )
@@ -22,7 +23,6 @@ type Task struct {
 	Config   *config.TaskConfig
 	TargetDB []*config.DBConfig
 	Inspects []*insp.Node
-	logger.Logger
 }
 
 func (t *Task) Do() error {
@@ -43,11 +43,12 @@ func (t *Task) Do() error {
 			}
 
 			//记录
-			t.Logger.Log(logger.Content{
+			logger2.Get(t.Config.LogID).Log(logger.Content{
 				Timestamp: time.Now(),
 				TaskName:  t.Config.GetName(),
-				DBName:    tdb.Name,
 				TaskID:    taskid,
+				DBName:    tdb.Name,
+				//todo:insp name
 			}, result)
 
 			//报警

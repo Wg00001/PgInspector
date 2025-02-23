@@ -50,13 +50,10 @@ type TaskConfig struct {
 	TaskName     Name
 	Time         *Cron
 	AllInspector bool
-	//Priority     int
-	//Async        bool
 	//todo:async
 
-	TargetDB   []Name
-	LogLevel   ID
-	AlertLevel ID
+	LogID    ID
+	TargetDB []Name
 
 	Todo    []Name
 	NotTodo []Name
@@ -67,4 +64,9 @@ type Cron struct {
 	AtTime   []string
 	Weekly   []time.Weekday
 	Monthly  []int
+}
+
+type AiConfig struct {
+	AiName Name
+	Driver string
 }

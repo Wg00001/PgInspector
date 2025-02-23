@@ -19,6 +19,7 @@ Table:
 
 Task:
   - TaskName: "task1"
+
     TargetDB:
       - "example1"
     Todo:
@@ -30,7 +31,7 @@ Task:
       - "13:00:01"
 
 Log:
-  - ID: 0
+  - ID: 1
     Driver: "postgres"
     DBName: "example2"
     TableName: ""
