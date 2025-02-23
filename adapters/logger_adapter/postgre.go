@@ -78,12 +78,12 @@ func (l LogPostgre) Output(res logger.Content) {
 
 	// 构建插入 SQL 语句
 	insertQuery := fmt.Sprintf(`
-        INSERT INTO %s (timestamp, task_name, db_name, task_id, result)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO %s (timestamp, task_name, task_id, inspect_name, db_name, task_id result)
+        VALUES ($1, $2, $3, $4, $5, $6)
     `, l.LogTableName)
 
 	// 执行插入操作
-	_, err := logDB.DB.Exec(insertQuery, res.Timestamp, res.TaskName, res.DBName, res.TaskID, res.Result)
+	_, err := logDB.DB.Exec(insertQuery, res.Timestamp, res.TaskName, res.TaskID, res.InspName, res.DBName, res.Result)
 	if err != nil {
 		log.Printf("Failed to insert log data: %v", err)
 	}
@@ -110,8 +110,9 @@ func createTable(db *sql.DB, tableName config.Name) error {
             id SERIAL PRIMARY KEY,
             timestamp TIMESTAMP,
             task_name TEXT,
-            db_name TEXT,
             task_id TEXT,
+            inspect_name TEXT
+            db_name TEXT,
             result JSONB
         )
     `, tableName.Str())

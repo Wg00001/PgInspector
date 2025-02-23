@@ -47,8 +47,8 @@ func (t *Task) Do() error {
 				Timestamp: time.Now(),
 				TaskName:  t.Config.GetName(),
 				TaskID:    taskid,
+				InspName:  inspect.Name,
 				DBName:    tdb.Name,
-				//todo:insp name
 			}, result)
 
 			//报警
