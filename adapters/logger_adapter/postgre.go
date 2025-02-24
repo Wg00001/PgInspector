@@ -2,12 +2,13 @@ package logger_adapter
 
 import (
 	"PgInspector/entities/config"
-	db2 "PgInspector/entities/db"
 	"PgInspector/entities/logger"
 	"PgInspector/usecase/db"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 )
 
 /**
@@ -22,6 +23,8 @@ type LogPostgre struct {
 	LogTableName config.Name
 }
 
+var _ logger.Logger = (*LogPostgre)(nil)
+
 func (l LogPostgre) Init(cfg *config.LogConfig) (logger.Logger, error) {
 	dbName, ok := cfg.Header["dbname"]
 	if !ok {
@@ -32,23 +35,13 @@ func (l LogPostgre) Init(cfg *config.LogConfig) (logger.Logger, error) {
 		tableName = "inspect_log"
 	}
 	return LogPostgre{Config: cfg, LogDBName: config.Name(dbName), LogTableName: config.Name(tableName)}, nil
-
 }
 
 func (l LogPostgre) GetID() config.ID {
 	return l.Config.LogID
 }
 
-func (l LogPostgre) Log(inspLog logger.Content, result db2.Result) {
-	//res, err := insp.RowsToMap(rows)
-	//if err != nil {
-	//	l.Output(inspLog.WithErr(err))
-	//	return
-	//}
-	l.Output(inspLog.WithJSON(result))
-}
-
-func (l LogPostgre) Output(res logger.Content) {
+func (l LogPostgre) Log(res logger.Content) {
 	db.Get(l.LogDBName)
 	// 获取数据库连接
 	logDB := db.Get(l.LogDBName)
@@ -75,21 +68,23 @@ func (l LogPostgre) Output(res logger.Content) {
 			}
 		}
 	}
-
+	resultContent, err := json.Marshal(res.Result)
+	if err != nil {
+		log.Printf("log err: json marshal fail - %v", res.Result)
+		resultContent = []byte(err.Error())
+	}
 	// 构建插入 SQL 语句
 	insertQuery := fmt.Sprintf(`
-        INSERT INTO %s (timestamp, task_name, task_id, inspect_name, db_name, task_id result)
+        INSERT INTO %s (timestamp, task_name, task_id, inspect_name, db_name, result)
         VALUES ($1, $2, $3, $4, $5, $6)
     `, l.LogTableName)
 
 	// 执行插入操作
-	_, err := logDB.DB.Exec(insertQuery, res.Timestamp, res.TaskName, res.TaskID, res.InspName, res.DBName, res.Result)
+	_, err = logDB.DB.Exec(insertQuery, res.Timestamp, res.TaskName, res.TaskID, res.InspName, res.DBName, resultContent)
 	if err != nil {
 		log.Printf("Failed to insert log data: %v", err)
 	}
 }
-
-var _ logger.Logger = (*LogPostgre)(nil)
 
 // checkTableExists 检查指定表是否存在
 func checkTableExists(db *sql.DB, tableName config.Name) (bool, error) {
@@ -111,11 +106,127 @@ func createTable(db *sql.DB, tableName config.Name) error {
             timestamp TIMESTAMP,
             task_name TEXT,
             task_id TEXT,
-            inspect_name TEXT
+            inspect_name TEXT,
             db_name TEXT,
             result JSONB
         )
     `, tableName.Str())
 	_, err := db.Exec(createQuery)
 	return err
+}
+
+func (l LogPostgre) ReadLog(filter logger.Filter) ([]logger.Content, error) {
+	// 获取数据库连接
+	logDB := db.Get(l.LogDBName)
+	if logDB == nil {
+		return nil, fmt.Errorf("database connection not found: %s", l.LogDBName)
+	}
+
+	// 构建动态 WHERE 子句和参数
+	var whereClauses []string
+	var args []interface{}
+	argIdx := 1 // PostgreSQL 参数从 $1 开始
+
+	// 处理时间范围
+	if !filter.StartTime.IsZero() && !filter.EndTime.IsZero() {
+		whereClauses = append(whereClauses, fmt.Sprintf("timestamp BETWEEN $%d AND $%d", argIdx, argIdx+1))
+		args = append(args, filter.StartTime, filter.EndTime)
+		argIdx += 2
+	} else if !filter.StartTime.IsZero() {
+		whereClauses = append(whereClauses, fmt.Sprintf("timestamp >= $%d", argIdx))
+		args = append(args, filter.StartTime)
+		argIdx++
+	} else if !filter.EndTime.IsZero() {
+		whereClauses = append(whereClauses, fmt.Sprintf("timestamp <= $%d", argIdx))
+		args = append(args, filter.EndTime)
+		argIdx++
+	}
+
+	// 处理 TaskNames 过滤
+	if len(filter.TaskNames) > 0 {
+		placeholders := make([]string, len(filter.TaskNames))
+		for i := range filter.TaskNames {
+			placeholders[i] = fmt.Sprintf("$%d", argIdx+i)
+		}
+		whereClauses = append(whereClauses, fmt.Sprintf("task_name IN (%s)", strings.Join(placeholders, ",")))
+		args = append(args, interfaceSlice(filter.TaskNames)...)
+		argIdx += len(filter.TaskNames)
+	}
+
+	// 处理 DBNames 过滤
+	if len(filter.DBNames) > 0 {
+		placeholders := make([]string, len(filter.DBNames))
+		for i := range filter.DBNames {
+			placeholders[i] = fmt.Sprintf("$%d", argIdx+i)
+		}
+		whereClauses = append(whereClauses, fmt.Sprintf("db_name IN (%s)", strings.Join(placeholders, ",")))
+		args = append(args, interfaceSlice(filter.DBNames)...)
+		argIdx += len(filter.DBNames)
+	}
+
+	// 处理 TaskIDs 过滤
+	if len(filter.TaskIDs) > 0 {
+		placeholders := make([]string, len(filter.TaskIDs))
+		for i := range filter.TaskIDs {
+			placeholders[i] = fmt.Sprintf("$%d", argIdx+i)
+		}
+		whereClauses = append(whereClauses, fmt.Sprintf("task_id IN (%s)", strings.Join(placeholders, ",")))
+		args = append(args, interfaceSlice(filter.TaskIDs)...)
+		argIdx += len(filter.TaskIDs)
+	}
+
+	// 构建完整 SQL
+	query := `
+        SELECT 
+            id,
+            COALESCE(timestamp, '1970-01-01'::timestamp),
+            COALESCE(task_name, ''),
+            COALESCE(task_id, ''),
+            COALESCE(inspect_name, ''),
+            COALESCE(db_name, ''),
+            COALESCE(result::text, '{}')
+        FROM public.inspect_log
+    `
+	if len(whereClauses) > 0 {
+		query += " WHERE " + strings.Join(whereClauses, " AND ")
+	}
+
+	// 执行查询
+	rows, err := logDB.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("query failed: %w", err)
+	}
+	defer rows.Close()
+
+	// 解析结果
+	var contents []logger.Content
+	for rows.Next() {
+		var content logger.Content
+		if err := rows.Scan(
+			&content.Timestamp,
+			&content.TaskName,
+			&content.TaskID,
+			&content.InspName,
+			&content.DBName,
+			&content.ResultStr,
+		); err != nil {
+			return nil, fmt.Errorf("scan failed: %w", err)
+		}
+		contents = append(contents, content)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	return contents, nil
+}
+
+// 辅助函数：将任意切片转为 []interface{}
+func interfaceSlice[T any](s []T) []interface{} {
+	rs := make([]interface{}, len(s))
+	for i, v := range s {
+		rs[i] = v
+	}
+	return rs
 }

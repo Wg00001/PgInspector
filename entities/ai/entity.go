@@ -1,7 +1,5 @@
 package ai
 
-import "PgInspector/entities/db"
-
 /**
  * @description: TODO
  * @author Wg
@@ -11,13 +9,6 @@ import "PgInspector/entities/db"
 // Analyzer 无状态，接受Temporary并发送给ai，然后解析并返回结果
 type Analyzer interface {
 	Init() error
-	Analyze(Temporary) (string, error) //将暂时保存的巡检结果发给ai分析
-}
-
-// Temporary 无状态，将巡检结果进行暂存和读取，不应该过大
-type Temporary interface {
-	Init() error
-	Append(db.Result) error //将巡检结果暂时保存
-	Read() (string, error)  //获取暂存结果
-	Clear() error           //清空暂存文件
+	// Analyze 将可供ai分析的string发送给AI进行分析，并解析返回结果。
+	Analyze(string) (string, error)
 }

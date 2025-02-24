@@ -67,6 +67,9 @@ type Cron struct {
 }
 
 type AiConfig struct {
-	AiName Name
-	Driver string
+	AiName      Name
+	Api         string
+	ApiKey      string
+	Model       string
+	Temperature float64
 }

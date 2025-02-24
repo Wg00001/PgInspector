@@ -19,7 +19,7 @@ Table:
 
 Task:
   - TaskName: "task1"
-
+    LogID: 1
     TargetDB:
       - "example1"
     Todo:

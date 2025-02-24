@@ -37,7 +37,7 @@ func (t *Task) Do() error {
 			if err != nil {
 				return err
 			}
-			result, err := db2.RowsToMap(query)
+			result, err := db2.RowsToResult(query)
 			if err != nil {
 				return err
 			}
@@ -49,7 +49,8 @@ func (t *Task) Do() error {
 				TaskID:    taskid,
 				InspName:  inspect.Name,
 				DBName:    tdb.Name,
-			}, result)
+				Result:    result,
+			})
 
 			//报警
 			err = inspect.AlertFunc(alerter.Content{

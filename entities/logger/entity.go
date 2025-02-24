@@ -3,7 +3,6 @@ package logger
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/db"
-	"encoding/json"
 	"time"
 )
 
@@ -17,31 +16,18 @@ import (
 //用户配置task时可以指定loggerId，没有指定则使用0号。
 
 type Logger interface {
-	Log(Content, db.Result)
+	Log(Content)
 	GetID() config.ID
 	Init(cfg *config.LogConfig) (Logger, error)
-	//todo：新增根据insp、task、time来获取历史记录的功能
+	ReadLog(Filter) ([]Content, error)
 }
 
 type Content struct {
 	Timestamp time.Time
 	TaskName  config.Name
 	DBName    config.Name
-	InspName  string //todo: log insp name
+	InspName  string
 	TaskID    string //task批次编号
-	Result    string
-}
-
-func (l Content) WithErr(err error) Content {
-	l.Result = err.Error()
-	return l
-}
-
-func (l Content) WithJSON(val any) Content {
-	marshal, err := json.Marshal(val)
-	if err != nil {
-		return l.WithErr(err)
-	}
-	l.Result = string(marshal)
-	return l
+	Result    db.Result
+	ResultStr string
 }
