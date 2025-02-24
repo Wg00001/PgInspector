@@ -19,7 +19,7 @@ type Logger interface {
 	Log(Content)
 	GetID() config.ID
 	Init(cfg *config.LogConfig) (Logger, error)
-	ReadLog(Filter) ([]Content, error)
+	ReadLog(config.LogFilter) ([]Content, error)
 }
 
 type Content struct {

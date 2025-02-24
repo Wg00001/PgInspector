@@ -115,7 +115,7 @@ func createTable(db *sql.DB, tableName config.Name) error {
 	return err
 }
 
-func (l LogPostgre) ReadLog(filter logger.Filter) ([]logger.Content, error) {
+func (l LogPostgre) ReadLog(filter config.LogFilter) ([]logger.Content, error) {
 	// 获取数据库连接
 	logDB := db.Get(l.LogDBName)
 	if logDB == nil {

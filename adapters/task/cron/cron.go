@@ -70,10 +70,10 @@ func Monitor() {
 
 // 将task中的时间设置读取到cron的对象中
 func jobDefinition(t *task.Task) (gocron.JobDefinition, error) {
-	if t.Config.Time == nil {
+	if t.Config.Cron == nil {
 		return nil, fmt.Errorf("gocron add task err, time not define, taskname: %s\n", t.Config.TaskName)
 	}
-	ttime := *t.Config.Time
+	ttime := *t.Config.Cron
 
 	if ttime.Duration != 0 {
 		return gocron.DurationJob(ttime.Duration), nil

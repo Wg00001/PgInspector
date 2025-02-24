@@ -78,7 +78,7 @@ func GetLoggerConfig(id config.ID) *config.LogConfig {
 	return nil
 }
 
-func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | *insp.Tree](configs ...T) {
+func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.AiConfig | *insp.Tree](configs ...T) {
 	if configs == nil || len(configs) == 0 {
 		log.Println("AddConfigs params is nil or empty")
 		return
@@ -114,6 +114,10 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.AlertConfig)
 			Config.Alert[val.AlertID] = &val
+		})
+	case config.AiConfig:
+		rangeFunc(func(cfg T) {
+			Config.Ai = any(cfg).(config.AiConfig)
 		})
 	case *insp.Tree:
 		rangeFunc(func(cfg T) {

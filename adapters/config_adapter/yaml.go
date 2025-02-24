@@ -34,6 +34,7 @@ type ConfigYaml struct {
 	LogConfig         []config.LogConfig       `yaml:"-"`
 	AlertConfigOrigin []map[string]interface{} `yaml:"alert"`
 	AlertConfig       []config.AlertConfig     `yaml:"-"`
+	AiConfig          config.AiConfig          `yaml:"ai"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)

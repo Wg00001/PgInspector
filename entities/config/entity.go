@@ -16,7 +16,10 @@ type Config struct {
 	DB      map[Name]*DBConfig
 	Log     map[ID]*LogConfig
 	Alert   map[ID]*AlertConfig
-	//Insp    *insp.Tree
+
+	Ai     AiConfig
+	AiTask map[Name]*AiTaskConfig
+	//Insp    *insp.Tree //insp不放在此处，避免循环引用
 }
 
 type Name string
@@ -48,7 +51,7 @@ type AlertConfig struct {
 
 type TaskConfig struct {
 	TaskName     Name
-	Time         *Cron
+	Cron         *Cron
 	AllInspector bool
 	//todo:async
 
@@ -67,9 +70,24 @@ type Cron struct {
 }
 
 type AiConfig struct {
-	AiName      Name
+	//AiName      Name
 	Api         string
 	ApiKey      string
 	Model       string
 	Temperature float64
+}
+
+type AiTaskConfig struct {
+	AiTaskName Name
+	Cron       *Cron
+	LogFilter  LogFilter
+}
+
+type LogFilter struct {
+	// 时间范围：Timestamp 需在 [StartTime, EndTime] 之间
+	StartTime time.Time
+	EndTime   time.Time
+	TaskNames []Name   // TaskName 匹配列表
+	DBNames   []Name   // DBName 匹配列表
+	TaskIDs   []string // TaskID 匹配列表
 }

@@ -15,7 +15,7 @@ import (
 type LogDefault struct {
 }
 
-func (d LogDefault) ReadLog(filter logger.Filter) ([]logger.Content, error) {
+func (d LogDefault) ReadLog(filter config.LogFilter) ([]logger.Content, error) {
 	return nil, fmt.Errorf("default logger can't read, pease use other driver")
 }
 
