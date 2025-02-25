@@ -1,4 +1,4 @@
-package ai
+package format
 
 import (
 	"PgInspector/entities/logger"
@@ -11,7 +11,7 @@ import (
 )
 
 /**
- * @description: TODO
+ * @description: 用于将LogContent转成可供AI读取的string格式
  * @author Wg
  * @date 2025/2/24
  */

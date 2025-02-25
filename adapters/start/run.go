@@ -1,7 +1,7 @@
 package start
 
 import (
-	"PgInspector/adapters/task/cron"
+	"PgInspector/adapters/cron"
 )
 
 /**

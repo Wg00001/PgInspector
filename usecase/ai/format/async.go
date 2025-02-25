@@ -1,4 +1,4 @@
-package ai
+package format
 
 import (
 	"PgInspector/entities/logger"

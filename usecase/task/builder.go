@@ -6,7 +6,6 @@ import (
 	"PgInspector/entities/task"
 	"PgInspector/usecase"
 	"fmt"
-	"time"
 )
 
 /**
@@ -15,9 +14,9 @@ import (
  * @date 2025/2/10
  */
 
-// InitTask
+// NewTask
 // alert如果没有设置，那么应该继承父节点的alertID
-func InitTask(taskCfg *config.TaskConfig) (res *task.Task, err error) {
+func NewTask(taskCfg *config.TaskConfig) (res *task.Task, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("init task fail: %s", err.Error())
@@ -27,7 +26,7 @@ func InitTask(taskCfg *config.TaskConfig) (res *task.Task, err error) {
 		return nil, fmt.Errorf("config is nil")
 	}
 	res = &task.Task{
-		Identity: taskCfg.TaskName.Str() + time.Now().Format(time.RFC3339),
+		//Identity: taskCfg.TaskName.Str() + time.Now().Format(time.RFC3339),
 		Config:   taskCfg,
 		TargetDB: make([]*config.DBConfig, 0, len(taskCfg.TargetDB)),
 		Inspects: []*insp.Node{},

@@ -49,6 +49,8 @@ type AlertConfig struct {
 	Header  map[string]string
 }
 
+// ---task(任务)相关配置
+
 type TaskConfig struct {
 	TaskName     Name
 	Cron         *Cron
@@ -69,6 +71,9 @@ type Cron struct {
 	Monthly  []int
 }
 
+// ---Ai相关配置
+
+// AiConfig 用户只能指定一个全局Ai，所有的分析均由此Ai完成
 type AiConfig struct {
 	//AiName      Name
 	Api         string
@@ -80,7 +85,9 @@ type AiConfig struct {
 type AiTaskConfig struct {
 	AiTaskName Name
 	Cron       *Cron
+	LogID      ID
 	LogFilter  LogFilter
+	AlertID    ID
 }
 
 type LogFilter struct {

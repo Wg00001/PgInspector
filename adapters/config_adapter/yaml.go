@@ -18,6 +18,12 @@ import (
  * @date 2025/1/19
  */
 
+const (
+	keyAlertId   = "_alertId"
+	keyAlertWhen = "_alertWhen"
+	keySQL       = "_sql"
+)
+
 type ConfigReaderYaml struct {
 	FilePath   string
 	ConfigName string
@@ -122,8 +128,22 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 	dfs = func(nowPath string, node map[string]interface{}) error {
 		for k, v := range node {
 			switch t := v.(type) {
-			case map[string]interface{}:
-				n, err := insp2.NodeBuilder{}.WithName(k).ParseMap(t).Build()
+			case string: //配置里直接是string说明是SQL，未配置alert
+				n, err := insp2.NodeBuilder{}.WithName(k).WithSQL(t).WithEmptyAlert().Build()
+				if err != nil {
+					return err
+				}
+				err = c.insp.AddChild(nowPath, &n)
+				if err != nil {
+					return err
+				}
+
+			case map[string]interface{}: //是map说明有配置alert, 进行解析
+				nb, err := ParseMap(insp2.NodeBuilder{}.WithName(k), t)
+				if err != nil {
+					return err
+				}
+				n, err := nb.Build()
 				if err != nil {
 					return err
 				}
@@ -135,15 +155,7 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 				if err != nil {
 					return err
 				}
-			case string:
-				n, err := insp2.NodeBuilder{}.WithName(k).WithSQL(t).WithEmptyAlert().Build()
-				if err != nil {
-					return err
-				}
-				err = c.insp.AddChild(nowPath, &n)
-				if err != nil {
-					return err
-				}
+
 			}
 		}
 		return nil
@@ -171,4 +183,35 @@ func (c *ConfigReaderYaml) FormatFilename() {
 	}
 	c.ConfigName = utils.FileNameFormat(c.ConfigName, "yaml")
 	c.InspName = utils.FileNameFormat(c.InspName, "yaml")
+}
+
+func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuilder, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("inspect node build fail, please check inspect config \nerr: %v\n", r)
+		}
+	}()
+	alertId, ok := arg[keyAlertId]
+	if !ok {
+		return n, nil
+	} else {
+		n.AlertID = config.ID(alertId.(int))
+		delete(arg, keyAlertId)
+	}
+	alertWhen, ok := arg[keyAlertWhen]
+	if !ok {
+		return n, nil
+	} else {
+		delete(arg, keyAlertWhen)
+	}
+	n = n.BuildAlertFunc(alertWhen.(string))
+
+	sql, ok := arg[keySQL]
+	if !ok {
+		return n, nil
+	} else {
+		n.SQL = sql.(string)
+		delete(arg, keySQL)
+	}
+	return n, nil
 }

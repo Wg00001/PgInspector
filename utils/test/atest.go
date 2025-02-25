@@ -33,7 +33,7 @@ func initDB(name string) {
 }
 
 func initTask() {
-	t1, err := task.InitTask(usecase.GetTaskConfig("task1"))
+	t1, err := task.NewTask(usecase.GetTaskConfig("task1"))
 	if err != nil {
 		panic(err)
 	}

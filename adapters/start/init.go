@@ -3,8 +3,8 @@ package start
 import (
 	"PgInspector/adapters/alerter_adapter"
 	"PgInspector/adapters/config_adapter"
+	"PgInspector/adapters/cron"
 	"PgInspector/adapters/logger_adapter"
-	"PgInspector/adapters/task/cron"
 	"PgInspector/entities/config"
 	"PgInspector/usecase"
 	"PgInspector/usecase/alerter"
@@ -94,7 +94,7 @@ func initTask() error {
 	defer usecase.RUnlock()
 	taskConfigs := wg.MapToValueSlice(usecase.Config.Task)
 	for _, v := range taskConfigs {
-		t, err := task.InitTask(v)
+		t, err := task.NewTask(v)
 		if err != nil {
 			return err
 		}

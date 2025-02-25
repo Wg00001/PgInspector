@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"PgInspector/entities/config"
 	"PgInspector/entities/task"
 	"fmt"
 	"github.com/go-co-op/gocron/v2"
@@ -39,7 +40,7 @@ func Init() {
 func AddTask(task *task.Task) {
 	mu.Lock()
 	defer mu.Unlock()
-	definition, err := jobDefinition(task)
+	definition, err := jobDefinition(task.Config.Cron)
 	if err != nil {
 		log.Println(err)
 		return
@@ -59,6 +60,12 @@ func AddTask(task *task.Task) {
 	}
 }
 
+func AddAiTask() {
+	mu.Lock()
+	defer mu.Unlock()
+
+}
+
 func Start() {
 	s.Start()
 	log.Println("cron start...")
@@ -69,41 +76,41 @@ func Monitor() {
 }
 
 // 将task中的时间设置读取到cron的对象中
-func jobDefinition(t *task.Task) (gocron.JobDefinition, error) {
-	if t.Config.Cron == nil {
-		return nil, fmt.Errorf("gocron add task err, time not define, taskname: %s\n", t.Config.TaskName)
+func jobDefinition(t *config.Cron) (gocron.JobDefinition, error) {
+	if t == nil {
+		return nil, fmt.Errorf("gocron add task err, time not define, taskname: %s\n", t)
 	}
-	ttime := *t.Config.Cron
+	cConfig := *t
 
-	if ttime.Duration != 0 {
-		return gocron.DurationJob(ttime.Duration), nil
+	if cConfig.Duration != 0 {
+		return gocron.DurationJob(cConfig.Duration), nil
 	}
 	atTime := gocron.NewAtTimes(gocron.NewAtTime(0, 0, 0))
-	if len(ttime.AtTime) != 0 {
+	if len(cConfig.AtTime) != 0 {
 		atTime = gocron.NewAtTimes(
-			gocron.NewAtTime(parseAtTime(ttime.AtTime[0])),
+			gocron.NewAtTime(parseAtTime(cConfig.AtTime[0])),
 			func() []gocron.AtTime {
-				res := make([]gocron.AtTime, 0, len(ttime.AtTime)-1)
-				for i := 1; i < len(ttime.AtTime); i++ {
-					res = append(res, gocron.NewAtTime(parseAtTime(ttime.AtTime[i])))
+				res := make([]gocron.AtTime, 0, len(cConfig.AtTime)-1)
+				for i := 1; i < len(cConfig.AtTime); i++ {
+					res = append(res, gocron.NewAtTime(parseAtTime(cConfig.AtTime[i])))
 				}
 				return res
 			}()...)
 	}
-	if len(ttime.Monthly) != 0 {
+	if len(cConfig.Monthly) != 0 {
 		return gocron.MonthlyJob(1, func() gocron.DaysOfTheMonth {
-			if len(ttime.Monthly) > 1 {
-				return gocron.NewDaysOfTheMonth(ttime.Monthly[0], ttime.Monthly[1:]...)
+			if len(cConfig.Monthly) > 1 {
+				return gocron.NewDaysOfTheMonth(cConfig.Monthly[0], cConfig.Monthly[1:]...)
 			}
-			return gocron.NewDaysOfTheMonth(ttime.Monthly[0])
+			return gocron.NewDaysOfTheMonth(cConfig.Monthly[0])
 		}(), atTime), nil
 	}
-	if len(ttime.Weekly) != 0 {
+	if len(cConfig.Weekly) != 0 {
 		return gocron.WeeklyJob(1, func() gocron.Weekdays {
-			if len(ttime.Weekly) > 1 {
-				return gocron.NewWeekdays(ttime.Weekly[0], ttime.Weekly[1:]...)
+			if len(cConfig.Weekly) > 1 {
+				return gocron.NewWeekdays(cConfig.Weekly[0], cConfig.Weekly[1:]...)
 			}
-			return gocron.NewWeekdays(ttime.Weekly[0])
+			return gocron.NewWeekdays(cConfig.Weekly[0])
 		}(), atTime), nil
 	}
 	return gocron.DailyJob(1, atTime), nil

@@ -12,16 +12,10 @@ import (
 )
 
 /**
- * @description: 构建insp的建造者，在adapter中调用
+ * @description: 用于构建insp的builder, 包括读取
  * @author Wg
  * @date 2025/1/19
  */
-
-const (
-	keyAlertId   = "_alertId"
-	keyAlertWhen = "_alertWhen"
-	keySQL       = "_sql"
-)
 
 type NodeBuilder struct {
 	insp.Node
@@ -49,35 +43,8 @@ func (n NodeBuilder) WithEmptyAlert() NodeBuilder {
 	return n
 }
 
-func (n NodeBuilder) ParseMap(arg map[string]interface{}) NodeBuilder {
-	defer func() {
-		if r := recover(); r != nil {
-			n.error = fmt.Errorf("inspect node build fail, please check inspect config \nerr: %v\n", r)
-		}
-	}()
-	alertId, ok := arg[keyAlertId]
-	if !ok {
-		return n
-	} else {
-		n.AlertID = config.ID(alertId.(int))
-		delete(arg, keyAlertId)
-	}
-	alertWhen, ok := arg[keyAlertWhen]
-	if !ok {
-		return n
-	} else {
-		delete(arg, keyAlertWhen)
-	}
-	n.AlertFunc, n.error = buildAlertFunc(alertWhen.(string), n.AlertID)
-
-	sql, ok := arg[keySQL]
-	if !ok {
-		return n
-	} else {
-		n.SQL = sql.(string)
-		delete(arg, keySQL)
-	}
-
+func (n NodeBuilder) BuildAlertFunc(alertWhen string) NodeBuilder {
+	n.AlertFunc, n.error = buildAlertFunc(alertWhen, n.AlertID)
 	return n
 }
 
