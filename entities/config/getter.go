@@ -1,10 +1,12 @@
 package config
 
 /**
- * @description: TODO
+ * @description:
  * @author Wg
  * @date 2025/2/10
  */
+
+// todo:废弃此文件
 
 type NameGetter interface {
 	GetName() Name

@@ -2,7 +2,6 @@ package task
 
 import (
 	"PgInspector/entities/config"
-	"PgInspector/entities/task"
 	"fmt"
 	"sync"
 )
@@ -15,7 +14,7 @@ import (
 
 var pool = sync.Map{}
 
-func Register(t *task.Task) error {
+func Register(t *Task) error {
 	if t == nil {
 		return fmt.Errorf("task init err, build task fail")
 	}
@@ -23,9 +22,9 @@ func Register(t *task.Task) error {
 	return nil
 }
 
-func Get(name config.Name) *task.Task {
+func Get(name config.Name) *Task {
 	if val, ok := pool.Load(name); ok {
-		return val.(*task.Task)
+		return val.(*Task)
 	}
 	return nil
 }

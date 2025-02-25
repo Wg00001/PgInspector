@@ -76,6 +76,7 @@ type Cron struct {
 // AiConfig 用户只能指定一个全局Ai，所有的分析均由此Ai完成
 type AiConfig struct {
 	//AiName      Name
+	Driver      string
 	Api         string
 	ApiKey      string
 	Model       string

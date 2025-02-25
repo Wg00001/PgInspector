@@ -37,10 +37,10 @@ func Init() {
 	return
 }
 
-func AddTask(task *task.Task) {
+func AddTask(task task.Task) {
 	mu.Lock()
 	defer mu.Unlock()
-	definition, err := jobDefinition(task.Config.Cron)
+	definition, err := jobDefinition(task.GetCron())
 	if err != nil {
 		log.Println(err)
 		return
@@ -50,20 +50,15 @@ func AddTask(task *task.Task) {
 		gocron.NewTask(func() {
 			err := task.Do()
 			if err != nil {
-				log.Printf("gocron do task err: %v", err)
+				log.Printf("gocron do task Err\n- task name: %s\n- err: %v\n--- \n", task.GetName(), err)
 				return
 			}
 		}), // 任务函数和参数
-		gocron.WithName(task.Config.TaskName.Str()))
+		gocron.WithName(task.GetName().Str()),
+	)
 	if err != nil {
 		log.Println(err)
 	}
-}
-
-func AddAiTask() {
-	mu.Lock()
-	defer mu.Unlock()
-
 }
 
 func Start() {
