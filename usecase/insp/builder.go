@@ -108,7 +108,7 @@ func buildAlertFunc(alertWhen string, alertId config.ID) (func(alerter.Content) 
 				fmt.Printf("[ALERT] Condition triggered: %s %s %s\n",
 					field, operator, expectedValue)
 				fmt.Printf("Current value: %v\n", actualValue)
-				err = alerter2.GetAlert(alertId).Send(content.AddWhen(alertWhen).AddBecause("TODO")) //发送报警
+				err = alerter2.GetAlert(alertId).Send(content.AddWhen(alertWhen)) //发送报警
 				if err != nil {
 					return err
 				}

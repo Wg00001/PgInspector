@@ -40,3 +40,14 @@ Alert:
   - ID: 3
     Driver: "feishu"
     WebHook: "https://www.feishu.cn/flow/api/trigger-webhook/49e2149a6a2cbcfaa4baf7e46eadeae5"
+
+AiTask:
+  - AiTaskName: "task1"
+    Cron:
+      Duration: 12s
+    LogID: 1
+    AlertID: 3
+    LogFilter:
+      StartTime: 2025-02-20
+      InspName:
+        - "1"

@@ -7,6 +7,7 @@ import (
 	"PgInspector/adapters/logger_adapter"
 	"PgInspector/entities/config"
 	"PgInspector/usecase"
+	"PgInspector/usecase/ai"
 	"PgInspector/usecase/alerter"
 	"PgInspector/usecase/db"
 	"PgInspector/usecase/logger"
@@ -31,7 +32,7 @@ func Init() {
 	log.SetFlags(log.LstdFlags)
 
 	config.InitConfig(config_adapter.NewReader(pConfigType, pFilePath))
-	err := initDB()
+	err := InitDB()
 	if err != nil {
 		log.Printf("db init fail: %s", err)
 		return
@@ -48,14 +49,17 @@ func Init() {
 		}
 	}
 
-	printErr(initLogger())
-	printErr(initTask())
-	printErr(initCron())
-	printErr(initAlert())
+	cron.Init()
+
+	printErr(InitLogger())
+	//printErr(InitTask())
+	//printErr(initCron())
+	printErr(InitAlert())
+	//printErr(InitAi())
 	log.Println("System Init Succeed !!!")
 }
 
-func initDB() error {
+func InitDB() error {
 	usecase.RLock()
 	defer usecase.RUnlock()
 	dbConfigs := wg.MapToValueSlice(usecase.Config.DB)
@@ -72,7 +76,7 @@ func initDB() error {
 	return nil
 }
 
-func initLogger() error {
+func InitLogger() error {
 	usecase.RLock()
 	defer usecase.RUnlock()
 	logConfigs := wg.MapToValueSlice(usecase.Config.Log)
@@ -89,7 +93,7 @@ func initLogger() error {
 	return nil
 }
 
-func initTask() error {
+func InitTask() error {
 	usecase.RLock()
 	defer usecase.RUnlock()
 	taskConfigs := wg.MapToValueSlice(usecase.Config.Task)
@@ -102,6 +106,7 @@ func initTask() error {
 		if err != nil {
 			return err
 		}
+		cron.AddTask(t)
 	}
 	return nil
 }
@@ -115,7 +120,7 @@ func initCron() error {
 	return nil
 }
 
-func initAlert() error {
+func InitAlert() error {
 	usecase.RLock()
 	defer usecase.RUnlock()
 	alertConfigs := wg.MapToValueSlice(usecase.Config.Alert)
@@ -128,6 +133,17 @@ func initAlert() error {
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func InitAi() error {
+	usecase.RLock()
+	defer usecase.RUnlock()
+	ai.Init(&usecase.Config.Ai)
+	aiTasks := wg.MapToValueSlice(usecase.Config.AiTask)
+	for _, v := range aiTasks {
+		cron.AddTask(ai.NewTask(v))
 	}
 	return nil
 }

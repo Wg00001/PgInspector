@@ -16,7 +16,7 @@ import "PgInspector/entities/config"
 
 // Analyzer 无状态，接受Temporary并发送给ai，然后解析并返回结果
 type Analyzer interface {
-	Init(config.AiConfig) error
+	Init(*config.AiConfig) (Analyzer, error)
 	// Analyze 将可供ai分析的string发送给AI进行分析，并解析返回结果。
 	Analyze(string) (string, error)
 }

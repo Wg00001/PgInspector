@@ -98,4 +98,5 @@ type LogFilter struct {
 	TaskNames []Name   // TaskName 匹配列表
 	DBNames   []Name   // DBName 匹配列表
 	TaskIDs   []string // TaskID 匹配列表
+	InspNames []Name   // Insp匹配列表
 }

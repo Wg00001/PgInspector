@@ -41,6 +41,7 @@ type ConfigYaml struct {
 	AlertConfigOrigin []map[string]interface{} `yaml:"alert"`
 	AlertConfig       []config.AlertConfig     `yaml:"-"`
 	AiConfig          config.AiConfig          `yaml:"ai"`
+	AiTaskConfig      []config.AiTaskConfig    `yaml:"aitask"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)

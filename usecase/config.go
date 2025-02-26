@@ -20,6 +20,8 @@ var (
 		DB:      make(map[config.Name]*config.DBConfig),
 		Log:     make(map[config.ID]*config.LogConfig),
 		Alert:   make(map[config.ID]*config.AlertConfig),
+		Ai:      config.AiConfig{},
+		AiTask:  make(map[config.Name]*config.AiTaskConfig),
 	}
 	Insp = insp.NewTree()
 	mu   sync.RWMutex
