@@ -80,7 +80,7 @@ func GetLoggerConfig(id config.ID) *config.LogConfig {
 	return nil
 }
 
-func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.AiConfig | *insp.Tree](configs ...T) {
+func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.AiConfig | *insp.Tree | config.AiTaskConfig](configs ...T) {
 	if configs == nil || len(configs) == 0 {
 		log.Println("AddConfigs params is nil or empty")
 		return
@@ -125,6 +125,11 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(*insp.Tree)
 			Insp = val
+		})
+	case config.AiTaskConfig:
+		rangeFunc(func(cfg T) {
+			val := any(cfg).(config.AiTaskConfig)
+			Config.AiTask[val.AiTaskName] = &val
 		})
 	default:
 		log.Printf("type of config_adapter nonsupport to Add: %s\n", t)

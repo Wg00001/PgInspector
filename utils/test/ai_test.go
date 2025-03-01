@@ -2,9 +2,11 @@ package test
 
 import (
 	"PgInspector/adapters/ai"
+	"PgInspector/adapters/config_adapter"
 	"PgInspector/adapters/cron"
 	"PgInspector/adapters/start"
 	"PgInspector/entities/config"
+	"PgInspector/usecase"
 	ai2 "PgInspector/usecase/ai"
 	"fmt"
 	"testing"
@@ -33,12 +35,18 @@ func TestOllamaApi(t *testing.T) {
 }
 
 func TestAiTask(t *testing.T) {
-	start.SetConfigPath("../../app/config", "yaml")
+	//start.SetConfigPath("../../app/config", "yaml")
+	config.InitConfig(config_adapter.NewReader(config_adapter.Yaml, "../../app/config"))
 	fmt.Println(start.InitDB())
 	cron.Init()
 	fmt.Println(start.InitLogger())
 	fmt.Println(start.InitAlert())
-
+	//fmt.Println(start.InitAi())
+	analyzer, err := ai.NewAiAnalyzer(&usecase.Config.Ai)
+	if err != nil {
+		fmt.Println(err)
+	}
+	ai2.Registry(analyzer)
 	tsk := ai2.NewTask(&config.AiTaskConfig{
 		AiTaskName: "1",
 		Cron: &config.Cron{

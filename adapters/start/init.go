@@ -1,6 +1,7 @@
 package start
 
 import (
+	ai2 "PgInspector/adapters/ai"
 	"PgInspector/adapters/alerter_adapter"
 	"PgInspector/adapters/config_adapter"
 	"PgInspector/adapters/cron"
@@ -53,9 +54,10 @@ func Init() {
 
 	printErr(InitLogger())
 	//printErr(InitTask())
-	//printErr(initCron())
+	printErr(initCron())
 	printErr(InitAlert())
-	//printErr(InitAi())
+	printErr(InitAiConfig())
+	printErr(InitAiTask())
 	log.Println("System Init Succeed !!!")
 }
 
@@ -113,10 +115,10 @@ func InitTask() error {
 
 func initCron() error {
 	cron.Init()
-	taskConfigs := wg.MapToValueSlice(usecase.Config.Task)
-	for _, cfg := range taskConfigs {
-		cron.AddTask(task.Get(cfg.TaskName))
-	}
+	//taskConfigs := wg.MapToValueSlice(usecase.Config.Task)
+	//for _, cfg := range taskConfigs {
+	//	cron.AddTask(task.Get(cfg.TaskName))
+	//}
 	return nil
 }
 
@@ -137,10 +139,21 @@ func InitAlert() error {
 	return nil
 }
 
-func InitAi() error {
+func InitAiConfig() error {
 	usecase.RLock()
 	defer usecase.RUnlock()
-	ai.Init(&usecase.Config.Ai)
+	analyzer, err := ai2.NewAiAnalyzer(&usecase.Config.Ai)
+	if err != nil {
+		return err
+	}
+	ai.Registry(analyzer)
+	return nil
+}
+
+func InitAiTask() error {
+	usecase.RLock()
+	defer usecase.RUnlock()
+
 	aiTasks := wg.MapToValueSlice(usecase.Config.AiTask)
 	for _, v := range aiTasks {
 		cron.AddTask(ai.NewTask(v))

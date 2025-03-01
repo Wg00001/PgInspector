@@ -169,6 +169,8 @@ func (c *ConfigReaderYaml) SaveIntoConfig() {
 	usecase.AddConfigs(c.cyaml.TaskConfigs...)
 	usecase.AddConfigs(c.cyaml.LogConfig...)
 	usecase.AddConfigs(c.cyaml.AlertConfig...)
+	usecase.AddConfigs(c.cyaml.AiConfig)
+	usecase.AddConfigs(c.cyaml.AiTaskConfig...)
 	usecase.AddConfigs(c.insp)
 }
 

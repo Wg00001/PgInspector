@@ -197,12 +197,13 @@ func (l LogPostgre) ReadLog(filter config.LogFilter) ([]logger.Content, error) {
 		return nil, fmt.Errorf("query failed: %w", err)
 	}
 	defer rows.Close()
-
+	var id int
 	// 解析结果
 	var contents []logger.Content
 	for rows.Next() {
 		var content logger.Content
 		if err := rows.Scan(
+			&id,
 			&content.Timestamp,
 			&content.TaskName,
 			&content.TaskID,
