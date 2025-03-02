@@ -1,8 +1,9 @@
-package alerter_adapter
+package feishu
 
 import (
 	"PgInspector/entities/alerter"
 	"PgInspector/entities/config"
+	alerter2 "PgInspector/usecase/alerter"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -16,12 +17,16 @@ import (
  * @date 2025/2/18
  */
 
+func init() {
+	alerter2.RegisterDriver("feishu", AlerterFeishu{})
+}
+
 type AlerterFeishu struct {
-	config  *config.AlertConfig
+	config  config.AlertConfig
 	WebHook string
 }
 
-func (a AlerterFeishu) Init(config *config.AlertConfig) (alerter.Alerter, error) {
+func (a AlerterFeishu) Init(config config.AlertConfig) (alerter.Alerter, error) {
 	a.config = config
 	if webhook, ok := a.config.Header["webhook"]; !ok {
 		return AlerterFeishu{}, fmt.Errorf("alerter init fail: config without field 'WebHook'")

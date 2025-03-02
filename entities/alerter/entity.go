@@ -14,7 +14,7 @@ import (
 
 type Alerter interface {
 	Send(Content) error
-	Init(*config.AlertConfig) (Alerter, error)
+	Init(config.AlertConfig) (Alerter, error)
 }
 
 type Content struct {

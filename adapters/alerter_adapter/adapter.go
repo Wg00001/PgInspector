@@ -1,6 +1,8 @@
 package alerter_adapter
 
 import (
+	"PgInspector/adapters/alerter_adapter/default"
+	"PgInspector/adapters/alerter_adapter/feishu"
 	"PgInspector/entities/alerter"
 	"PgInspector/entities/config"
 )
@@ -14,8 +16,8 @@ import (
 func NewAlerter(config *config.AlertConfig) (alerter.Alerter, error) {
 	switch config.Driver {
 	case "feishu":
-		return AlerterFeishu{}.Init(config)
+		return feishu.AlerterFeishu{}.Init(config)
 	default:
-		return AlerterDefault{}.Init(config)
+		return _default.AlerterDefault{}.Init(config)
 	}
 }

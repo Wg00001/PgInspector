@@ -1,8 +1,9 @@
-package alerter_adapter
+package _default
 
 import (
 	"PgInspector/entities/alerter"
 	"PgInspector/entities/config"
+	alerter2 "PgInspector/usecase/alerter"
 	"fmt"
 )
 
@@ -12,10 +13,14 @@ import (
  * @date 2025/2/18
  */
 
+func init() {
+	alerter2.RegisterDriver("default", AlerterDefault{})
+}
+
 type AlerterDefault struct {
 }
 
-func (e AlerterDefault) Init(config *config.AlertConfig) (alerter.Alerter, error) {
+func (e AlerterDefault) Init(config config.AlertConfig) (alerter.Alerter, error) {
 	return AlerterDefault{}, nil
 }
 

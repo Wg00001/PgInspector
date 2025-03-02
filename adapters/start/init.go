@@ -131,7 +131,7 @@ func InitAlert() error {
 		if err != nil {
 			return err
 		}
-		err = alerter.Registry(v.AlertID, a)
+		err = alerter.Register(v.AlertID, a)
 		if err != nil {
 			return err
 		}
