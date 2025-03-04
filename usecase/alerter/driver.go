@@ -2,6 +2,7 @@ package alerter
 
 import (
 	"PgInspector/entities/alerter"
+	"PgInspector/entities/config"
 	"fmt"
 	"sync"
 )
@@ -11,6 +12,18 @@ import (
  * @author Wg
  * @date 2025/3/2
  */
+
+func Use(alertConfig config.AlertConfig) error {
+	driver, err := GetDriver(alertConfig.Driver)
+	if err != nil {
+		return err
+	}
+	init, err := driver.Init(alertConfig)
+	if err != nil {
+		return err
+	}
+	return Register(alertConfig.AlertID, init)
+}
 
 var (
 	drivers = make(map[string]alerter.Alerter)

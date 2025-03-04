@@ -4,7 +4,6 @@ import (
 	ai2 "PgInspector/adapters/ai"
 	"PgInspector/adapters/config_adapter"
 	"PgInspector/adapters/cron"
-	"PgInspector/adapters/logger_adapter"
 	"PgInspector/entities/config"
 	"PgInspector/usecase"
 	"PgInspector/usecase/ai"
@@ -17,9 +16,11 @@ import (
 	"log"
 )
 import (
-	_ "PgInspector/adapters/alerter_adapter/default"
-	_ "PgInspector/adapters/alerter_adapter/empty"
-	_ "PgInspector/adapters/alerter_adapter/feishu"
+	_ "PgInspector/adapters/alerter/default"
+	_ "PgInspector/adapters/alerter/empty"
+	_ "PgInspector/adapters/alerter/feishu"
+	_ "PgInspector/adapters/logger/default"
+	_ "PgInspector/adapters/logger/postgres"
 )
 
 /**
@@ -50,7 +51,7 @@ func Init() {
 	}()
 	printErr := func(err error) {
 		if err != nil {
-			panic(fmt.Sprintf("System init fail :\n Err :%s\n", err))
+			panic(fmt.Sprintf("!!!!! System init fail !!!!!\n!!!!! Err :%s\n\n", err))
 		}
 	}
 
@@ -86,11 +87,7 @@ func InitLogger() error {
 	defer usecase.RUnlock()
 	logConfigs := wg.MapToValueSlice(usecase.Config.Log)
 	for _, v := range logConfigs {
-		l, err := logger_adapter.NewLogger(v)
-		if err != nil {
-			return err
-		}
-		err = logger.Register(l)
+		err := logger.Use(*v)
 		if err != nil {
 			return err
 		}
@@ -130,7 +127,7 @@ func InitAlert() error {
 	defer usecase.RUnlock()
 	alertConfigs := wg.MapToValueSlice(usecase.Config.Alert)
 	for _, v := range alertConfigs {
-		//a, err := alerter_adapter.NewAlerter(v)
+		//a, err := alerter.NewAlerter(v)
 		//if err != nil {
 		//	return err
 		//}

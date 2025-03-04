@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"PgInspector/adapters/logger_adapter"
 	"PgInspector/entities/config"
 	"PgInspector/entities/logger"
 	"fmt"
@@ -27,11 +26,13 @@ func Register(lg logger.Logger) error {
 func Get(id config.ID) logger.Logger {
 	val, ok := pool.Load(id)
 	if !ok {
-		return logger_adapter.LogDefault{}
+		res, _ := GetDriver("default")
+		return res
 	}
 	t, ok := val.(logger.Logger)
 	if !ok {
-		return logger_adapter.LogDefault{}
+		res, _ := GetDriver("default")
+		return res
 	}
 	return t
 }

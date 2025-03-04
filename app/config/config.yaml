@@ -51,7 +51,7 @@ AiTask:
   - AiTaskName: "task1"
     Cron:
       AtTime:
-        - "12:06:40"
+        - "16:19:30"
 #      Duration: 1m
     LogID: 1
     AlertID: 3

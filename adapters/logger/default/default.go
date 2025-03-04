@@ -1,9 +1,11 @@
-package logger_adapter
+package _default
 
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/logger"
+	logger2 "PgInspector/usecase/logger"
 	"fmt"
+	"log"
 )
 
 /**
@@ -11,6 +13,10 @@ import (
  * @author Wg
  * @date 2025/1/19
  */
+
+func init() {
+	logger2.RegisterDriver("default", LogDefault{})
+}
 
 type LogDefault struct {
 }
@@ -29,7 +35,7 @@ func (d LogDefault) GetID() config.ID {
 
 func (d LogDefault) Log(l logger.Content) {
 	//utils.PrintQuery(l, rows)
-	fmt.Println(l.Result)
+	log.Println(l.Result)
 }
 
 var _ logger.Logger = (*LogDefault)(nil)

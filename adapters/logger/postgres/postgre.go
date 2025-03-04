@@ -1,9 +1,10 @@
-package logger_adapter
+package postgres
 
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/logger"
 	"PgInspector/usecase/db"
+	logger2 "PgInspector/usecase/logger"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -16,6 +17,10 @@ import (
  * @author Wg
  * @date 2025/1/19
  */
+
+func init() {
+	logger2.RegisterDriver("postgres", LogPostgre{})
+}
 
 type LogPostgre struct {
 	Config       *config.LogConfig

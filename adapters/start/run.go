@@ -2,6 +2,7 @@ package start
 
 import (
 	"PgInspector/adapters/cron"
+	"time"
 )
 
 /**
@@ -13,6 +14,19 @@ import (
 func Run() {
 	cron.Start()
 	select {}
+}
+
+func RunWithTimeAfter(duration time.Duration) {
+	cron.Start()
+	select {
+	case <-time.After(duration):
+		Close()
+		return
+	}
+}
+
+func Close() {
+	cron.Start()
 }
 
 //todo:优雅关闭

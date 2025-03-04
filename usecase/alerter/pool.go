@@ -13,18 +13,6 @@ import (
  * @date 2025/2/15
  */
 
-func Use(alertConfig config.AlertConfig) error {
-	driver, err := GetDriver(alertConfig.Driver)
-	if err != nil {
-		return err
-	}
-	init, err := driver.Init(alertConfig)
-	if err != nil {
-		return err
-	}
-	return Register(alertConfig.AlertID, init)
-}
-
 var pool = sync.Map{}
 
 func Register(id config.ID, alert alerter.Alerter) error {

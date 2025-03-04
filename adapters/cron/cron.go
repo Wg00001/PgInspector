@@ -64,7 +64,16 @@ func AddTask(task task.Task) {
 
 func Start() {
 	s.Start()
-	log.Println("cron start...")
+	log.Println("cron: start...")
+}
+
+func Exit() {
+	err := s.StopJobs()
+	if err != nil {
+		log.Println("cron: " + err.Error())
+		return
+	}
+	log.Println("cron: exit")
 }
 
 func Monitor() {
