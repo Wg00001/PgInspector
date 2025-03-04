@@ -1,6 +1,7 @@
-package config_adapter
+package config
 
 import (
+	"PgInspector/adapters/config/yaml"
 	"PgInspector/entities/config"
 	"fmt"
 )
@@ -18,7 +19,7 @@ const (
 func NewReader(configType, filepath string) config.Reader {
 	switch configType {
 	case Yaml:
-		return &ConfigReaderYaml{FilePath: filepath}
+		return &yaml.ConfigReaderYaml{FilePath: filepath}
 	default:
 		fmt.Printf("reader type not exist: %s\n", configType)
 	}

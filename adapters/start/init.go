@@ -2,12 +2,10 @@ package start
 
 import (
 	ai2 "PgInspector/adapters/ai"
-	"PgInspector/adapters/config_adapter"
 	"PgInspector/adapters/cron"
-	"PgInspector/entities/config"
-	"PgInspector/usecase"
 	"PgInspector/usecase/ai"
 	"PgInspector/usecase/alerter"
+	config2 "PgInspector/usecase/config"
 	"PgInspector/usecase/db"
 	"PgInspector/usecase/logger"
 	"PgInspector/usecase/task"
@@ -19,6 +17,7 @@ import (
 	_ "PgInspector/adapters/alerter/default"
 	_ "PgInspector/adapters/alerter/empty"
 	_ "PgInspector/adapters/alerter/feishu"
+	_ "PgInspector/adapters/config/yaml"
 	_ "PgInspector/adapters/logger/default"
 	_ "PgInspector/adapters/logger/postgres"
 )
@@ -30,23 +29,24 @@ import (
  */
 
 func Init() {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println(r)
-		}
-	}()
 	log.SetFlags(log.LstdFlags)
 
-	config.InitConfig(config_adapter.NewReader(pConfigType, pFilePath))
-	err := InitDB()
+	//config.InitConfig(config.NewReader(pConfigType, pFilePath))
+	err := config2.Open(pConfigType, map[string]string{
+		"filepath": pFilePath,
+	})
 	if err != nil {
-		log.Printf("db init fail: %s", err)
-		return
+		panic(fmt.Sprintf("config open fail: %s", err))
+	}
+	err = InitDB()
+	if err != nil {
+		panic(fmt.Sprintf("db init fail: %s", err))
 	}
 
 	defer func() {
 		if r := recover(); r != nil {
 			db.CloseAll()
+			panic(r)
 		}
 	}()
 	printErr := func(err error) {
@@ -56,19 +56,18 @@ func Init() {
 	}
 
 	cron.Init()
-
 	printErr(InitLogger())
 	printErr(InitTask())
 	printErr(InitAlert())
 	printErr(InitAiConfig())
 	printErr(InitAiTask())
-	log.Println("====== System Init Completely ======")
+	log.Println("====== System NewReader Completely ======")
 }
 
 func InitDB() error {
-	usecase.RLock()
-	defer usecase.RUnlock()
-	dbConfigs := wg.MapToValueSlice(usecase.Config.DB)
+	config2.RLock()
+	defer config2.RUnlock()
+	dbConfigs := wg.MapToValueSlice(config2.Config.DB)
 	for _, v := range dbConfigs {
 		sqlDB, err := db.InitDB(v)
 		if err != nil {
@@ -83,9 +82,9 @@ func InitDB() error {
 }
 
 func InitLogger() error {
-	usecase.RLock()
-	defer usecase.RUnlock()
-	logConfigs := wg.MapToValueSlice(usecase.Config.Log)
+	config2.RLock()
+	defer config2.RUnlock()
+	logConfigs := wg.MapToValueSlice(config2.Config.Log)
 	for _, v := range logConfigs {
 		err := logger.Use(*v)
 		if err != nil {
@@ -96,9 +95,9 @@ func InitLogger() error {
 }
 
 func InitTask() error {
-	usecase.RLock()
-	defer usecase.RUnlock()
-	taskConfigs := wg.MapToValueSlice(usecase.Config.Task)
+	config2.RLock()
+	defer config2.RUnlock()
+	taskConfigs := wg.MapToValueSlice(config2.Config.Task)
 	for _, v := range taskConfigs {
 		t, err := task.NewTask(v)
 		if err != nil {
@@ -123,9 +122,9 @@ func initCron() error {
 }
 
 func InitAlert() error {
-	usecase.RLock()
-	defer usecase.RUnlock()
-	alertConfigs := wg.MapToValueSlice(usecase.Config.Alert)
+	config2.RLock()
+	defer config2.RUnlock()
+	alertConfigs := wg.MapToValueSlice(config2.Config.Alert)
 	for _, v := range alertConfigs {
 		//a, err := alerter.NewAlerter(v)
 		//if err != nil {
@@ -145,9 +144,9 @@ func InitAlert() error {
 }
 
 func InitAiConfig() error {
-	usecase.RLock()
-	defer usecase.RUnlock()
-	analyzer, err := ai2.NewAiAnalyzer(&usecase.Config.Ai)
+	config2.RLock()
+	defer config2.RUnlock()
+	analyzer, err := ai2.NewAiAnalyzer(&config2.Config.Ai)
 	if err != nil {
 		return err
 	}
@@ -156,10 +155,10 @@ func InitAiConfig() error {
 }
 
 func InitAiTask() error {
-	usecase.RLock()
-	defer usecase.RUnlock()
+	config2.RLock()
+	defer config2.RUnlock()
 
-	aiTasks := wg.MapToValueSlice(usecase.Config.AiTask)
+	aiTasks := wg.MapToValueSlice(config2.Config.AiTask)
 	for _, v := range aiTasks {
 		cron.AddTask(ai.NewTask(v))
 	}

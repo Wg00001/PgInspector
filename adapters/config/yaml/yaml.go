@@ -1,9 +1,9 @@
-package config_adapter
+package yaml
 
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/insp"
-	"PgInspector/usecase"
+	config2 "PgInspector/usecase/config"
 	insp2 "PgInspector/usecase/insp"
 	"PgInspector/utils"
 	"fmt"
@@ -19,10 +19,18 @@ import (
  */
 
 const (
+	optionFilepath   = "filepath"
+	optionConfigName = "config"
+	optionInspName   = "inspect"
+
 	keyAlertId   = "_alertId"
 	keyAlertWhen = "_alertWhen"
 	keySQL       = "_sql"
 )
+
+func init() {
+	config2.RegisterDriver("yaml", &ConfigReaderYaml{})
+}
 
 type ConfigReaderYaml struct {
 	FilePath   string
@@ -45,6 +53,29 @@ type ConfigYaml struct {
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)
+
+func (c *ConfigReaderYaml) NewReader(option map[string]string) (_ config.Reader, err error) {
+	filepath, ok := option[optionFilepath]
+	if !ok {
+		return nil, fmt.Errorf("config reader: option deficiency - %s\n", optionFilepath)
+	}
+	configName, ok := option[optionConfigName]
+	if !ok {
+		configName = "config.yaml"
+	}
+	inspName, ok := option[optionInspName]
+	if !ok {
+		inspName = "inspect.yaml"
+	}
+	if !strings.HasSuffix(filepath, "/") {
+		filepath += "/"
+	}
+	return &ConfigReaderYaml{
+		FilePath:   filepath,
+		ConfigName: configName,
+		InspName:   inspName,
+	}, nil
+}
 
 func (c *ConfigReaderYaml) ReadConfig() (err error) {
 	file, err := os.ReadFile(c.FilePath + c.ConfigName)
@@ -165,13 +196,13 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 }
 
 func (c *ConfigReaderYaml) SaveIntoConfig() {
-	usecase.AddConfigs(c.cyaml.DBConfigs...)
-	usecase.AddConfigs(c.cyaml.TaskConfigs...)
-	usecase.AddConfigs(c.cyaml.LogConfig...)
-	usecase.AddConfigs(c.cyaml.AlertConfig...)
-	usecase.AddConfigs(c.cyaml.AiConfig)
-	usecase.AddConfigs(c.cyaml.AiTaskConfig...)
-	usecase.AddConfigs(c.insp)
+	config2.AddConfigs(c.cyaml.DBConfigs...)
+	config2.AddConfigs(c.cyaml.TaskConfigs...)
+	config2.AddConfigs(c.cyaml.LogConfig...)
+	config2.AddConfigs(c.cyaml.AlertConfig...)
+	config2.AddConfigs(c.cyaml.AiConfig)
+	config2.AddConfigs(c.cyaml.AiTaskConfig...)
+	config2.AddConfigs(c.insp)
 }
 
 func (c *ConfigReaderYaml) FormatFilename() {

@@ -3,7 +3,7 @@ package task
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/insp"
-	"PgInspector/usecase"
+	config2 "PgInspector/usecase/config"
 	"fmt"
 )
 
@@ -31,16 +31,16 @@ func NewTask(taskCfg *config.TaskConfig) (res *Task, err error) {
 		Inspects: []*insp.Node{},
 	}
 	for _, val := range taskCfg.TargetDB {
-		res.TargetDB = append(res.TargetDB, usecase.GetDbConfig(val))
+		res.TargetDB = append(res.TargetDB, config2.GetDbConfig(val))
 	}
 
 	//是否全选 (全部insp)
 	if taskCfg.AllInspector {
-		res.Inspects = usecase.GetAllInsp()
+		res.Inspects = config2.GetAllInsp()
 	}
 	//添加todo列表的insp
 	for _, val := range taskCfg.Todo {
-		res.Inspects = append(res.Inspects, usecase.GetInsp(val))
+		res.Inspects = append(res.Inspects, config2.GetInsp(val))
 	}
 	//去掉not to do的insp (使用hash连接)
 	notToDo := make(map[config.Name]bool, len(taskCfg.NotTodo))

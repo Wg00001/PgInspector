@@ -1,9 +1,5 @@
 package config
 
-import (
-	"log"
-)
-
 /**
  * @description: TODO
  * @author Wg
@@ -11,22 +7,8 @@ import (
  */
 
 type Reader interface {
+	NewReader(option map[string]string) (Reader, error)
 	ReadConfig() error
 	ReadInspector() error
 	SaveIntoConfig()
-	FormatFilename()
-}
-
-func InitConfig(reader Reader) {
-	reader.FormatFilename()
-	err := reader.ReadConfig()
-	if err != nil {
-		panic(err)
-	}
-	err = reader.ReadInspector()
-	if err != nil {
-		panic(err)
-	}
-	reader.SaveIntoConfig()
-	log.Println("config initiated...")
 }

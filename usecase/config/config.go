@@ -1,4 +1,4 @@
-package usecase
+package config
 
 import (
 	"PgInspector/entities/config"
@@ -132,6 +132,6 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 			Config.AiTask[val.AiTaskName] = &val
 		})
 	default:
-		log.Printf("type of config_adapter nonsupport to Add: %s\n", t)
+		log.Printf("type of config nonsupport to Add: %s\n", t)
 	}
 }

@@ -20,14 +20,6 @@ var (
 	mu sync.Mutex
 )
 
-//func Init(cfg *config.AiConfig) {
-//	t, err := a.Init(cfg)
-//	if err != nil {
-//		return
-//	}
-//	a = t
-//}
-
 func Registry(oa ai.Analyzer) {
 	mu.Lock()
 	defer mu.Unlock()
