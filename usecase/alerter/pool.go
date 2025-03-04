@@ -1,7 +1,6 @@
 package alerter
 
 import (
-	"PgInspector/adapters/alerter_adapter/default"
 	"PgInspector/entities/alerter"
 	"PgInspector/entities/config"
 	"fmt"
@@ -39,11 +38,13 @@ func Register(id config.ID, alert alerter.Alerter) error {
 func GetAlert(id config.ID) alerter.Alerter {
 	val, ok := pool.Load(id)
 	if !ok {
-		return _default.AlerterDefault{}
+		res, _ := GetDriver("default")
+		return res
 	}
 	t, ok := val.(alerter.Alerter)
 	if !ok {
-		return _default.AlerterDefault{}
+		res, _ := GetDriver("default")
+		return res
 	}
 	return t
 }

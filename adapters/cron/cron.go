@@ -34,6 +34,7 @@ func Init() {
 		panic("initScheduler失败！: " + err.Error())
 	}
 	s = sTemp
+	log.Println("cron: init")
 	return
 }
 
@@ -77,9 +78,18 @@ func jobDefinition(t *config.Cron) (gocron.JobDefinition, error) {
 	}
 	cConfig := *t
 
+	//使用cron表达式
+	if t.CronTab != "" {
+		return gocron.CronJob(t.CronTab, true), nil
+	}
+
+	//时间戳周期任务
 	if cConfig.Duration != 0 {
 		return gocron.DurationJob(cConfig.Duration), nil
 	}
+
+	//gocron.OneTimeJob()
+
 	atTime := gocron.NewAtTimes(gocron.NewAtTime(0, 0, 0))
 	if len(cConfig.AtTime) != 0 {
 		atTime = gocron.NewAtTimes(

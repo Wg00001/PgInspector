@@ -21,7 +21,7 @@ import (
 
 func TestOllamaApi(t *testing.T) {
 	a := ai.AnalyzerOllama{
-		Driver:      "Ollama",
+		Driver:      "ollama",
 		Api:         "http://127.0.0.1:11434",
 		ApiKey:      "",
 		Model:       "deepseek-r1:7b",

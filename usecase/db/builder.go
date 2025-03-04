@@ -21,7 +21,7 @@ func InitDB(dbConfig *config.DBConfig) (*db.SqlDB, error) {
 	if err := cur.Ping(); err != nil {
 		return nil, err
 	} else {
-		fmt.Println("    " + dbConfig.Name + " connected")
+		fmt.Println("    db: connected - " + dbConfig.Name)
 	}
 	return cur, nil
 }

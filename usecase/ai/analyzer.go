@@ -32,7 +32,7 @@ func Registry(oa ai.Analyzer) {
 	mu.Lock()
 	defer mu.Unlock()
 	a = oa
-	log.Printf("ai analyzer has been registry: %#v\n", oa)
+	log.Printf("ai: registry: %#v\n", oa)
 }
 
 func Analyze(input string) (string, error) {

@@ -9,6 +9,7 @@ import (
 	"PgInspector/entities/task"
 	"PgInspector/usecase/db"
 	logger2 "PgInspector/usecase/logger"
+	"fmt"
 	"log"
 	"time"
 )
@@ -20,7 +21,7 @@ import (
  */
 
 type Task struct {
-	Identity string //批次编号, task每次启动会生成一个
+	//Identity string //批次编号, task每次启动会生成一个
 	Config   *config.TaskConfig
 	TargetDB []*config.DBConfig
 	Inspects []*insp.Node
@@ -30,6 +31,7 @@ var _ task.Task = (*Task)(nil)
 
 func (t *Task) Do() error {
 	taskid := time.Now().Format("20060102_150405")
+	fmt.Printf("task: start - %s\n", taskid)
 	for _, inspect := range t.Inspects {
 		for _, tdb := range t.TargetDB {
 			if tdb == nil {
@@ -72,10 +74,11 @@ func (t *Task) Do() error {
 	log.Printf("task finish: %s\n", t.Config.TaskName)
 	return nil
 }
+
 func (t *Task) GetCron() *config.Cron {
 	return t.Config.Cron
 }
 
 func (t *Task) GetName() config.Name {
-	return t.Config.TaskName
+	return "insp_task:" + t.Config.TaskName
 }

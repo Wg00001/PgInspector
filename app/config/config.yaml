@@ -27,8 +27,8 @@ Task:
       - "2"
     Cron:
       Duration: 10s
-      AtTime:
-      - "13:00:01"
+#      AtTime:
+#      - "13:00:01"
 
 Log:
   - ID: 1

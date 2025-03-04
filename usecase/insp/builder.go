@@ -1,7 +1,6 @@
 package insp
 
 import (
-	"PgInspector/adapters/alerter_adapter"
 	"PgInspector/entities/alerter"
 	"PgInspector/entities/config"
 	"PgInspector/entities/insp"
@@ -38,7 +37,7 @@ func (n NodeBuilder) WithSQL(sql string) NodeBuilder {
 
 func (n NodeBuilder) WithEmptyAlert() NodeBuilder {
 	n.AlertFunc = func(content alerter.Content) error {
-		return alerter_adapter.AlertEmpty{}.Send(content)
+		return nil
 	}
 	return n
 }
@@ -105,9 +104,8 @@ func buildAlertFunc(alertWhen string, alertId config.ID) (func(alerter.Content) 
 			}
 
 			if comparisonResult { //如果触发报警条件，则发送报警
-				fmt.Printf("[ALERT] Condition triggered: %s %s %s\n",
-					field, operator, expectedValue)
-				fmt.Printf("Current value: %v\n", actualValue)
+				fmt.Printf("    [ALERT] triggered: %s %s %s; current value: %v\n",
+					field, operator, expectedValue, actualValue)
 				err = alerter2.GetAlert(alertId).Send(content.AddWhen(alertWhen)) //发送报警
 				if err != nil {
 					return err

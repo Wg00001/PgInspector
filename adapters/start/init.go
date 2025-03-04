@@ -2,7 +2,6 @@ package start
 
 import (
 	ai2 "PgInspector/adapters/ai"
-	"PgInspector/adapters/alerter_adapter"
 	"PgInspector/adapters/config_adapter"
 	"PgInspector/adapters/cron"
 	"PgInspector/adapters/logger_adapter"
@@ -16,6 +15,11 @@ import (
 	"fmt"
 	"github.com/wg00001/wgo-sdk/wg"
 	"log"
+)
+import (
+	_ "PgInspector/adapters/alerter_adapter/default"
+	_ "PgInspector/adapters/alerter_adapter/empty"
+	_ "PgInspector/adapters/alerter_adapter/feishu"
 )
 
 /**
@@ -53,12 +57,11 @@ func Init() {
 	cron.Init()
 
 	printErr(InitLogger())
-	//printErr(InitTask())
-	printErr(initCron())
+	printErr(InitTask())
 	printErr(InitAlert())
 	printErr(InitAiConfig())
 	printErr(InitAiTask())
-	log.Println("System Init Succeed !!!")
+	log.Println("====== System Init Completely ======")
 }
 
 func InitDB() error {
@@ -127,11 +130,16 @@ func InitAlert() error {
 	defer usecase.RUnlock()
 	alertConfigs := wg.MapToValueSlice(usecase.Config.Alert)
 	for _, v := range alertConfigs {
-		a, err := alerter_adapter.NewAlerter(v)
-		if err != nil {
-			return err
-		}
-		err = alerter.Register(v.AlertID, a)
+		//a, err := alerter_adapter.NewAlerter(v)
+		//if err != nil {
+		//	return err
+		//}
+		//err = alerter.Register(v.AlertID, a)
+		//if err != nil {
+		//	return err
+		//}
+
+		err := alerter.Use(*v)
 		if err != nil {
 			return err
 		}

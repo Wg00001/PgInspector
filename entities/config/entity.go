@@ -65,6 +65,7 @@ type TaskConfig struct {
 }
 
 type Cron struct {
+	CronTab  string
 	Duration time.Duration
 	AtTime   []string
 	Weekly   []time.Weekday

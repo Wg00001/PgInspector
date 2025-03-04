@@ -60,7 +60,7 @@ func (t *AiTask) GetCron() *config.Cron {
 }
 
 func (t *AiTask) GetName() config.Name {
-	return t.AiTaskName
+	return "ai_task:" + t.AiTaskName
 }
 
 func buildAiAlertContent(t *AiTask, msg string) *alerter2.Content {
