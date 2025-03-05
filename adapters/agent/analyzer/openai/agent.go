@@ -1,9 +1,9 @@
-package agent
+package openai
 
 import (
-	"PgInspector/entities/ai"
+	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
-	ai2 "PgInspector/usecase/ai"
+	ai2 "PgInspector/usecase/agent"
 	"context"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
@@ -17,14 +17,14 @@ import (
  */
 
 func init() {
-	ai2.RegisterDriver("agent", AnalyzerAgent{})
+	ai2.RegisterDriver("openai", AnalyzerAgent{})
 }
 
-type AnalyzerAgent config.AiConfig
+type AnalyzerAgent config.AgentConfig
 
-var _ ai.Analyzer = (*AnalyzerAgent)(nil)
+var _ agent.Analyzer = (*AnalyzerAgent)(nil)
 
-func (a AnalyzerAgent) Init(aiConfig *config.AiConfig) (ai.Analyzer, error) {
+func (a AnalyzerAgent) Init(aiConfig *config.AgentConfig) (agent.Analyzer, error) {
 	return AnalyzerAgent(*aiConfig), nil
 }
 

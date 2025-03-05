@@ -1,9 +1,9 @@
 package ollama
 
 import (
-	"PgInspector/entities/ai"
+	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
-	ai2 "PgInspector/usecase/ai"
+	ai2 "PgInspector/usecase/agent"
 	"github.com/parakeet-nest/parakeet/completion"
 	"github.com/parakeet-nest/parakeet/enums/option"
 	"github.com/parakeet-nest/parakeet/llm"
@@ -21,9 +21,9 @@ func init() {
 	ai2.RegisterDriver("ollama", AnalyzerOllama{})
 }
 
-type AnalyzerOllama config.AiConfig
+type AnalyzerOllama config.AgentConfig
 
-func (a AnalyzerOllama) Init(aiConfig *config.AiConfig) (ai.Analyzer, error) {
+func (a AnalyzerOllama) Init(aiConfig *config.AgentConfig) (agent.Analyzer, error) {
 	return AnalyzerOllama(*aiConfig), nil
 }
 
@@ -41,7 +41,7 @@ func (a AnalyzerOllama) Analyze(s string) (string, error) {
 	return withoutThink(answer.Response), err
 }
 
-var _ ai.Analyzer = (*AnalyzerOllama)(nil)
+var _ agent.Analyzer = (*AnalyzerOllama)(nil)
 
 func withoutThink(s string) string {
 	if strings.Contains(s, "</think>") {

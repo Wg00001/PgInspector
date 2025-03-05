@@ -2,7 +2,7 @@ package start
 
 import (
 	"PgInspector/adapters/cron"
-	"PgInspector/usecase/ai"
+	"PgInspector/usecase/agent"
 	"PgInspector/usecase/alerter"
 	config2 "PgInspector/usecase/config"
 	"PgInspector/usecase/db"
@@ -13,9 +13,9 @@ import (
 	"log"
 )
 import (
-	_ "PgInspector/adapters/ai/agent"
-	_ "PgInspector/adapters/ai/default"
-	_ "PgInspector/adapters/ai/ollama"
+	_ "PgInspector/adapters/agent/analyzer/default"
+	_ "PgInspector/adapters/agent/analyzer/ollama"
+	_ "PgInspector/adapters/agent/analyzer/openai"
 	_ "PgInspector/adapters/alerter/default"
 	_ "PgInspector/adapters/alerter/empty"
 	_ "PgInspector/adapters/alerter/feishu"
@@ -63,7 +63,7 @@ func Init() {
 	printErr(InitAlert())
 	printErr(InitAiConfig())
 	printErr(InitAiTask())
-	log.Println("====== System NewReader Completely ======")
+	log.Println("====== System Init Completely ======")
 }
 
 func InitDB() error {
@@ -118,7 +118,7 @@ func initCron() error {
 	cron.Init()
 	//taskConfigs := wg.MapToValueSlice(usecase.Config.Task)
 	//for _, cfg := range taskConfigs {
-	//	cron.AddTask(task.Get(cfg.TaskName))
+	//	cron.AddTask(task.Get(cfg.Name))
 	//}
 	return nil
 }
@@ -132,7 +132,7 @@ func InitAlert() error {
 		//if err != nil {
 		//	return err
 		//}
-		//err = alerter.Register(v.AlertID, a)
+		//err = alerter.Register(v.ID, a)
 		//if err != nil {
 		//	return err
 		//}
@@ -148,7 +148,7 @@ func InitAlert() error {
 func InitAiConfig() error {
 	config2.RLock()
 	defer config2.RUnlock()
-	return ai.Use(config2.Config.Ai)
+	return agent.Use(config2.Config.Ai)
 }
 
 func InitAiTask() error {
@@ -157,7 +157,7 @@ func InitAiTask() error {
 
 	aiTasks := wg.MapToValueSlice(config2.Config.AiTask)
 	for _, v := range aiTasks {
-		cron.AddTask(ai.NewTask(v))
+		cron.AddTask(agent.NewTask(v))
 	}
 	return nil
 }

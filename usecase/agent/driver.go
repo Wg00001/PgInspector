@@ -1,7 +1,7 @@
-package ai
+package agent
 
 import (
-	"PgInspector/entities/ai"
+	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
 	"fmt"
 	"sync"
@@ -13,7 +13,7 @@ import (
  * @date 2025/3/5
  */
 
-func Use(aiConfig config.AiConfig) error {
+func Use(aiConfig config.AgentConfig) error {
 	driver, err := GetDriver(aiConfig.Driver)
 	if err != nil {
 		return err
@@ -27,28 +27,28 @@ func Use(aiConfig config.AiConfig) error {
 }
 
 var (
-	drivers  = make(map[string]ai.Analyzer)
+	drivers  = make(map[string]agent.Analyzer)
 	muDriver sync.RWMutex
 )
 
-func RegisterDriver(name string, driver ai.Analyzer) {
+func RegisterDriver(name string, driver agent.Analyzer) {
 	muDriver.Lock()
 	defer muDriver.Unlock()
 	if drivers == nil {
-		panic("ai: drivers map is nil")
+		panic("agent: drivers map is nil")
 	}
 	if _, dup := drivers[name]; dup {
-		panic("ai: Register called twice for driver " + name)
+		panic("agent: Register called twice for driver " + name)
 	}
 	drivers[name] = driver
 }
 
-func GetDriver(name string) (ai.Analyzer, error) {
+func GetDriver(name string) (agent.Analyzer, error) {
 	muDriver.RLock()
 	defer muDriver.RUnlock()
 	res, ok := drivers[name]
 	if !ok {
-		return nil, fmt.Errorf("ai: get driver fail %s\n", name)
+		return nil, fmt.Errorf("agent: get driver fail - %s\n", name)
 	}
 	return res, nil
 }

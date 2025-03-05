@@ -71,7 +71,7 @@ func (t *Task) Do() error {
 			}
 		}
 	}
-	log.Printf("task finish: %s\n", t.Config.TaskName)
+	log.Printf("task finish: %s\n", t.Config.Name)
 	return nil
 }
 
@@ -80,5 +80,5 @@ func (t *Task) GetCron() *config.Cron {
 }
 
 func (t *Task) GetName() config.Name {
-	return "insp_task:" + t.Config.TaskName
+	return "insp_task:" + t.Config.Name
 }

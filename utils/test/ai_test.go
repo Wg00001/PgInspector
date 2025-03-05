@@ -1,11 +1,11 @@
 package test
 
 import (
-	"PgInspector/adapters/ai/ollama"
+	"PgInspector/adapters/agent/analyzer/ollama"
 	"PgInspector/adapters/cron"
 	"PgInspector/adapters/start"
 	"PgInspector/entities/config"
-	ai2 "PgInspector/usecase/ai"
+	ai2 "PgInspector/usecase/agent"
 	config2 "PgInspector/usecase/config"
 	"fmt"
 	"testing"
@@ -47,8 +47,8 @@ func TestAiTask(t *testing.T) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	tsk := ai2.NewTask(&config.AiTaskConfig{
-		AiTaskName: "1",
+	tsk := ai2.NewTask(&config.AgentTaskConfig{
+		Name: "1",
 		Cron: &config.Cron{
 			Duration: time.Second * 10,
 		},

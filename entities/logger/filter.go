@@ -16,7 +16,7 @@ type Filter struct {
 	StartTime time.Time
 	EndTime   time.Time
 
-	TaskNames []config.Name // TaskName 匹配列表
+	TaskNames []config.Name // Name 匹配列表
 	DBNames   []config.Name // DBName 匹配列表
 	TaskIDs   []string      // TaskID 匹配列表
 }

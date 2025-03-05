@@ -1,9 +1,9 @@
 package _default
 
 import (
-	"PgInspector/entities/ai"
+	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
-	ai2 "PgInspector/usecase/ai"
+	ai2 "PgInspector/usecase/agent"
 )
 
 /**
@@ -19,7 +19,7 @@ func init() {
 type AnalyzerDefault struct {
 }
 
-func (a AnalyzerDefault) Init(config *config.AiConfig) (ai.Analyzer, error) {
+func (a AnalyzerDefault) Init(config *config.AgentConfig) (agent.Analyzer, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -29,4 +29,4 @@ func (a AnalyzerDefault) Analyze(s string) (string, error) {
 	panic("implement me")
 }
 
-var _ ai.Analyzer = (*AnalyzerDefault)(nil)
+var _ agent.Analyzer = (*AnalyzerDefault)(nil)

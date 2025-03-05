@@ -48,8 +48,8 @@ type ConfigYaml struct {
 	LogConfig         []config.LogConfig       `yaml:"-"`
 	AlertConfigOrigin []map[string]interface{} `yaml:"alert"`
 	AlertConfig       []config.AlertConfig     `yaml:"-"`
-	AiConfig          config.AiConfig          `yaml:"ai"`
-	AiTaskConfig      []config.AiTaskConfig    `yaml:"aitask"`
+	AiConfig          config.AgentConfig       `yaml:"openai"`
+	AiTaskConfig      []config.AgentTaskConfig `yaml:"aitask"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)
@@ -99,7 +99,7 @@ func (c *ConfigReaderYaml) ReadConfig() (err error) {
 					}
 				}()
 				cur := config.LogConfig{
-					LogID:  config.ID(origin["id"].(int)),
+					ID:     config.ID(origin["id"].(int)),
 					Driver: origin["driver"].(string),
 					Header: make(map[string]string),
 				}
@@ -125,9 +125,9 @@ func (c *ConfigReaderYaml) ReadConfig() (err error) {
 					}
 				}()
 				cur := config.AlertConfig{
-					AlertID: config.ID(origin["id"].(int)),
-					Driver:  origin["driver"].(string),
-					Header:  make(map[string]string),
+					ID:     config.ID(origin["id"].(int)),
+					Driver: origin["driver"].(string),
+					Header: make(map[string]string),
 				}
 				for k, v := range origin {
 					if str, ok := v.(string); ok {
@@ -193,6 +193,11 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 		return nil
 	}
 	return dfs("", origin)
+}
+
+func (c *ConfigReaderYaml) ReadAgent() error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (c *ConfigReaderYaml) SaveIntoConfig() {

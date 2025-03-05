@@ -12,13 +12,13 @@ DB:
     DSN: "host=127.0.0.1 port=5432 user=postgres dbname=postgres password=03719 sslmode=disable"
 
 Table:
-  - TableName: "example_table1"
+  - Name: "example_table1"
     DBConfig: "example_db1"
   - TableName: "example_table2"
     DBConfig: "example_db2"
 
 Task:
-  - TaskName: "task1"
+  - Name: "task1"
     LogID: 1
     TargetDB:
       - "example1"
@@ -41,25 +41,19 @@ Alert:
     Driver: "feishu"
     WebHook: "https://www.feishu.cn/flow/api/trigger-webhook/49e2149a6a2cbcfaa4baf7e46eadeae5"
 
-#Ai:
-#  Driver: "ollama"
-#  Api: "http://127.0.0.1:11434"
-#  Model: "deepseek-r1:7b"
-#  Temperature: 0.5
-
-Ai:
-  Driver: "agent"
+Agent:
+  Driver: "openai"
   Api: "https://ark.cn-beijing.volces.com/api/v3"
   ApiKey: "27fbb257-c8e7-452b-810d-2ee0baccf4fc"
   Model: "deepseek-r1-250120"
   Temperature: 0.5
 
 AiTask:
-  - AiTaskName: "task1"
+  - Name: "task1"
     Cron:
       AtTime:
         - "12:07:30"
-#      Duration: 1m
+    #      Duration: 1m
     LogID: 1
     AlertID: 3
     LogFilter:

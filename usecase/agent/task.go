@@ -1,10 +1,10 @@
-package ai
+package agent
 
 import (
 	alerter2 "PgInspector/entities/alerter"
 	"PgInspector/entities/config"
 	"PgInspector/entities/task"
-	"PgInspector/usecase/ai/format"
+	"PgInspector/usecase/agent/format"
 	"PgInspector/usecase/alerter"
 	"PgInspector/usecase/logger"
 	"encoding/json"
@@ -19,11 +19,11 @@ import (
  */
 
 type AiTask struct {
-	*config.AiTaskConfig
+	*config.AgentTaskConfig
 }
 
-func NewTask(taskConfig *config.AiTaskConfig) *AiTask {
-	return &AiTask{AiTaskConfig: taskConfig}
+func NewTask(taskConfig *config.AgentTaskConfig) *AiTask {
+	return &AiTask{AgentTaskConfig: taskConfig}
 }
 
 var _ task.Task = (*AiTask)(nil)
@@ -40,7 +40,7 @@ func (t *AiTask) Do() error {
 		return err
 	}
 	if msg == nil {
-		return fmt.Errorf("Ai task err\n- AiTask name: %v\n- err: log read empty\n---\n", t.AiTaskName)
+		return fmt.Errorf("Ai task err\n- AiTask name: %v\n- err: log read empty\n---\n", t.Name)
 	}
 	//第三和第四步通过调用Analyzer完成
 
@@ -60,13 +60,13 @@ func (t *AiTask) GetCron() *config.Cron {
 }
 
 func (t *AiTask) GetName() config.Name {
-	return "ai_task:" + t.AiTaskName
+	return "ai_task:" + t.Name
 }
 
 func buildAiAlertContent(t *AiTask, msg string) *alerter2.Content {
 	return &alerter2.Content{
 		TimeStamp: time.Now(),
-		TaskName:  "AiAnalyzeTask: " + t.AiTaskName,
+		TaskName:  "AiAnalyzeTask: " + t.Name,
 		TaskID:    time.Now().Format("20060504_150201"),
 		InspName:  logFilterString(t.LogFilter),
 		Result:    []map[string]interface{}{{"message": msg}},

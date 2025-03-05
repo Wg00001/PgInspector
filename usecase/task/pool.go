@@ -18,7 +18,7 @@ func Register(t *Task) error {
 	if t == nil {
 		return fmt.Errorf("task init err, build task fail")
 	}
-	pool.Store(t.Config.TaskName, t)
+	pool.Store(t.Config.Name, t)
 	return nil
 }
 

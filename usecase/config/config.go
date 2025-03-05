@@ -20,8 +20,8 @@ var (
 		DB:      make(map[config.Name]*config.DBConfig),
 		Log:     make(map[config.ID]*config.LogConfig),
 		Alert:   make(map[config.ID]*config.AlertConfig),
-		Ai:      config.AiConfig{},
-		AiTask:  make(map[config.Name]*config.AiTaskConfig),
+		Ai:      config.AgentConfig{},
+		AiTask:  make(map[config.Name]*config.AgentTaskConfig),
 	}
 	Insp = insp.NewTree()
 	mu   sync.RWMutex
@@ -80,7 +80,7 @@ func GetLoggerConfig(id config.ID) *config.LogConfig {
 	return nil
 }
 
-func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.AiConfig | *insp.Tree | config.AiTaskConfig](configs ...T) {
+func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.AgentConfig | *insp.Tree | config.AgentTaskConfig](configs ...T) {
 	if configs == nil || len(configs) == 0 {
 		log.Println("AddConfigs params is nil or empty")
 		return
@@ -105,31 +105,31 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 	case config.TaskConfig:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.TaskConfig)
-			Config.Task[val.TaskName] = &val
+			Config.Task[val.Name] = &val
 		})
 	case config.LogConfig:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.LogConfig)
-			Config.Log[val.LogID] = &val
+			Config.Log[val.ID] = &val
 		})
 	case config.AlertConfig:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.AlertConfig)
-			Config.Alert[val.AlertID] = &val
+			Config.Alert[val.ID] = &val
 		})
-	case config.AiConfig:
+	case config.AgentConfig:
 		rangeFunc(func(cfg T) {
-			Config.Ai = any(cfg).(config.AiConfig)
+			Config.Ai = any(cfg).(config.AgentConfig)
 		})
 	case *insp.Tree:
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(*insp.Tree)
 			Insp = val
 		})
-	case config.AiTaskConfig:
+	case config.AgentTaskConfig:
 		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.AiTaskConfig)
-			Config.AiTask[val.AiTaskName] = &val
+			val := any(cfg).(config.AgentTaskConfig)
+			Config.AiTask[val.Name] = &val
 		})
 	default:
 		log.Printf("type of config nonsupport to Add: %s\n", t)

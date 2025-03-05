@@ -1,7 +1,7 @@
-package ai
+package agent
 
 import (
-	"PgInspector/entities/ai"
+	"PgInspector/entities/agent"
 	"fmt"
 	"log"
 	"sync"
@@ -16,20 +16,20 @@ import (
 //根据driver找到对应的adapter实现，以init全局analyzer
 
 var (
-	a  ai.Analyzer
+	a  agent.Analyzer
 	mu sync.Mutex
 )
 
-func Register(oa ai.Analyzer) {
+func Register(oa agent.Analyzer) {
 	mu.Lock()
 	defer mu.Unlock()
 	a = oa
-	log.Printf("ai: registry: %#v\n", oa)
+	log.Printf("openai: registry: %#v\n", oa)
 }
 
 func Analyze(input string) (string, error) {
 	if a == nil {
-		return "", fmt.Errorf("ai analyzer has not init")
+		return "", fmt.Errorf("openai analyzer has not init")
 	}
 	return a.Analyze(input)
 }

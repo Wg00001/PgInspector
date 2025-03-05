@@ -17,8 +17,8 @@ type Config struct {
 	Log     map[ID]*LogConfig
 	Alert   map[ID]*AlertConfig
 
-	Ai     AiConfig
-	AiTask map[Name]*AiTaskConfig
+	Ai     AgentConfig
+	AiTask map[Name]*AgentTaskConfig
 	//Insp    *insp.Tree //insp不放在此处，避免循环引用
 }
 
@@ -38,21 +38,21 @@ type DBConfig struct {
 }
 
 type LogConfig struct {
-	LogID  ID
+	ID     ID
 	Driver string
 	Header map[string]string
 }
 
 type AlertConfig struct {
-	AlertID ID
-	Driver  string
-	Header  map[string]string
+	ID     ID
+	Driver string
+	Header map[string]string
 }
 
 // ---task(任务)相关配置
 
 type TaskConfig struct {
-	TaskName     Name
+	Name         Name
 	Cron         *Cron
 	AllInspector bool
 	//todo:async
@@ -72,10 +72,10 @@ type Cron struct {
 	Monthly  []int
 }
 
-// ---Ai相关配置
+// ---Ai Agent 相关配置
 
-// AiConfig 用户只能指定一个全局Ai，所有的分析均由此Ai完成
-type AiConfig struct {
+// AgentConfig 用户只能指定一个全局Ai，所有的分析均由此Ai完成
+type AgentConfig struct {
 	//AiName      Name
 	Driver      string
 	Api         string
@@ -84,20 +84,24 @@ type AiConfig struct {
 	Temperature float64
 }
 
-type AiTaskConfig struct {
-	AiTaskName Name
-	Cron       *Cron
-	LogID      ID
-	LogFilter  LogFilter
-	AlertID    ID
+type AgentTaskConfig struct {
+	Name      Name
+	Cron      *Cron
+	LogID     ID
+	LogFilter LogFilter
+	AlertID   ID
 }
 
 type LogFilter struct {
 	// 时间范围：Timestamp 需在 [StartTime, EndTime] 之间
 	StartTime time.Time
 	EndTime   time.Time
-	TaskNames []Name   // TaskName 匹配列表
+	TaskNames []Name   // Name 匹配列表
 	DBNames   []Name   // DBName 匹配列表
 	TaskIDs   []string // TaskID 匹配列表
 	InspNames []Name   // Insp匹配列表
+}
+
+type KnowledgeBaseConfig struct {
+	Name
 }

@@ -43,7 +43,7 @@ func (l LogPostgre) Init(cfg *config.LogConfig) (logger.Logger, error) {
 }
 
 func (l LogPostgre) GetID() config.ID {
-	return l.Config.LogID
+	return l.Config.ID
 }
 
 func (l LogPostgre) Log(res logger.Content) {

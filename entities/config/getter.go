@@ -21,7 +21,7 @@ func (n DBConfig) GetName() Name {
 }
 
 func (n TaskConfig) GetName() Name {
-	return n.TaskName
+	return n.Name
 }
 
 func GetName(n NameGetter) Name {
