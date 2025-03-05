@@ -1,7 +1,7 @@
 package test
 
 import (
-	"PgInspector/adapters/ai"
+	"PgInspector/adapters/ai/ollama"
 	"PgInspector/adapters/cron"
 	"PgInspector/adapters/start"
 	"PgInspector/entities/config"
@@ -19,7 +19,7 @@ import (
  */
 
 func TestOllamaApi(t *testing.T) {
-	a := ai.AnalyzerOllama{
+	a := ollama.AnalyzerOllama{
 		Driver:      "ollama",
 		Api:         "http://127.0.0.1:11434",
 		ApiKey:      "",
@@ -43,11 +43,10 @@ func TestAiTask(t *testing.T) {
 	fmt.Println(start.InitLogger())
 	fmt.Println(start.InitAlert())
 	//fmt.Println(start.InitAi())
-	analyzer, err := ai.NewAiAnalyzer(&config2.Config.Ai)
+	err := ai2.Use(config2.Config.Ai)
 	if err != nil {
 		fmt.Println(err)
 	}
-	ai2.Registry(analyzer)
 	tsk := ai2.NewTask(&config.AiTaskConfig{
 		AiTaskName: "1",
 		Cron: &config.Cron{

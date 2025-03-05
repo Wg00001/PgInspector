@@ -20,7 +20,7 @@ var (
 	mu sync.Mutex
 )
 
-func Registry(oa ai.Analyzer) {
+func Register(oa ai.Analyzer) {
 	mu.Lock()
 	defer mu.Unlock()
 	a = oa

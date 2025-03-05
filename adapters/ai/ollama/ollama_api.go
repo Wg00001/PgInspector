@@ -1,8 +1,9 @@
-package ai
+package ollama
 
 import (
 	"PgInspector/entities/ai"
 	"PgInspector/entities/config"
+	ai2 "PgInspector/usecase/ai"
 	"github.com/parakeet-nest/parakeet/completion"
 	"github.com/parakeet-nest/parakeet/enums/option"
 	"github.com/parakeet-nest/parakeet/llm"
@@ -15,6 +16,10 @@ import (
  * @author Wg
  * @date 2025/2/25
  */
+
+func init() {
+	ai2.RegisterDriver("ollama", AnalyzerOllama{})
+}
 
 type AnalyzerOllama config.AiConfig
 

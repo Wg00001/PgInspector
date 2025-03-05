@@ -1,7 +1,6 @@
 package start
 
 import (
-	ai2 "PgInspector/adapters/ai"
 	"PgInspector/adapters/cron"
 	"PgInspector/usecase/ai"
 	"PgInspector/usecase/alerter"
@@ -14,6 +13,8 @@ import (
 	"log"
 )
 import (
+	_ "PgInspector/adapters/ai/default"
+	_ "PgInspector/adapters/ai/ollama"
 	_ "PgInspector/adapters/alerter/default"
 	_ "PgInspector/adapters/alerter/empty"
 	_ "PgInspector/adapters/alerter/feishu"
@@ -146,12 +147,7 @@ func InitAlert() error {
 func InitAiConfig() error {
 	config2.RLock()
 	defer config2.RUnlock()
-	analyzer, err := ai2.NewAiAnalyzer(&config2.Config.Ai)
-	if err != nil {
-		return err
-	}
-	ai.Registry(analyzer)
-	return nil
+	return ai.Use(config2.Config.Ai)
 }
 
 func InitAiTask() error {
