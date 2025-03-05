@@ -13,6 +13,7 @@ import (
 	"log"
 )
 import (
+	_ "PgInspector/adapters/ai/agent"
 	_ "PgInspector/adapters/ai/default"
 	_ "PgInspector/adapters/ai/ollama"
 	_ "PgInspector/adapters/alerter/default"
