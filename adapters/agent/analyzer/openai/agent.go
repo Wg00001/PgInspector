@@ -3,7 +3,7 @@ package openai
 import (
 	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
-	ai2 "PgInspector/usecase/agent"
+	ai2 "PgInspector/usecase/agent/analyzer"
 	"context"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"

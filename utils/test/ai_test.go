@@ -6,6 +6,7 @@ import (
 	"PgInspector/adapters/start"
 	"PgInspector/entities/config"
 	ai2 "PgInspector/usecase/agent"
+	"PgInspector/usecase/agent/analyzer"
 	config2 "PgInspector/usecase/config"
 	"fmt"
 	"testing"
@@ -43,7 +44,7 @@ func TestAiTask(t *testing.T) {
 	fmt.Println(start.InitLogger())
 	fmt.Println(start.InitAlert())
 	//fmt.Println(start.InitAi())
-	err := ai2.Use(config2.Config.Ai)
+	err := analyzer.Use(config2.Config.Ai)
 	if err != nil {
 		fmt.Println(err)
 	}

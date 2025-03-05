@@ -3,6 +3,8 @@ package start
 import (
 	"PgInspector/adapters/cron"
 	"PgInspector/usecase/agent"
+	"PgInspector/usecase/agent/analyzer"
+	"PgInspector/usecase/agent/kbase"
 	"PgInspector/usecase/alerter"
 	config2 "PgInspector/usecase/config"
 	"PgInspector/usecase/db"
@@ -63,6 +65,7 @@ func Init() {
 	printErr(InitAlert())
 	printErr(InitAiConfig())
 	printErr(InitAiTask())
+	printErr(InitKBase())
 	log.Println("====== System Init Completely ======")
 }
 
@@ -128,15 +131,6 @@ func InitAlert() error {
 	defer config2.RUnlock()
 	alertConfigs := wg.MapToValueSlice(config2.Config.Alert)
 	for _, v := range alertConfigs {
-		//a, err := alerter.NewAlerter(v)
-		//if err != nil {
-		//	return err
-		//}
-		//err = alerter.Register(v.ID, a)
-		//if err != nil {
-		//	return err
-		//}
-
 		err := alerter.Use(*v)
 		if err != nil {
 			return err
@@ -148,7 +142,7 @@ func InitAlert() error {
 func InitAiConfig() error {
 	config2.RLock()
 	defer config2.RUnlock()
-	return agent.Use(config2.Config.Ai)
+	return analyzer.Use(config2.Config.Ai)
 }
 
 func InitAiTask() error {
@@ -158,6 +152,19 @@ func InitAiTask() error {
 	aiTasks := wg.MapToValueSlice(config2.Config.AiTask)
 	for _, v := range aiTasks {
 		cron.AddTask(agent.NewTask(v))
+	}
+	return nil
+}
+
+func InitKBase() error {
+	config2.RLock()
+	defer config2.RUnlock()
+	kbaseConfig := wg.MapToValueSlice(config2.Config.KBase)
+	for _, v := range kbaseConfig {
+		err := kbase.Use(*v)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

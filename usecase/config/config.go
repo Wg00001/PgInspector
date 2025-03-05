@@ -22,6 +22,7 @@ var (
 		Alert:   make(map[config.ID]*config.AlertConfig),
 		Ai:      config.AgentConfig{},
 		AiTask:  make(map[config.Name]*config.AgentTaskConfig),
+		KBase:   make(map[config.Name]*config.KnowledgeBaseConfig),
 	}
 	Insp = insp.NewTree()
 	mu   sync.RWMutex
@@ -80,7 +81,7 @@ func GetLoggerConfig(id config.ID) *config.LogConfig {
 	return nil
 }
 
-func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.AgentConfig | *insp.Tree | config.AgentTaskConfig](configs ...T) {
+func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.AgentConfig | *insp.Tree | config.AgentTaskConfig | config.KnowledgeBaseConfig](configs ...T) {
 	if configs == nil || len(configs) == 0 {
 		log.Println("AddConfigs params is nil or empty")
 		return
@@ -130,6 +131,11 @@ func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | c
 		rangeFunc(func(cfg T) {
 			val := any(cfg).(config.AgentTaskConfig)
 			Config.AiTask[val.Name] = &val
+		})
+	case config.KnowledgeBaseConfig:
+		rangeFunc(func(cfg T) {
+			val := any(cfg).(config.KnowledgeBaseConfig)
+			Config.KBase[val.Name] = &val
 		})
 	default:
 		log.Printf("type of config nonsupport to Add: %s\n", t)

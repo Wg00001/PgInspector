@@ -4,6 +4,7 @@ import (
 	alerter2 "PgInspector/entities/alerter"
 	"PgInspector/entities/config"
 	"PgInspector/entities/task"
+	"PgInspector/usecase/agent/analyzer"
 	"PgInspector/usecase/agent/format"
 	"PgInspector/usecase/alerter"
 	"PgInspector/usecase/logger"
@@ -34,7 +35,7 @@ func (t *AiTask) Do() error {
 	if err != nil {
 		return err
 	}
-	//2. 组织格式
+	//2. 组织日志格式(JSON)
 	msg, err := format.Format(contents...)
 	if err != nil {
 		return err
@@ -42,11 +43,11 @@ func (t *AiTask) Do() error {
 	if msg == nil {
 		return fmt.Errorf("Ai task err\n- AiTask name: %v\n- err: log read empty\n---\n", t.Name)
 	}
-	//第三和第四步通过调用Analyzer完成
 
-	//3. 发送Ai
-	//4. 解析结果
-	res, err := Analyze(*msg)
+	//3. 知识库
+
+	//4. 发送Ai获取结果
+	res, err := analyzer.Analyze(*msg)
 	if err != nil {
 		return err
 	}

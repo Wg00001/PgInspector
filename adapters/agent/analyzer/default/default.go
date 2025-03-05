@@ -3,7 +3,7 @@ package _default
 import (
 	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
-	ai2 "PgInspector/usecase/agent"
+	ai2 "PgInspector/usecase/agent/analyzer"
 )
 
 /**

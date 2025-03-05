@@ -3,7 +3,7 @@ package ollama
 import (
 	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
-	ai2 "PgInspector/usecase/agent"
+	ai2 "PgInspector/usecase/agent/analyzer"
 	"github.com/parakeet-nest/parakeet/completion"
 	"github.com/parakeet-nest/parakeet/enums/option"
 	"github.com/parakeet-nest/parakeet/llm"

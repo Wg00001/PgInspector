@@ -19,6 +19,7 @@ type Config struct {
 
 	Ai     AgentConfig
 	AiTask map[Name]*AgentTaskConfig
+	KBase  map[Name]*KnowledgeBaseConfig
 	//Insp    *insp.Tree //insp不放在此处，避免循环引用
 }
 
@@ -104,4 +105,5 @@ type LogFilter struct {
 
 type KnowledgeBaseConfig struct {
 	Name
+	Driver string
 }

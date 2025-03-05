@@ -1,4 +1,4 @@
-package agent
+package analyzer
 
 import (
 	"PgInspector/entities/agent"

@@ -5,7 +5,6 @@ import (
 	"PgInspector/entities/insp"
 	config2 "PgInspector/usecase/config"
 	insp2 "PgInspector/usecase/insp"
-	"PgInspector/utils"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -22,6 +21,7 @@ const (
 	optionFilepath   = "filepath"
 	optionConfigName = "config"
 	optionInspName   = "inspect"
+	optionAgentName  = "agent"
 
 	keyAlertId   = "_alertId"
 	keyAlertWhen = "_alertWhen"
@@ -37,6 +37,7 @@ type ConfigReaderYaml struct {
 	ConfigName string
 	InspName   string
 	cyaml      ConfigYaml
+	acyaml     AgentConfigYaml
 	insp       *insp.Tree
 }
 
@@ -48,8 +49,12 @@ type ConfigYaml struct {
 	LogConfig         []config.LogConfig       `yaml:"-"`
 	AlertConfigOrigin []map[string]interface{} `yaml:"alert"`
 	AlertConfig       []config.AlertConfig     `yaml:"-"`
-	AiConfig          config.AgentConfig       `yaml:"openai"`
-	AiTaskConfig      []config.AgentTaskConfig `yaml:"aitask"`
+}
+
+type AgentConfigYaml struct {
+	AiConfig     config.AgentConfig           `yaml:"agent"`
+	AiTaskConfig []config.AgentTaskConfig     `yaml:"agenttask"`
+	KBaseConfig  []config.KnowledgeBaseConfig `yaml:"knowledgebase"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)
@@ -196,8 +201,16 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 }
 
 func (c *ConfigReaderYaml) ReadAgent() error {
-	//TODO implement me
-	panic("implement me")
+	file, err := os.ReadFile(c.FilePath + c.ConfigName)
+	if err != nil {
+		return err
+	}
+	file = []byte(strings.ToLower(string(file)))
+	err = yaml.Unmarshal(file, &c.acyaml)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *ConfigReaderYaml) SaveIntoConfig() {
@@ -205,23 +218,10 @@ func (c *ConfigReaderYaml) SaveIntoConfig() {
 	config2.AddConfigs(c.cyaml.TaskConfigs...)
 	config2.AddConfigs(c.cyaml.LogConfig...)
 	config2.AddConfigs(c.cyaml.AlertConfig...)
-	config2.AddConfigs(c.cyaml.AiConfig)
-	config2.AddConfigs(c.cyaml.AiTaskConfig...)
+	config2.AddConfigs(c.acyaml.AiConfig)
+	config2.AddConfigs(c.acyaml.AiTaskConfig...)
+	config2.AddConfigs(c.acyaml.KBaseConfig...)
 	config2.AddConfigs(c.insp)
-}
-
-func (c *ConfigReaderYaml) FormatFilename() {
-	if strings.Index(c.FilePath, "/") != len(c.FilePath)-1 {
-		c.FilePath += "/"
-	}
-	if c.ConfigName == "" {
-		c.ConfigName = "config.yaml"
-	}
-	if c.InspName == "" {
-		c.InspName = "inspect.yaml"
-	}
-	c.ConfigName = utils.FileNameFormat(c.ConfigName, "yaml")
-	c.InspName = utils.FileNameFormat(c.InspName, "yaml")
 }
 
 func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuilder, err error) {

@@ -31,6 +31,10 @@ func Open(driverName string, option map[string]string) error {
 	if err != nil {
 		return err
 	}
+	err = reader.ReadAgent()
+	if err != nil {
+		return err
+	}
 	reader.SaveIntoConfig()
 	log.Println("config initiated...")
 	return nil

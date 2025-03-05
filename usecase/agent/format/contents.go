@@ -60,6 +60,7 @@ type Content struct {
 	Result    string    `json:"result"` // 结果（JSON字符串或原始文本）
 }
 
+// SyncAppend 将格式化的过程异步进行
 func (tg *TaskGroups) SyncAppend(c *logger.Content) {
 	tg.Lock()
 	defer tg.Unlock()

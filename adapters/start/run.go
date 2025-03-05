@@ -11,22 +11,28 @@ import (
  * @date 2025/2/17
  */
 
-func Run() {
-	cron.Start()
-	select {}
+func Run() func() {
+	ch := make(chan struct{})
+
+	go func() {
+		cron.Start()
+		select {
+		case <-ch:
+			cron.Exit()
+			break
+		}
+	}()
+
+	return func() {
+		close(ch)
+	}
 }
 
 func RunWithTimeAfter(duration time.Duration) {
 	cron.Start()
 	select {
 	case <-time.After(duration):
-		Close()
+		cron.Exit()
 		return
 	}
 }
-
-func Close() {
-	cron.Start()
-}
-
-//todo:优雅关闭
