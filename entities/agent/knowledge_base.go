@@ -16,7 +16,7 @@ type Document struct {
 
 type KnowledgeBase interface {
 	Init(config *config.KnowledgeBaseConfig) (KnowledgeBase, error)
-	Ingest(docs []Document) error
+	WriteIn(docs []Document) error
 	Search(query string, topK int) ([]Document, error)
 	SimilaritySearch(embedding []float32, topK int) ([]Document, error)
 }
