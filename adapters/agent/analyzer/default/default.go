@@ -24,7 +24,7 @@ func (a AnalyzerDefault) Init(config *config.AgentConfig) (agent.Analyzer, error
 	panic("implement me")
 }
 
-func (a AnalyzerDefault) Analyze(s string) (string, error) {
+func (a AnalyzerDefault) Analyze(s *agent.AnalyzeContent) (string, error) {
 	//TODO implement me
 	panic("implement me")
 }

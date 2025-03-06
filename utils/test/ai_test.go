@@ -22,7 +22,7 @@ import (
 func TestOllamaApi(t *testing.T) {
 	a := ollama.AnalyzerOllama{
 		Driver:      "ollama",
-		Api:         "http://127.0.0.1:11434",
+		Url:         "http://127.0.0.1:11434",
 		ApiKey:      "",
 		Model:       "deepseek-r1:7b",
 		Temperature: 0.5,

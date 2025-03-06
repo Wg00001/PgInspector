@@ -81,6 +81,12 @@ func GetLoggerConfig(id config.ID) *config.LogConfig {
 	return nil
 }
 
+func GetAgentConfig() config.AgentConfig {
+	mu.RLock()
+	defer mu.RUnlock()
+	return Config.Ai
+}
+
 func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.AgentConfig | *insp.Tree | config.AgentTaskConfig | config.KnowledgeBaseConfig](configs ...T) {
 	if configs == nil || len(configs) == 0 {
 		log.Println("AddConfigs params is nil or empty")

@@ -27,9 +27,12 @@ func Register(oa agent.Analyzer) {
 	log.Printf("openai: registry: %#v\n", oa)
 }
 
-func Analyze(input string) (string, error) {
+func Analyze(content *agent.AnalyzeContent) (string, error) {
 	if a == nil {
 		return "", fmt.Errorf("openai analyzer has not init")
 	}
-	return a.Analyze(input)
+	if content == nil {
+		return "", fmt.Errorf("content cannot be nil")
+	}
+	return a.Analyze(content)
 }

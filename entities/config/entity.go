@@ -78,19 +78,24 @@ type Cron struct {
 // AgentConfig 用户只能指定一个全局Ai，所有的分析均由此Ai完成
 type AgentConfig struct {
 	//AiName      Name
-	Driver      string
-	Api         string
-	ApiKey      string
-	Model       string
-	Temperature float64
+	Driver        string
+	Url           string
+	ApiKey        string
+	Model         string
+	Temperature   float64
+	SystemMessage string
 }
 
 type AgentTaskConfig struct {
-	Name      Name
-	Cron      *Cron
-	LogID     ID
-	LogFilter LogFilter
-	AlertID   ID
+	Name          Name
+	Cron          *Cron
+	LogID         ID
+	LogFilter     LogFilter
+	AlertID       ID
+	KBase         []Name
+	KBaseTopN     int
+	KBaseMaxLen   int
+	SystemMessage string
 }
 
 type LogFilter struct {

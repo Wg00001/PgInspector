@@ -8,7 +8,7 @@
 
 Agent:
   Driver: "openai"
-  Api: "https://ark.cn-beijing.volces.com/api/v3"
+  Url: "https://ark.cn-beijing.volces.com/api/v3"
   ApiKey: "27fbb257-c8e7-452b-810d-2ee0baccf4fc"
   Model: "deepseek-r1-250120"
   Temperature: 0.5

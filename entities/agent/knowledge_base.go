@@ -9,14 +9,16 @@ import "PgInspector/entities/config"
  */
 
 type Document struct {
-	ID       string
-	Content  string
-	Metadata map[string]interface{}
+	ID        string
+	Content   string
+	Embedding []float32
+	Metadata  map[string]interface{}
 }
 
 type KnowledgeBase interface {
 	Init(config *config.KnowledgeBaseConfig) (KnowledgeBase, error)
-	WriteIn(docs []Document) error
-	Search(query string, topK int) ([]Document, error)
-	SimilaritySearch(embedding []float32, topK int) ([]Document, error)
+	WriteIn(docs []*Document) error
+	Search(topK int, query ...string) ([]*Document, error)
+	SimilaritySearch(topK int, embedding []float32) ([]*Document, error)
+	Embedding(query string) ([]float32, error)
 }
