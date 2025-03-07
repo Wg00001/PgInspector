@@ -24,8 +24,10 @@ func init() {
 
 type KBaseChroma struct {
 	Config     *config.KnowledgeBaseConfig
-	Path       string                  //path是chroma的文件存储位置，存储于本地
-	Collection string                  //chroma的collection类似于库
+	Path       string
+	Collection string //chroma的collection类似于库
+	Tenant     string //chroma需要指定租户
+	Database   string
 	Efunc      types.EmbeddingFunction //进行向量计算的函数
 }
 
@@ -40,13 +42,25 @@ func (k KBaseChroma) Init(config *config.KnowledgeBaseConfig) (_ agent.Knowledge
 	k.Config = config
 	k.Path = config.Value["path"]
 	k.Collection = config.Value["collection"]
+	k.Tenant = config.Value["tenant"]
+	k.Database = config.Value["database"]
+	if k.Tenant == "" {
+		k.Tenant = "default"
+	}
+	if k.Database == "" {
+		k.Database = "default"
+	}
 
 	agentConfig := config2.GetAgentConfig()
+
 	ef, err := openai.NewOpenAIEmbeddingFunction(
 		agentConfig.ApiKey,
 		func(c *openai.OpenAIClient) error {
-			c.BaseURL = agentConfig.Url
 			c.Model = agentConfig.Model
+			return nil
+		},
+		func(c *openai.OpenAIClient) error {
+			c.BaseURL = agentConfig.Url
 			return nil
 		})
 	if err != nil {
@@ -57,6 +71,9 @@ func (k KBaseChroma) Init(config *config.KnowledgeBaseConfig) (_ agent.Knowledge
 }
 
 func (k KBaseChroma) WriteIn(docs []*agent.Document) error {
+	if docs == nil || len(docs) == 0 {
+		return fmt.Errorf("agent - kbase: chroma write in fail: can't write nil document")
+	}
 	ctx := context.Background()
 	collection, err := k.connect(ctx)
 	if err != nil {
@@ -143,14 +160,21 @@ func (k KBaseChroma) connect(ctx context.Context) (*chromago.Collection, error) 
 		return nil, fmt.Errorf("agent - kbase: chroma Failed to create client: %v\n", err)
 	}
 
+	//_, err = client.GetTenant(ctx, k.Tenant)
+	//if err != nil {
+	//	if _, err = client.CreateTenant(ctx, k.Tenant); err != nil {
+	//		return nil, err
+	//	}
+	//}
+
 	collection, err := client.GetCollection(ctx, k.Collection, k.Efunc)
 	if err != nil || collection == nil {
 		collection, err = client.CreateCollection(ctx, k.Collection, map[string]interface{}{}, true, k.Efunc, types.L2)
 		if err != nil {
-			return nil, fmt.Errorf("agent - kbase: chroma Failed to create or get collection: %v\n", err)
+			return nil, fmt.Errorf("agent - kbase: chroma Failed to create collection: \n    %v\n", err)
 		}
 	}
-	return collection, err
+	return collection, nil
 }
 
 func parseQueryResults(results *chromago.QueryResults) []*agent.Document {

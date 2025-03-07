@@ -4,6 +4,7 @@ import (
 	"PgInspector/adapters/cron"
 	"PgInspector/adapters/start"
 	"PgInspector/usecase/task"
+	"context"
 	"testing"
 )
 
@@ -28,5 +29,5 @@ func TestLogger(t *testing.T) {
 func TestStart(t *testing.T) {
 	start.SetConfigPath("../../app/config", "yaml")
 	start.Init()
-	start.Run()
+	start.Run(context.TODO())
 }

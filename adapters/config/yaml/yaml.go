@@ -36,6 +36,7 @@ type ConfigReaderYaml struct {
 	FilePath   string
 	ConfigName string
 	InspName   string
+	AgentName  string
 	cyaml      ConfigYaml
 	acyaml     AgentConfigYaml
 	insp       *insp.Tree
@@ -66,12 +67,17 @@ func (c *ConfigReaderYaml) NewReader(option map[string]string) (_ config.Reader,
 	}
 	configName, ok := option[optionConfigName]
 	if !ok {
-		configName = "config.yaml"
+		configName = optionConfigName + ".yaml"
 	}
 	inspName, ok := option[optionInspName]
 	if !ok {
-		inspName = "inspect.yaml"
+		inspName = optionInspName + ".yaml"
 	}
+	agentName, ok := option[optionAgentName]
+	if !ok {
+		agentName = optionAgentName + ".yaml"
+	}
+
 	if !strings.HasSuffix(filepath, "/") {
 		filepath += "/"
 	}
@@ -79,6 +85,7 @@ func (c *ConfigReaderYaml) NewReader(option map[string]string) (_ config.Reader,
 		FilePath:   filepath,
 		ConfigName: configName,
 		InspName:   inspName,
+		AgentName:  agentName,
 	}, nil
 }
 
@@ -201,7 +208,7 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 }
 
 func (c *ConfigReaderYaml) ReadAgent() error {
-	file, err := os.ReadFile(c.FilePath + c.ConfigName)
+	file, err := os.ReadFile(c.FilePath + c.AgentName)
 	if err != nil {
 		return err
 	}

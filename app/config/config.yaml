@@ -40,23 +40,3 @@ Alert:
   - ID: 3
     Driver: "feishu"
     WebHook: "https://www.feishu.cn/flow/api/trigger-webhook/49e2149a6a2cbcfaa4baf7e46eadeae5"
-
-Agent:
-  Driver: "openai"
-  Api: "https://ark.cn-beijing.volces.com/api/v3"
-  ApiKey: "27fbb257-c8e7-452b-810d-2ee0baccf4fc"
-  Model: "deepseek-r1-250120"
-  Temperature: 0.5
-
-AiTask:
-  - Name: "task1"
-    Cron:
-      AtTime:
-        - "12:07:30"
-    #      Duration: 1m
-    LogID: 1
-    AlertID: 3
-    LogFilter:
-      StartTime: 2025-03-4
-      InspName:
-        - "1"

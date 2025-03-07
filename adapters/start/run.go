@@ -2,7 +2,7 @@ package start
 
 import (
 	"PgInspector/adapters/cron"
-	"time"
+	"context"
 )
 
 /**
@@ -11,28 +11,11 @@ import (
  * @date 2025/2/17
  */
 
-func Run() func() {
-	ch := make(chan struct{})
-
-	go func() {
-		cron.Start()
-		select {
-		case <-ch:
-			cron.Exit()
-			break
-		}
-	}()
-
-	return func() {
-		close(ch)
-	}
-}
-
-func RunWithTimeAfter(duration time.Duration) {
+func Run(ctx context.Context) {
 	cron.Start()
 	select {
-	case <-time.After(duration):
+	case <-ctx.Done():
 		cron.Exit()
-		return
+		break
 	}
 }

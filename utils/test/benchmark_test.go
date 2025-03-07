@@ -2,6 +2,7 @@ package test
 
 import (
 	"PgInspector/adapters/start"
+	"context"
 	"os"
 	"runtime"
 	"runtime/pprof"
@@ -13,7 +14,7 @@ func Benchmark(b *testing.B) {
 	b.ReportAllocs()
 	start.SetConfigPath("../../app/config", "yaml")
 	start.Init()
-	start.Run()
+	start.Run(context.TODO())
 }
 
 func TestPProf(t *testing.T) {
@@ -24,15 +25,15 @@ func TestPProf(t *testing.T) {
 
 	start.SetConfigPath("../../app/config", "yaml")
 	start.Init()
-	start.RunWithTimeAfter(time.Second * 15)
-
+	ctx, _ := context.WithTimeout(context.TODO(), time.Second*15)
+	start.Run(ctx)
 }
 
 func TestRuntime(t *testing.T) {
 	RuntimeMemStats(t, func() {
 		start.SetConfigPath("../../app/config", "yaml")
 		start.Init()
-		start.Run()
+		start.Run(context.TODO())
 	})
 }
 

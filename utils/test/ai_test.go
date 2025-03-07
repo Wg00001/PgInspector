@@ -4,10 +4,12 @@ import (
 	"PgInspector/adapters/agent/analyzer/ollama"
 	"PgInspector/adapters/cron"
 	"PgInspector/adapters/start"
+	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
 	ai2 "PgInspector/usecase/agent"
 	"PgInspector/usecase/agent/analyzer"
 	config2 "PgInspector/usecase/config"
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -27,7 +29,9 @@ func TestOllamaApi(t *testing.T) {
 		Model:       "deepseek-r1:7b",
 		Temperature: 0.5,
 	}
-	analyze, err := a.Analyze("你好，你是什么模型")
+	analyze, err := a.Analyze(&agent.AnalyzeContent{
+		UserMsg: "你好，你是什么模型",
+	})
 	if err != nil {
 		return
 	}
@@ -66,5 +70,5 @@ func TestAiTask(t *testing.T) {
 func TestAi(t *testing.T) {
 	start.SetConfigPath("../../app/config", "yaml")
 	start.Init()
-	start.Run()
+	start.Run(context.TODO())
 }
