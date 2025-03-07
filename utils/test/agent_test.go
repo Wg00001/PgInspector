@@ -28,7 +28,9 @@ func TestKBase(t *testing.T) {
 		Value: map[string]string{
 			"path":       "http://localhost:8000",
 			"collection": "default",
-			"tenant":     "default",
+			"embedding":  "ollama",
+			"baseurl":    "http://127.0.0.1:11434",
+			"model":      "deepseek-r1:7b",
 		},
 	}
 

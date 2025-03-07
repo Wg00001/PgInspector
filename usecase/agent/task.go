@@ -9,6 +9,7 @@ import (
 	"PgInspector/usecase/agent/kbase"
 	"PgInspector/usecase/alerter"
 	"PgInspector/usecase/logger"
+	"context"
 	"fmt"
 	"log"
 )
@@ -29,7 +30,7 @@ func NewTask(taskConfig *config.AgentTaskConfig) *AgentTask {
 
 var _ task.Task = (*AgentTask)(nil)
 
-func (t *AgentTask) Do() error {
+func (t *AgentTask) Do(ctx context.Context) error {
 	//1. 获取日志
 	contents, err := logger.Get(t.LogID).ReadLog(t.LogFilter)
 	if err != nil {
@@ -53,14 +54,14 @@ func (t *AgentTask) Do() error {
 	}
 
 	//4. 组织格式 (发生一次复制)
-	context := &agent.AnalyzeContent{
+	content := &agent.AnalyzeContent{
 		SystemMsg: t.SystemMessage,
 		UserMsg:   *msg,
 		KBaseMsg:  *kbaseContent,
 	}
 
 	//5. 发送Ai获取结果
-	res, err := analyzer.Analyze(context)
+	res, err := analyzer.Analyze(content)
 	if err != nil {
 		return err
 	}

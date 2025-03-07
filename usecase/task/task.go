@@ -9,6 +9,7 @@ import (
 	"PgInspector/entities/task"
 	"PgInspector/usecase/db"
 	logger2 "PgInspector/usecase/logger"
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -29,11 +30,17 @@ type Task struct {
 
 var _ task.Task = (*Task)(nil)
 
-func (t *Task) Do() error {
+func (t *Task) Do(ctx context.Context) error {
 	taskid := time.Now().Format("20060102_150405")
 	fmt.Printf("task: start - %s\n", taskid)
 	for _, inspect := range t.Inspects {
 		for _, tdb := range t.TargetDB {
+			select {
+			case <-ctx.Done():
+				return nil
+			default:
+			}
+
 			if tdb == nil {
 				continue
 			}
@@ -69,6 +76,7 @@ func (t *Task) Do() error {
 			if err != nil {
 				return err
 			}
+
 		}
 	}
 	log.Printf("task finish: %s\n", t.Config.Name)

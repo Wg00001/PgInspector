@@ -9,6 +9,7 @@ import (
 	"fmt"
 	chromago "github.com/amikos-tech/chroma-go"
 	"github.com/amikos-tech/chroma-go/openai"
+	"github.com/amikos-tech/chroma-go/pkg/embeddings/ollama"
 	"github.com/amikos-tech/chroma-go/types"
 )
 
@@ -23,12 +24,16 @@ func init() {
 }
 
 type KBaseChroma struct {
-	Config     *config.KnowledgeBaseConfig
-	Path       string
-	Collection string //chroma的collection类似于库
-	Tenant     string //chroma需要指定租户
-	Database   string
-	Efunc      types.EmbeddingFunction //进行向量计算的函数
+	Config           *config.KnowledgeBaseConfig
+	Path             string
+	Collection       string //chroma的collection类似于库
+	Tenant           string //chroma需要指定租户
+	Database         string
+	EmbeddingSource  string
+	EmbeddingBaseUrl string
+	EmbeddingModel   string
+	EmbeddingApikey  string
+	Efunc            types.EmbeddingFunction //进行向量计算的函数
 }
 
 var _ agent.KnowledgeBase = (*KBaseChroma)(nil)
@@ -44,29 +49,37 @@ func (k KBaseChroma) Init(config *config.KnowledgeBaseConfig) (_ agent.Knowledge
 	k.Collection = config.Value["collection"]
 	k.Tenant = config.Value["tenant"]
 	k.Database = config.Value["database"]
-	if k.Tenant == "" {
-		k.Tenant = "default"
-	}
-	if k.Database == "" {
-		k.Database = "default"
+	k.EmbeddingBaseUrl = config.Value["baseurl"]
+	k.EmbeddingModel = config.Value["model"]
+	k.EmbeddingApikey = config.Value["apikey"]
+	k.EmbeddingSource = config.Value["embedding"]
+
+	switch k.EmbeddingSource {
+	case "ollama":
+		k.Efunc, err = ollama.NewOllamaEmbeddingFunction(
+			ollama.WithBaseURL(k.EmbeddingBaseUrl),
+			ollama.WithModel(k.EmbeddingModel))
+		if err != nil {
+			return
+		}
+	case "openai":
+	default:
+		agentConfig := config2.GetAgentConfig()
+		k.Efunc, err = openai.NewOpenAIEmbeddingFunction(
+			agentConfig.ApiKey,
+			func(c *openai.OpenAIClient) error {
+				c.Model = agentConfig.Model
+				return nil
+			},
+			func(c *openai.OpenAIClient) error {
+				c.BaseURL = agentConfig.Url
+				return nil
+			})
+		if err != nil {
+			return k, fmt.Errorf("agent - kbase: chroma Error creating OpenAI embedding function: %v\n", err)
+		}
 	}
 
-	agentConfig := config2.GetAgentConfig()
-
-	ef, err := openai.NewOpenAIEmbeddingFunction(
-		agentConfig.ApiKey,
-		func(c *openai.OpenAIClient) error {
-			c.Model = agentConfig.Model
-			return nil
-		},
-		func(c *openai.OpenAIClient) error {
-			c.BaseURL = agentConfig.Url
-			return nil
-		})
-	if err != nil {
-		return k, fmt.Errorf("agent - kbase: chroma Error creating OpenAI embedding function: %v\n", err)
-	}
-	k.Efunc = ef
 	return k, nil
 }
 
@@ -155,7 +168,14 @@ func (k KBaseChroma) Embedding(query string) ([]float32, error) {
 }
 
 func (k KBaseChroma) connect(ctx context.Context) (*chromago.Collection, error) {
-	client, err := chromago.NewClient(k.Path)
+	var cliopt []chromago.ClientOption
+	if k.Tenant != "" {
+		cliopt = append(cliopt, chromago.WithTenant(k.Tenant))
+	}
+	if k.Database != "" {
+		cliopt = append(cliopt, chromago.WithDatabase(k.Database))
+	}
+	client, err := chromago.NewClient(k.Path, cliopt...)
 	if err != nil {
 		return nil, fmt.Errorf("agent - kbase: chroma Failed to create client: %v\n", err)
 	}
