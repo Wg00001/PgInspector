@@ -30,7 +30,7 @@ func NewTask(taskConfig *config.AgentTaskConfig) *AgentTask {
 
 var _ task.Task = (*AgentTask)(nil)
 
-func (t *AgentTask) Do(ctx context.Context) error {
+func (t *AgentTask) Do(context.Context) error {
 	//1. 获取日志
 	contents, err := logger.Get(t.LogID).ReadLog(t.LogFilter)
 	if err != nil {
@@ -86,6 +86,7 @@ func (t *AgentTask) KBaseSearch(msg *string) (*string, error) {
 		return nil, fmt.Errorf("empty input message")
 	}
 	//使用Ai生成日志的关键词
+	//todo：将转换后的写入query结构体中
 	query, err := generateQueryWithAI(msg)
 	if err != nil {
 		return nil, err
@@ -94,7 +95,7 @@ func (t *AgentTask) KBaseSearch(msg *string) (*string, error) {
 	for _, kb := range t.KBase {
 		kbaseObj := kbase.Get(kb)
 		//根据KBase对应的嵌入向量生成器，生成相应的嵌入向量
-		embeddingQuery, err := generateQueryEmbedding(query, kbaseObj)
+		embeddingQuery, err := kbaseObj.Embedding(query)
 		if err != nil {
 			return nil, err
 		}

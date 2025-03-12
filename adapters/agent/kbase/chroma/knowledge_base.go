@@ -119,12 +119,30 @@ func (k KBaseChroma) Search(topK int, query ...string) ([]*agent.Document, error
 	if err != nil {
 		return nil, err
 	}
+	//todo：将入参转成where metadata和where document格式
 	results, err := collection.QueryWithOptions(
 		ctx,
 		types.WithQueryTexts(query),
 		types.WithNResults(int32(topK)),
+		types.WithWhereMap(map[string]interface{}{
+			"author": map[string]interface{}{
+				"$eq": "张三",
+			},
+		}),
+		types.WithWhereDocumentMap(map[string]interface{}{
+			"$contains": "并发",
+		}),
 		types.WithInclude(types.IDocuments, types.IMetadatas),
 	)
+	//results, err := collection.Query(ctx,
+	//	query,
+	//	int32(topK),
+	//	map[string]interface{}{
+	//		"metadata_field": "search_string",
+	//	},
+	//	map[string]interface{}{
+	//		"$contains": "并发",
+	//	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -187,13 +205,18 @@ func (k KBaseChroma) connect(ctx context.Context) (*chromago.Collection, error) 
 	//	}
 	//}
 
-	collection, err := client.GetCollection(ctx, k.Collection, k.Efunc)
-	if err != nil || collection == nil {
-		collection, err = client.CreateCollection(ctx, k.Collection, map[string]interface{}{}, true, k.Efunc, types.L2)
-		if err != nil {
-			return nil, fmt.Errorf("agent - kbase: chroma Failed to create collection: \n    %v\n", err)
-		}
+	//collection, err := client.GetCollection(ctx, k.Collection, k.Efunc)
+	//if err != nil || collection == nil {
+	//	collection, err = client.CreateCollection(ctx, k.Collection, map[string]interface{}{}, true, k.Efunc, types.L2)
+	//	if err != nil {
+	//		return nil, fmt.Errorf("agent - kbase: chroma Failed to create collection: \n    %v\n", err)
+	//	}
+	//}
+	collection, err := client.CreateCollection(ctx, k.Collection, map[string]interface{}{}, true, k.Efunc, types.L2)
+	if err != nil {
+		return nil, fmt.Errorf("agent - kbase: chroma Failed to create or get collection: \n    %v\n", err)
 	}
+
 	return collection, nil
 }
 

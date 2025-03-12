@@ -3,6 +3,7 @@ package cron
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/task"
+	"context"
 	"fmt"
 	"github.com/go-co-op/gocron/v2"
 	"log"
@@ -49,7 +50,7 @@ func AddTask(task task.Task) {
 	_, err = s.NewJob(
 		definition,
 		gocron.NewTask(func() {
-			err := task.Do()
+			err := task.Do(context.Background())
 			if err != nil {
 				log.Printf("gocron do task Err\n- task name: %s\n- err: %v\n--- \n", task.GetName(), err)
 				return

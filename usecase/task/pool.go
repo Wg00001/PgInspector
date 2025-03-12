@@ -2,6 +2,7 @@ package task
 
 import (
 	"PgInspector/entities/config"
+	"context"
 	"fmt"
 	"sync"
 )
@@ -38,5 +39,5 @@ func Do(name config.Name) error {
 	if t == nil {
 		return fmt.Errorf("name of task not exist, name: %s\n", name)
 	}
-	return t.Do()
+	return t.Do(context.Background())
 }

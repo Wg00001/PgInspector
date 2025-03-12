@@ -64,7 +64,7 @@ func TestAiTask(t *testing.T) {
 		},
 		AlertID: 3,
 	})
-	fmt.Println(tsk.Do())
+	fmt.Println(tsk.Do(context.Background()))
 }
 
 func TestAi(t *testing.T) {

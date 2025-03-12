@@ -19,6 +19,6 @@ type KnowledgeBase interface {
 	Init(config *config.KnowledgeBaseConfig) (KnowledgeBase, error)
 	WriteIn(docs []*Document) error
 	Search(topK int, query ...string) ([]*Document, error)
-	SimilaritySearch(topK int, embedding []float32) ([]*Document, error)
+	//SimilaritySearch(topK int, embedding []float32) ([]*Document, error)
 	Embedding(query string) ([]float32, error)
 }
