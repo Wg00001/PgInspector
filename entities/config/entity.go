@@ -93,7 +93,7 @@ type AgentTaskConfig struct {
 	LogFilter     LogFilter
 	AlertID       ID
 	KBase         []Name
-	KBaseTopN     int
+	KBaseResults  int
 	KBaseMaxLen   int
 	SystemMessage string
 }

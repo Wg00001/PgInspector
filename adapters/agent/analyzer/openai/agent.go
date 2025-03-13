@@ -1,10 +1,10 @@
 package openai
 
 import (
-	"PgInspector/adapters/agent/analyzer"
 	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
 	ai2 "PgInspector/usecase/agent/analyzer"
+	"PgInspector/utils"
 	"context"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/openai"
@@ -37,7 +37,7 @@ func (a AnalyzerAgent) Analyze(content *agent.AnalyzeContent) (string, error) {
 
 	if content.SystemMsg == "" {
 		if a.SystemMessage == "" {
-			content.SystemMsg = analyzer.DefaultSystemMessage
+			content.SystemMsg = utils.DefaultSystemMessage
 		} else {
 			content.SystemMsg = a.SystemMessage
 		}
@@ -46,9 +46,15 @@ func (a AnalyzerAgent) Analyze(content *agent.AnalyzeContent) (string, error) {
 	msg := []llms.MessageContent{
 		llms.TextParts(llms.ChatMessageTypeSystem,
 			content.SystemMsg,
-			"\n\n可以参考以下知识库内容进行分析:\n"+content.KBaseMsg),
+			func() string {
+				if content.KBaseMsg != "" {
+					return "\n\n可以参考以下知识库内容进行分析:\n" + content.KBaseMsg
+				}
+				return ""
+			}(),
+		),
 		llms.TextParts(llms.ChatMessageTypeHuman,
-			"\n\n请分析以下日志:\n"+content.UserMsg),
+			"\n\n日志内容:\n"+content.UserMsg),
 	}
 	log.Printf("发送消息: %v\n", msg)
 

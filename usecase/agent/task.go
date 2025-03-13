@@ -12,6 +12,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 )
 
 /**
@@ -88,6 +89,12 @@ func (t *AgentTask) KBaseSearch(msg *string) (*string, error) {
 	//使用Ai生成日志的关键词
 	//todo：将转换后的写入query结构体中
 	query, err := generateQueryWithAI(msg)
+	queryData := agent.QueryData{
+		Results:  t.KBaseResults,
+		MinTime:  time.Time{},
+		KeyWords: query,
+		MetaData: nil,
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +102,14 @@ func (t *AgentTask) KBaseSearch(msg *string) (*string, error) {
 	for _, kb := range t.KBase {
 		kbaseObj := kbase.Get(kb)
 		//根据KBase对应的嵌入向量生成器，生成相应的嵌入向量
-		embeddingQuery, err := kbaseObj.Embedding(query)
-		if err != nil {
-			return nil, err
-		}
+		//embeddingQuery, err := kbaseObj.Embedding(query)
+		//if err != nil {
+		//	return nil, err
+		//}
+
 		//进行关键词和向量的混合检索(自动去重)
-		resDocs, err := hybridSearch(kbaseObj, query, embeddingQuery, t.KBaseTopN)
+		resDocs, err := kbaseObj.Search(queryData)
+		//resDocs, err := hybridSearch(kbaseObj, query, embeddingQuery, t.KBaseResults)
 		if err != nil {
 			return nil, err
 		}

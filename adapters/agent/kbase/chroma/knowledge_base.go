@@ -113,36 +113,38 @@ func (k KBaseChroma) WriteIn(docs []*agent.Document) error {
 	return nil
 }
 
-func (k KBaseChroma) Search(topK int, query ...string) ([]*agent.Document, error) {
+func (k KBaseChroma) Search(queries agent.QueryData) ([]*agent.Document, error) {
 	ctx := context.Background()
+
 	collection, err := k.connect(ctx)
 	if err != nil {
 		return nil, err
 	}
+	query := queryBuilder(queries)
+
 	//todo：将入参转成where metadata和where document格式
 	results, err := collection.QueryWithOptions(
 		ctx,
-		types.WithQueryTexts(query),
-		types.WithNResults(int32(topK)),
-		types.WithWhereMap(map[string]interface{}{
-			"author": map[string]interface{}{
-				"$eq": "张三",
-			},
-		}),
-		types.WithWhereDocumentMap(map[string]interface{}{
-			"$contains": "并发",
-		}),
+		types.WithQueryTexts(query.text()),
+		types.WithNResults(query.results()),
+		types.WithWhereMap(query.whereMap()),
+		types.WithWhereDocumentMap(query.whereDocMap()),
 		types.WithInclude(types.IDocuments, types.IMetadatas),
 	)
-	//results, err := collection.Query(ctx,
-	//	query,
-	//	int32(topK),
-	//	map[string]interface{}{
-	//		"metadata_field": "search_string",
-	//	},
-	//	map[string]interface{}{
+	//results, err := collection.QueryWithOptions(
+	//	ctx,
+	//	types.WithQueryTexts(query.text()),
+	//	types.WithNResults(int32(query.topk)),
+	//	types.WithWhereMap(map[string]interface{}{
+	//		"author": map[string]interface{}{
+	//			"$eq": "张三",
+	//		},
+	//	}),
+	//	types.WithWhereDocumentMap(map[string]interface{}{
 	//		"$contains": "并发",
-	//	}, nil)
+	//	}),
+	//	types.WithInclude(types.IDocuments, types.IMetadatas),
+	//)
 	if err != nil {
 		return nil, err
 	}
@@ -197,21 +199,6 @@ func (k KBaseChroma) connect(ctx context.Context) (*chromago.Collection, error) 
 	if err != nil {
 		return nil, fmt.Errorf("agent - kbase: chroma Failed to create client: %v\n", err)
 	}
-
-	//_, err = client.GetTenant(ctx, k.Tenant)
-	//if err != nil {
-	//	if _, err = client.CreateTenant(ctx, k.Tenant); err != nil {
-	//		return nil, err
-	//	}
-	//}
-
-	//collection, err := client.GetCollection(ctx, k.Collection, k.Efunc)
-	//if err != nil || collection == nil {
-	//	collection, err = client.CreateCollection(ctx, k.Collection, map[string]interface{}{}, true, k.Efunc, types.L2)
-	//	if err != nil {
-	//		return nil, fmt.Errorf("agent - kbase: chroma Failed to create collection: \n    %v\n", err)
-	//	}
-	//}
 	collection, err := client.CreateCollection(ctx, k.Collection, map[string]interface{}{}, true, k.Efunc, types.L2)
 	if err != nil {
 		return nil, fmt.Errorf("agent - kbase: chroma Failed to create or get collection: \n    %v\n", err)

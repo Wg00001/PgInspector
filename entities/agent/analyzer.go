@@ -22,7 +22,7 @@ type Analyzer interface {
 }
 
 type AnalyzeContent struct {
-	SystemMsg string
-	UserMsg   string
-	KBaseMsg  string
+	SystemMsg string //提示词
+	UserMsg   string //日志数据
+	KBaseMsg  string //从知识库中获取的相关知识
 }

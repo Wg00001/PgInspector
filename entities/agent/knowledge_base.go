@@ -1,6 +1,9 @@
 package agent
 
-import "PgInspector/entities/config"
+import (
+	"PgInspector/entities/config"
+	"time"
+)
 
 /**
  * @description: TODO
@@ -18,7 +21,28 @@ type Document struct {
 type KnowledgeBase interface {
 	Init(config *config.KnowledgeBaseConfig) (KnowledgeBase, error)
 	WriteIn(docs []*Document) error
-	Search(topK int, query ...string) ([]*Document, error)
-	//SimilaritySearch(topK int, embedding []float32) ([]*Document, error)
+	Search(queries QueryData) ([]*Document, error)
 	Embedding(query string) ([]float32, error)
+	//SimilaritySearch(topK int, embedding []float32) ([]*Document, error)
+}
+
+type QueryData struct {
+	Results  int //number of results
+	MinTime  time.Time
+	KeyWords []string
+	MetaData map[string]string
+}
+
+func NewQueryData() QueryData {
+	return QueryData{Results: 3, MinTime: time.Now().AddDate(0, 0, -15)}
+}
+
+func (d QueryData) WithKeyWords(keywords ...string) QueryData {
+	d.KeyWords = keywords
+	return d
+}
+
+func (d QueryData) WithMetaData(metadata map[string]string) QueryData {
+	d.MetaData = metadata
+	return d
 }

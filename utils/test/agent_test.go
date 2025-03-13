@@ -8,6 +8,7 @@ import (
 	"PgInspector/usecase/agent/kbase"
 	"fmt"
 	"testing"
+	"time"
 )
 
 /**
@@ -45,16 +46,16 @@ func TestKBase(t *testing.T) {
 	// 准备测试数据
 	testDocs := []*agent.Document{
 		{
-			ID:      "doc1",
-			Content: "Go语言并发编程指南",
+			ID:      "doc5",
+			Content: "Go语言并发编程指南2",
 			//Embedding: []float32{0.1, 0.2, 0.3},
-			Metadata: map[string]interface{}{"author": "张三"},
+			Metadata: map[string]interface{}{"author": "张三", "timestamp": time.Now().Unix()},
 		},
 		{
-			ID:      "doc2",
-			Content: "分布式系统设计原则",
+			ID:      "doc6",
+			Content: "分布式系统设计原则2",
 			//Embedding: []float32{0.4, 0.5, 0.6},
-			Metadata: map[string]interface{}{"year": 2023},
+			Metadata: map[string]interface{}{"year": 2023, "timestamp": time.Now().Unix()},
 		},
 	}
 
@@ -85,7 +86,10 @@ func TestKBase(t *testing.T) {
 	t.Run("Search", func(t *testing.T) {
 		// 正常搜索测试
 		t.Run("BasicSearch", func(t *testing.T) {
-			results, err := kb.Search(2, "并发")
+			results, err := kb.Search(
+				agent.NewQueryData().
+					WithKeyWords("并发").
+					WithMetaData(map[string]string{"author": "张三"}))
 			if err != nil {
 				t.Fatalf("Search failed: %v", err)
 			}
@@ -97,7 +101,10 @@ func TestKBase(t *testing.T) {
 
 		// 多查询测试
 		t.Run("MultipleQueries", func(t *testing.T) {
-			results, err := kb.Search(2, "系统", "设计")
+			results, err := kb.Search(
+				agent.NewQueryData().
+					WithKeyWords("并发").
+					WithMetaData(map[string]string{"author": "张三"}))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -108,13 +115,14 @@ func TestKBase(t *testing.T) {
 		// 边界测试
 		t.Run("BoundaryConditions", func(t *testing.T) {
 			// 零结果测试
-			results, err := kb.Search(0, "无关内容")
+			results, err := kb.Search(agent.QueryData{KeyWords: []string{"无关内容"}})
 			if err == nil {
 				t.Error("Expected error for empty query")
 			}
 			fmt.Println(results)
 			// 无效查询测试
-			results, err = kb.Search(1, "")
+			results, err = kb.Search(agent.QueryData{KeyWords: []string{""}})
+
 			if err == nil {
 				t.Error("Expected error for empty query")
 			}

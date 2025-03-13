@@ -5,6 +5,7 @@ import (
 	alerter2 "PgInspector/entities/alerter"
 	"PgInspector/entities/config"
 	"PgInspector/usecase/agent/analyzer"
+	"PgInspector/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/wg00001/wgo-sdk/wg"
@@ -46,25 +47,25 @@ func generateQueryEmbedding(query string, base agent.KnowledgeBase) ([]float32, 
 }
 
 // 使用Ai进行分析获取搜索关键词
-func generateQueryWithAI(logContent *string) (string, error) {
+func generateQueryWithAI(logContent *string) ([]string, error) {
 	res, err := analyzer.Analyze(&agent.AnalyzeContent{
-		SystemMsg: "",
-		UserMsg:   "请从以下日志中提取3到5个最相关的搜索关键词，并用逗号分隔的关键词列表。\n日志内容：\n" + *logContent,
+		SystemMsg: utils.DefaultKBaseSystemMessage,
+		UserMsg:   "\n日志内容：\n" + *logContent,
 		KBaseMsg:  "",
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return strings.ReplaceAll(res, ",", " "), nil
+	return strings.Split(res, ","), nil
 }
 
 // 混合检索 - 结合关键词和向量检索
 // todo: 入参改为Query结构体
 func hybridSearch(kbase agent.KnowledgeBase, query string, embedding []float32, topK int) ([]*agent.Document, error) {
 	// 并行执行两种检索
-	keywordResults, _ := kbase.Search(topK/2, query)
+	keywordResults, _ := kbase.Search(agent.NewQueryData())
 	//vectorResults, _ := kbase.Search(topK/2, embedding)
-	vectorResults, _ := kbase.Search(topK/2, query)
+	vectorResults, _ := kbase.Search(agent.NewQueryData())
 	// 结果去重合并
 	idx := wg.SliceToSet(keywordResults,
 		func(document *agent.Document) string {
