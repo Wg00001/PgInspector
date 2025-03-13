@@ -17,6 +17,11 @@ import (
  * @date 2025/3/6
  */
 
+func TestAgentRAU(t *testing.T) {
+	start.SetConfigPath("../../app/config", "yaml")
+	start.Init()
+}
+
 func TestKBase(t *testing.T) {
 	start.SetConfigPath("../../app/config", "yaml")
 	start.Init()
@@ -90,6 +95,7 @@ func TestKBase(t *testing.T) {
 				agent.NewQueryData().
 					WithKeyWords("并发").
 					WithMetaData(map[string]string{"author": "张三"}))
+			//WithMetaData(map[string]string{}))
 			if err != nil {
 				t.Fatalf("Search failed: %v", err)
 			}

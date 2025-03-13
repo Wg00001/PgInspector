@@ -2,6 +2,7 @@ package chroma
 
 import (
 	"PgInspector/entities/agent"
+	"time"
 )
 
 /**
@@ -17,7 +18,9 @@ func (b queryBuilder) results() int32 {
 }
 func (b queryBuilder) whereMap() map[string]interface{} {
 	var filter map[string]interface{}
-	if len(b.MetaData) == 1 {
+	if len(b.MetaData) == 0 {
+		filter = nil
+	} else if len(b.MetaData) == 1 {
 		for k, v := range b.MetaData {
 			filter = map[string]interface{}{
 				k: v,
@@ -34,17 +37,22 @@ func (b queryBuilder) whereMap() map[string]interface{} {
 			"$or": or,
 		}
 	}
-
-	return map[string]interface{}{
-		"$and": []map[string]interface{}{
-			{
-				"timestamp": map[string]interface{}{
-					"$gte": b.MinTime.Unix(),
-				},
+	and := []map[string]interface{}{
+		{
+			"timestamp": map[string]interface{}{
+				"$gte": b.MinTime.Unix(),
 			},
-			filter,
+		},
+		{
+			"timestamp": map[string]interface{}{
+				"$lte": time.Now().Unix(),
+			},
 		},
 	}
+	if filter != nil {
+		and = append(and, filter)
+	}
+	return map[string]interface{}{"$and": and}
 }
 func (b queryBuilder) whereDocMap() map[string]interface{} {
 	if len(b.KeyWords) == 1 {
