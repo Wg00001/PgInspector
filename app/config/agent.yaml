@@ -1,6 +1,6 @@
 
 
-#Ai:
+#Agent:
 #  Driver: "ollama"
 #  Api: "http://127.0.0.1:11434"
 #  Model: "deepseek-r1:7b"
@@ -13,16 +13,18 @@ Agent:
   Model: "deepseek-r1-250120"
   Temperature: 0.8
 
-AiTask:
-  - AiTaskName: "task1"
+AgentTask:
+  - Name: "task1"
     Cron:
       AtTime:
-        - "12:07:30"
+        - "17:11:30"
     #      Duration: 1m
     LogID: 1
     AlertID: 3
+    KBase:
+      - "chroma"
     LogFilter:
-      StartTime: 2025-03-4
+      StartTime: "2025-03-05"
       InspName:
         - "1"
 

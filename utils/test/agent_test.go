@@ -5,6 +5,7 @@ import (
 	"PgInspector/adapters/start"
 	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
+	agent2 "PgInspector/usecase/agent"
 	"PgInspector/usecase/agent/kbase"
 	"context"
 	"fmt"
@@ -18,10 +19,42 @@ import (
  * @date 2025/3/6
  */
 
-func TestAgentRAU(t *testing.T) {
+func TestFullAgentRAU(t *testing.T) {
 	start.SetConfigPath("../../app/config", "yaml")
 	start.Init()
 	start.Run(context.Background())
+}
+
+func TestAgentRAU(t *testing.T) {
+	start.SetConfigPath("../../app/config", "yaml")
+	start.Init()
+	//start.Run(context.Background())
+	nt := agent2.NewTask(&config.AgentTaskConfig{
+		Name: "agent_test",
+		//Cron: &config.Cron{
+		//	AtTime: []string{time.Now().Add(time.Second * 3).Format(time.DateTime)},
+		//},
+		LogID: 1,
+		LogFilter: config.LogFilter{
+			StartTime: func() time.Time {
+				parse, _ := time.Parse(time.DateOnly, "2025-03-05")
+				return parse
+			}(),
+			EndTime:   time.Now(),
+			TaskNames: nil,
+			DBNames:   nil,
+			TaskIDs:   nil,
+			InspNames: nil,
+		},
+		AlertID:      3,
+		KBase:        []config.Name{"chroma"},
+		KBaseResults: 3,
+		KBaseMaxLen:  100000,
+	})
+	err := nt.Do(context.TODO())
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func TestKBase(t *testing.T) {

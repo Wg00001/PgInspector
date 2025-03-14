@@ -12,7 +12,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 )
 
 /**
@@ -46,14 +45,14 @@ func (t *AgentTask) Do(context.Context) error {
 	if msg == nil {
 		return fmt.Errorf("Ai task err\n- AgentTask name: %v\n- err: log read empty\n---\n", t.Name)
 	}
-
-	//3. 知识库检索 (并且组织格式)
+	//3. Ai生成关键词 + 知识库检索 (并且组织格式)
 	kbaseContent, err := t.KBaseSearch(msg)
-	if err != nil {
+	if err != nil || kbaseContent == nil {
 		// 根据业务需求，不需要阻断流程
-		log.Printf("Agent task warring: kbase search fail but continue to execute, Err :%v", err)
+		log.Println("Agent task warring: kbase search fail but continue to execute, Err :%v", err)
+		f := "知识库无相关内容\n"
+		kbaseContent = &f
 	}
-
 	//4. 组织格式 (发生一次复制)
 	content := &agent.AnalyzeContent{
 		SystemMsg: t.SystemMessage,
@@ -67,8 +66,11 @@ func (t *AgentTask) Do(context.Context) error {
 		return err
 	}
 
-	//6. 将ai结果发送给Alert
+	//6.1 自学习（将巡检结果发进知识库）
+
+	//6.2 将ai结果发送给Alert
 	return alerter.GetAlert(t.AlertID).Send(*buildAiAlertContent(t, res))
+
 }
 
 func (t *AgentTask) GetCron() *config.Cron {
@@ -87,17 +89,11 @@ func (t *AgentTask) KBaseSearch(msg *string) (*string, error) {
 		return nil, fmt.Errorf("empty input message")
 	}
 	//使用Ai生成日志的关键词
-	//todo：将转换后的写入query结构体中
-	query, err := generateQueryWithAI(msg)
-	queryData := agent.QueryData{
-		Results:  t.KBaseResults,
-		MinTime:  time.Time{},
-		KeyWords: query,
-		MetaData: nil,
-	}
+	queryData, err := generateQueryWithAI(msg)
 	if err != nil {
 		return nil, err
 	}
+
 	var kDocs []*agent.Document
 	for _, kb := range t.KBase {
 		kbaseObj := kbase.Get(kb)
@@ -106,9 +102,11 @@ func (t *AgentTask) KBaseSearch(msg *string) (*string, error) {
 		//if err != nil {
 		//	return nil, err
 		//}
-
+		if kbaseObj == nil {
+			return nil, fmt.Errorf("agent task : kbase not exist")
+		}
 		//进行关键词和向量的混合检索(自动去重)
-		resDocs, err := kbaseObj.Search(queryData)
+		resDocs, err := kbaseObj.Search(*queryData)
 		//resDocs, err := hybridSearch(kbaseObj, query, embeddingQuery, t.KBaseResults)
 		if err != nil {
 			return nil, err
@@ -116,4 +114,12 @@ func (t *AgentTask) KBaseSearch(msg *string) (*string, error) {
 		kDocs = append(kDocs, resDocs...)
 	}
 	return formatKBaseContent(kDocs, t.KBaseMaxLen), nil
+}
+
+func (t *AgentTask) K() {
+	//置信度评估
+	//关键词提取
+	//对比去重
+	//人工审核
+	//入库
 }

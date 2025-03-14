@@ -5,10 +5,12 @@ import (
 	"PgInspector/entities/insp"
 	config2 "PgInspector/usecase/config"
 	insp2 "PgInspector/usecase/insp"
+	"PgInspector/utils"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
 	"strings"
+	"time"
 )
 
 /**
@@ -53,9 +55,11 @@ type ConfigYaml struct {
 }
 
 type AgentConfigYaml struct {
-	AiConfig     config.AgentConfig           `yaml:"agent"`
-	AiTaskConfig []config.AgentTaskConfig     `yaml:"agenttask"`
-	KBaseConfig  []config.KnowledgeBaseConfig `yaml:"knowledgebase"`
+	AiConfig           config.AgentConfig           `yaml:"agent"`
+	AiTaskConfigOrigin []map[string]interface{}     `yaml:"agenttask"`
+	AiTaskConfig       []config.AgentTaskConfig     `yaml:"-"`
+	KBaseConfigOrigin  []map[string]interface{}     `yaml:"kbase"`
+	KBaseConfig        []config.KnowledgeBaseConfig `yaml:"-"`
 }
 
 var _ config.Reader = (*ConfigReaderYaml)(nil)
@@ -217,9 +221,86 @@ func (c *ConfigReaderYaml) ReadAgent() error {
 	if err != nil {
 		return err
 	}
-	return nil
-}
 
+	// Process agent task configurations
+	c.acyaml.AiTaskConfig = make([]config.AgentTaskConfig, 0, len(c.acyaml.AiTaskConfigOrigin))
+	for _, origin := range c.acyaml.AiTaskConfigOrigin {
+		funcResult := func(o map[string]interface{}) (result config.AgentTaskConfig) {
+			defer func() {
+				if r := recover(); r != nil {
+					err = fmt.Errorf("fail to read agent task config: %v", r)
+				}
+			}()
+
+			m := utils.UseMap(o)
+
+			// Basic configurations
+			result.Name = config.Name(m.GetString("name"))
+			result.LogID = config.ID(m.GetInt("logid"))
+			result.AlertID = config.ID(m.GetInt("alertid"))
+			result.KBaseResults = m.GetInt("kbaseresults")
+			result.KBaseMaxLen = m.GetInt("kbasemaxlen")
+			result.SystemMessage = m.GetString("systemmessage")
+
+			// Cron configuration
+			if cronMap := m.GetMap("cron"); cronMap != nil {
+				result.Cron = &config.Cron{
+					CronTab: cronMap.GetString("crontab"),
+					Duration: func() time.Duration {
+						duration, err := time.ParseDuration(cronMap.GetString("duration"))
+						if err != nil {
+							return 0
+						}
+						return duration
+					}(),
+					AtTime:  parseStringSlice(cronMap["attime"]),
+					Weekly:  parseWeekdaySlice(cronMap["weekly"]),
+					Monthly: parseIntSlice(cronMap["monthly"]),
+				}
+			}
+
+			// Log filter configuration
+			if logFilterMap := m.GetMap("logfilter"); logFilterMap != nil {
+				result.LogFilter = config.LogFilter{
+					StartTime: parseTime(logFilterMap.GetString("starttime")),
+					EndTime:   parseTime(logFilterMap.GetString("endtime")),
+					TaskNames: parseNames(logFilterMap["tasknames"]),
+					DBNames:   parseNames(logFilterMap["dbnames"]),
+					TaskIDs:   parseStringSlice(logFilterMap["taskids"]),
+					InspNames: parseNames(logFilterMap["inspnames"]),
+				}
+			}
+
+			// Knowledge base references
+			result.KBase = parseNames(m["kbase"])
+			return
+		}(origin)
+		c.acyaml.AiTaskConfig = append(c.acyaml.AiTaskConfig, funcResult)
+	}
+	if err != nil {
+		return err
+	}
+
+	// Process knowledge base configurations
+	c.acyaml.KBaseConfig = make([]config.KnowledgeBaseConfig, 0, len(c.acyaml.KBaseConfigOrigin))
+	for _, origin := range c.acyaml.KBaseConfigOrigin {
+		funcResult := func(o map[string]interface{}) (result config.KnowledgeBaseConfig) {
+			defer func() {
+				if r := recover(); r != nil {
+					err = fmt.Errorf("fail to read knowledge base config: %v", r)
+				}
+			}()
+
+			m := utils.UseMap(o)
+			result.Name = config.Name(m.GetString("name"))
+			result.Driver = m.GetString("driver")
+			result.Value = m
+			return
+		}(origin)
+		c.acyaml.KBaseConfig = append(c.acyaml.KBaseConfig, funcResult)
+	}
+	return err
+}
 func (c *ConfigReaderYaml) SaveIntoConfig() {
 	config2.AddConfigs(c.cyaml.DBConfigs...)
 	config2.AddConfigs(c.cyaml.TaskConfigs...)
@@ -260,4 +341,71 @@ func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuil
 		delete(arg, keySQL)
 	}
 	return n, nil
+}
+
+// Helper functions with panic for type conversion errors
+func parseTime(s interface{}) time.Time {
+	str, ok := s.(string)
+	if !ok || s == "" {
+		return time.Time{}
+	}
+	t, err := time.Parse(time.DateOnly, str)
+	if err != nil {
+		t, err = time.Parse(time.TimeOnly, str)
+	}
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
+
+func parseNames(s interface{}) []config.Name {
+	items, ok := s.([]interface{})
+	if !ok {
+		return nil
+	}
+	names := make([]config.Name, 0, len(items))
+	for _, item := range items {
+		names = append(names, config.Name(item.(string)))
+	}
+	return names
+}
+
+func parseStringSlice(data interface{}) []string {
+	if data == nil {
+		return nil
+	}
+	items, ok := data.([]interface{})
+	if !ok {
+		return nil
+	}
+	strs := make([]string, 0, len(items))
+	for _, item := range items {
+		strs = append(strs, fmt.Sprintf("%v", item))
+	}
+	return strs
+}
+
+func parseIntSlice(data interface{}) []int {
+	if data == nil {
+		return nil
+	}
+	items, ok := data.([]interface{})
+	if !ok {
+		return nil
+	}
+	ints := make([]int, 0, len(items))
+	for _, item := range items {
+		ints = append(ints, item.(int))
+	}
+	return ints
+}
+
+func parseWeekdaySlice(data interface{}) []time.Weekday {
+	ints := parseIntSlice(data)
+	res := make([]time.Weekday, len(ints))
+	for i, v := range ints {
+		res[i] = time.Weekday(v)
+	}
+	return res
 }

@@ -1,5 +1,7 @@
 package utils
 
+import "strconv"
+
 /**
  * @description: TODO
  * @author Wg
@@ -10,6 +12,15 @@ type Map map[string]interface{}
 
 func UseMap(origin map[string]interface{}) Map {
 	return origin
+}
+
+func (m Map) GetInt(key string, keys ...string) int {
+	s := m.GetString(key, keys...)
+	atoi, err := strconv.Atoi(s)
+	if err != nil {
+		return 0
+	}
+	return atoi
 }
 
 func (m Map) GetString(key string, keys ...string) string {

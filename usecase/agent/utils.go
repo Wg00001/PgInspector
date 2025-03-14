@@ -46,17 +46,24 @@ func generateQueryEmbedding(query string, base agent.KnowledgeBase) ([]float32, 
 	return embedding, nil
 }
 
-// 使用Ai进行分析获取搜索关键词
-func generateQueryWithAI(logContent *string) ([]string, error) {
+// 使用Ai进行分析获取搜索关键词（并解析JSON
+func generateQueryWithAI(logContent *string) (*agent.QueryData, error) {
 	res, err := analyzer.Analyze(&agent.AnalyzeContent{
 		SystemMsg: utils.DefaultKBaseSystemMessage,
-		UserMsg:   "\n日志内容：\n" + *logContent,
+		UserMsg:   *logContent,
 		KBaseMsg:  "",
 	})
 	if err != nil {
 		return nil, err
 	}
-	return strings.Split(res, ","), nil
+	l := strings.Index(res, "{")
+	r := strings.LastIndex(res, "}")
+	var q agent.QueryData
+	err = json.Unmarshal([]byte(res[l:r+1]), &q)
+	if err != nil {
+		return nil, err
+	}
+	return &q, nil
 }
 
 // 混合检索 - 结合关键词和向量检索
