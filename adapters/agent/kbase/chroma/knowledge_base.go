@@ -5,6 +5,7 @@ import (
 	"PgInspector/entities/config"
 	"PgInspector/usecase/agent/kbase"
 	config2 "PgInspector/usecase/config"
+	"PgInspector/utils"
 	"context"
 	"fmt"
 	chromago "github.com/amikos-tech/chroma-go"
@@ -29,7 +30,7 @@ type KBaseChroma struct {
 	Collection       string //chroma的collection类似于库
 	Tenant           string //chroma需要指定租户
 	Database         string
-	EmbeddingSource  string
+	EmbeddingDriver  string
 	EmbeddingBaseUrl string
 	EmbeddingModel   string
 	EmbeddingApikey  string
@@ -45,16 +46,19 @@ func (k KBaseChroma) Init(config *config.KnowledgeBaseConfig) (_ agent.Knowledge
 		}
 	}()
 	k.Config = config
-	k.Path = config.Value["path"]
-	k.Collection = config.Value["collection"]
-	k.Tenant = config.Value["tenant"]
-	k.Database = config.Value["database"]
-	k.EmbeddingBaseUrl = config.Value["baseurl"]
-	k.EmbeddingModel = config.Value["model"]
-	k.EmbeddingApikey = config.Value["apikey"]
-	k.EmbeddingSource = config.Value["embedding"]
+	value := utils.UseMap(config.Value)
+	k.Path = value.GetString("path")
+	k.Collection = value.GetString("collection")
+	k.Tenant = value.GetString("tenant")
+	k.Database = value.GetString("database")
+	// 获取 embedding 子 map
+	embedding := value.GetMap("embedding")
+	k.EmbeddingBaseUrl = embedding.GetString("baseurl")
+	k.EmbeddingModel = embedding.GetString("model")
+	k.EmbeddingApikey = embedding.GetString("apikey")
+	k.EmbeddingDriver = embedding.GetString("driver")
 
-	switch k.EmbeddingSource {
+	switch k.EmbeddingDriver {
 	case "ollama":
 		k.Efunc, err = ollama.NewOllamaEmbeddingFunction(
 			ollama.WithBaseURL(k.EmbeddingBaseUrl),

@@ -111,5 +111,5 @@ type LogFilter struct {
 type KnowledgeBaseConfig struct {
 	Name
 	Driver string
-	Value  map[string]string
+	Value  map[string]interface{}
 }

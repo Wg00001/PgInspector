@@ -16,6 +16,7 @@ type queryBuilder agent.QueryData
 func (b queryBuilder) results() int32 {
 	return int32(b.Results)
 }
+
 func (b queryBuilder) whereMap() map[string]interface{} {
 	var filter map[string]interface{}
 	if len(b.MetaData) == 0 {

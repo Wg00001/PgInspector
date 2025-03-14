@@ -11,7 +11,7 @@ Agent:
   Url: "https://ark.cn-beijing.volces.com/api/v3"
   ApiKey: "27fbb257-c8e7-452b-810d-2ee0baccf4fc"
   Model: "deepseek-r1-250120"
-  Temperature: 0.5
+  Temperature: 0.8
 
 AiTask:
   - AiTaskName: "task1"
@@ -25,3 +25,13 @@ AiTask:
       StartTime: 2025-03-4
       InspName:
         - "1"
+
+KBase:
+  - Name: "chroma"
+    Driver: "chroma"
+    Path: "http://localhost:8000"
+    Collection: "ollama_embedding"
+    Embedding:
+      Driver: "ollama"
+      BaseUrl: "http://127.0.0.1:11434"
+      Model: "deepseek-r1:7b"

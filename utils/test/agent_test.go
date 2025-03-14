@@ -6,6 +6,7 @@ import (
 	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
 	"PgInspector/usecase/agent/kbase"
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -20,6 +21,7 @@ import (
 func TestAgentRAU(t *testing.T) {
 	start.SetConfigPath("../../app/config", "yaml")
 	start.Init()
+	start.Run(context.Background())
 }
 
 func TestKBase(t *testing.T) {
@@ -30,7 +32,7 @@ func TestKBase(t *testing.T) {
 	cfg := config.KnowledgeBaseConfig{
 		Name:   "unit-test-kb",
 		Driver: "chroma",
-		Value: map[string]string{
+		Value: map[string]interface{}{
 			"path":       "http://localhost:8000",
 			"collection": "ollama_embedding",
 			"embedding":  "ollama",
