@@ -15,7 +15,7 @@ import (
 
 var pool = sync.Map{}
 
-func Register(id config.ID, alert alerter.Alerter) error {
+func Register(id config.Identity, alert alerter.Alerter) error {
 	if _, ok := pool.Load(id); ok {
 		return fmt.Errorf("alerter registry fail: alert is already exist, alert id repeat")
 	}
@@ -23,7 +23,7 @@ func Register(id config.ID, alert alerter.Alerter) error {
 	return nil
 }
 
-func GetAlert(id config.ID) alerter.Alerter {
+func GetAlert(id config.Identity) alerter.Alerter {
 	val, ok := pool.Load(id)
 	if !ok {
 		res, _ := GetDriver("default")

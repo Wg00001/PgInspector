@@ -76,7 +76,7 @@ func splitCondition(s string) ([]string, error) {
 }
 
 // 告警函数生成器
-func buildAlertFunc(alertWhen string, alertId config.ID) (func(alerter.Content) error, error) {
+func buildAlertFunc(alertWhen string, alertId config.Identity) (func(alerter.Content) error, error) {
 	condition, err := splitCondition(alertWhen)
 	if err != nil {
 		return nil, err

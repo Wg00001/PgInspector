@@ -15,7 +15,7 @@ import (
 
 var pool = sync.Map{}
 
-func Register(name config.Name, lg agent.KnowledgeBase) error {
+func Register(name config.Identity, lg agent.KnowledgeBase) error {
 	if _, ok := pool.Load(name); ok {
 		return fmt.Errorf("agent kbase register fail: kbase is already exsit, name repeat - %s\n", name)
 	}
@@ -23,7 +23,7 @@ func Register(name config.Name, lg agent.KnowledgeBase) error {
 	return nil
 }
 
-func Get(name config.Name) agent.KnowledgeBase {
+func Get(name config.Identity) agent.KnowledgeBase {
 	val, ok := pool.Load(name)
 	if !ok {
 		res, _ := GetDriver("default")

@@ -22,7 +22,7 @@ func Use(alertConfig config.AlertConfig) error {
 	if err != nil {
 		return err
 	}
-	return Register(alertConfig.ID, init)
+	return Register(alertConfig.Identity, init)
 }
 
 var (

@@ -16,9 +16,9 @@ type Filter struct {
 	StartTime time.Time
 	EndTime   time.Time
 
-	TaskNames []config.Name // Name 匹配列表
-	DBNames   []config.Name // DBName 匹配列表
-	TaskIDs   []string      // TaskID 匹配列表
+	TaskNames []config.Identity // Id 匹配列表
+	DBNames   []config.Identity // DBName 匹配列表
+	TaskIDs   []string          // TaskID 匹配列表
 }
 
 // NewFilter 新建一个过滤器，默认获取前一周的所有数据
@@ -51,13 +51,13 @@ func WithEndTime(end time.Time) Option {
 	}
 }
 
-func WithTaskNames(names ...config.Name) Option {
+func WithTaskNames(names ...config.Identity) Option {
 	return func(o *Filter) {
 		o.TaskNames = names
 	}
 }
 
-func WithDBNames(names ...config.Name) Option {
+func WithDBNames(names ...config.Identity) Option {
 	return func(o *Filter) {
 		o.DBNames = names
 	}

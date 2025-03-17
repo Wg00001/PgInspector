@@ -115,9 +115,9 @@ func (c *ConfigReaderYaml) ReadConfig() (err error) {
 					}
 				}()
 				cur := config.LogConfig{
-					ID:     config.ID(origin["id"].(int)),
-					Driver: origin["driver"].(string),
-					Header: make(map[string]string),
+					Identity: config.Identity(origin["id"].(int)),
+					Driver:   origin["driver"].(string),
+					Header:   make(map[string]string),
 				}
 				for k, v := range origin {
 					if str, ok := v.(string); ok {
@@ -141,9 +141,9 @@ func (c *ConfigReaderYaml) ReadConfig() (err error) {
 					}
 				}()
 				cur := config.AlertConfig{
-					ID:     config.ID(origin["id"].(int)),
-					Driver: origin["driver"].(string),
-					Header: make(map[string]string),
+					Identity: config.Identity(origin["id"].(int)),
+					Driver:   origin["driver"].(string),
+					Header:   make(map[string]string),
 				}
 				for k, v := range origin {
 					if str, ok := v.(string); ok {
@@ -235,9 +235,9 @@ func (c *ConfigReaderYaml) ReadAgent() error {
 			m := utils.UseMap(o)
 
 			// Basic configurations
-			result.Name = config.Name(m.GetString("name"))
-			result.LogID = config.ID(m.GetInt("logid"))
-			result.AlertID = config.ID(m.GetInt("alertid"))
+			result.Identity = config.Identity(m.GetString("name"))
+			result.LogID = config.Identity(m.GetInt("logid"))
+			result.AlertID = config.Identity(m.GetInt("alertid"))
 			result.KBaseResults = m.GetInt("kbaseresults")
 			result.KBaseMaxLen = m.GetInt("kbasemaxlen")
 			result.SystemMessage = m.GetString("systemmessage")
@@ -292,7 +292,7 @@ func (c *ConfigReaderYaml) ReadAgent() error {
 			}()
 
 			m := utils.UseMap(o)
-			result.Name = config.Name(m.GetString("name"))
+			result.Identity = config.Identity(m.GetString("name"))
 			result.Driver = m.GetString("driver")
 			result.Value = m
 			return
@@ -322,7 +322,7 @@ func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuil
 	if !ok {
 		return n, nil
 	} else {
-		n.AlertID = config.ID(alertId.(int))
+		n.AlertID = config.Identity(alertId.(int))
 		delete(arg, keyAlertId)
 	}
 	alertWhen, ok := arg[keyAlertWhen]
@@ -359,14 +359,14 @@ func parseTime(s interface{}) time.Time {
 	return t
 }
 
-func parseNames(s interface{}) []config.Name {
+func parseNames(s interface{}) []config.Identity {
 	items, ok := s.([]interface{})
 	if !ok {
 		return nil
 	}
-	names := make([]config.Name, 0, len(items))
+	names := make([]config.Identity, 0, len(items))
 	for _, item := range items {
-		names = append(names, config.Name(item.(string)))
+		names = append(names, config.Identity(item.(string)))
 	}
 	return names
 }

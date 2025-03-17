@@ -22,7 +22,7 @@ import (
 func buildAiAlertContent(t *AgentTask, msg string) *alerter2.Content {
 	return &alerter2.Content{
 		TimeStamp: time.Now(),
-		TaskName:  "AiAnalyzeTask: " + t.Name,
+		TaskName:  t.Identity(),
 		TaskID:    time.Now().Format("20060504_150201"),
 		InspName:  logFilterString(t.LogFilter),
 		Result:    []map[string]interface{}{{"message": msg}},

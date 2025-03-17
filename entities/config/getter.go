@@ -6,16 +6,14 @@ package config
  * @date 2025/2/10
  */
 
-// todo:废弃此文件
-
-type Identity interface {
-	Identity() Name
+type Id interface {
+	Identity() Id
 }
 
-func (n Name) Identity() Name {
+func (n Identity) Identity() Id {
 	return n
 }
 
-func (n Name) Str() string {
+func (n Identity) Str() string {
 	return string(n)
 }

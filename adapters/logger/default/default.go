@@ -29,8 +29,8 @@ func (d LogDefault) Init(cfg *config.LogConfig) (logger.Logger, error) {
 	return LogDefault{}, nil
 }
 
-func (d LogDefault) GetID() config.ID {
-	return 0
+func (d LogDefault) GetID() config.Identity {
+	return ""
 }
 
 func (d LogDefault) Log(l logger.Content) {

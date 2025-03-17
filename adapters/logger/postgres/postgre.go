@@ -24,8 +24,8 @@ func init() {
 
 type LogPostgre struct {
 	Config       *config.LogConfig
-	LogDBName    config.Name
-	LogTableName config.Name
+	LogDBName    config.Identity
+	LogTableName config.Identity
 }
 
 var _ logger.Logger = (*LogPostgre)(nil)
@@ -39,11 +39,11 @@ func (l LogPostgre) Init(cfg *config.LogConfig) (logger.Logger, error) {
 	if !ok {
 		tableName = "inspect_log"
 	}
-	return LogPostgre{Config: cfg, LogDBName: config.Name(dbName), LogTableName: config.Name(tableName)}, nil
+	return LogPostgre{Config: cfg, LogDBName: config.Identity(dbName), LogTableName: config.Identity(tableName)}, nil
 }
 
-func (l LogPostgre) GetID() config.ID {
-	return l.Config.ID
+func (l LogPostgre) GetID() config.Identity {
+	return l.Config.Identity
 }
 
 func (l LogPostgre) Log(res logger.Content) {
@@ -92,7 +92,7 @@ func (l LogPostgre) Log(res logger.Content) {
 }
 
 // checkTableExists 检查指定表是否存在
-func checkTableExists(db *sql.DB, tableName config.Name) (bool, error) {
+func checkTableExists(db *sql.DB, tableName config.Identity) (bool, error) {
 	var exists bool
 	query := `SELECT EXISTS (
         SELECT FROM information_schema.tables 
@@ -104,7 +104,7 @@ func checkTableExists(db *sql.DB, tableName config.Name) (bool, error) {
 }
 
 // createTable 创建指定表
-func createTable(db *sql.DB, tableName config.Name) error {
+func createTable(db *sql.DB, tableName config.Identity) error {
 	createQuery := fmt.Sprintf(`
         CREATE TABLE %s (
             id SERIAL PRIMARY KEY,

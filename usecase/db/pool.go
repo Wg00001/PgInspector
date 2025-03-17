@@ -16,21 +16,21 @@ import (
 var pool = sync.Map{}
 
 func Register(sqlDB *db.SqlDB) error {
-	if _, ok := pool.Load(sqlDB.Config.Name); ok {
-		return fmt.Errorf("sql db is already exist, db name: %s\n", sqlDB.Config.Name)
+	if _, ok := pool.Load(sqlDB.Config.Identity); ok {
+		return fmt.Errorf("sql db is already exist, db name: %s\n", sqlDB.Config.Identity)
 	}
-	pool.Store(sqlDB.Config.Name, sqlDB)
+	pool.Store(sqlDB.Config.Identity, sqlDB)
 	return nil
 }
 
-func Get(arg config.Name) *db.SqlDB {
+func Get(arg config.Identity) *db.SqlDB {
 	if val, ok := pool.Load(arg); ok {
 		return val.(*db.SqlDB)
 	}
 	return &db.SqlDB{Err: fmt.Errorf("db config is nil")}
 }
 
-func Close(arg config.Name) error {
+func Close(arg config.Identity) error {
 	if val, ok := pool.LoadAndDelete(arg); ok {
 		err := val.(*db.SqlDB).Close()
 		if err != nil {
@@ -45,7 +45,7 @@ func Close(arg config.Name) error {
 func CloseAll() error {
 	var err error
 	pool.Range(func(key, value any) bool {
-		er := Close(key.(config.Name))
+		er := Close(key.(config.Identity))
 		if er != nil {
 			err = er
 		}

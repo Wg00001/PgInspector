@@ -31,7 +31,7 @@ func TestAgentRAU(t *testing.T) {
 	start.Init()
 	//start.Run(context.Background())
 	nt := agent2.NewTask(&config.AgentTaskConfig{
-		Name: "agent_test",
+		Identity: "agent_test",
 		Cron: &config.Cron{
 			AtTime: []string{time.Now().Add(time.Second * 3).Format(time.TimeOnly)},
 		},
@@ -48,7 +48,7 @@ func TestAgentRAU(t *testing.T) {
 			InspNames: nil,
 		},
 		AlertID:      3,
-		KBase:        []config.Name{"chroma"},
+		KBase:        []config.Identity{"chroma"},
 		KBaseResults: 3,
 		KBaseMaxLen:  100000,
 	})
@@ -66,8 +66,8 @@ func TestKBase(t *testing.T) {
 
 	// 初始化测试配置
 	cfg := config.KnowledgeBaseConfig{
-		Name:   "unit-test-kb",
-		Driver: "chroma",
+		Identity: "unit-test-kb",
+		Driver:   "chroma",
 		Value: map[string]interface{}{
 			"path":       "http://localhost:8000",
 			"collection": "ollama_embedding",
@@ -189,8 +189,8 @@ func TestKBase(t *testing.T) {
 	//		t.Fatalf("Expected 1 result, got %d", len(results))
 	//	}
 	//
-	//	if results[0].ID != "doc1" {
-	//		t.Errorf("Expected doc1, got %s", results[0].ID)
+	//	if results[0].Identity != "doc1" {
+	//		t.Errorf("Expected doc1, got %s", results[0].Identity)
 	//	}
 	//
 	//	// 错误输入测试

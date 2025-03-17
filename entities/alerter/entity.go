@@ -18,10 +18,10 @@ type Alerter interface {
 }
 
 type Content struct {
-	TimeStamp    time.Time   //报警的时刻
-	TaskName     config.Name //发生报警的任务名
+	TimeStamp    time.Time       //报警的时刻
+	TaskName     config.Identity //发生报警的任务名
 	TaskID       string
-	DBName       config.Name
+	DBName       config.Identity
 	InspName     string
 	Result       db.Result //发生报警时所产生的结果
 	AlertWhen    string    //AlertWhen会作为配置项读取

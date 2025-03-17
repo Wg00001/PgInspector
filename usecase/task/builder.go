@@ -25,13 +25,13 @@ func NewTask(taskCfg *config.TaskConfig) (res *Task, err error) {
 		return nil, fmt.Errorf("config is nil")
 	}
 	res = &Task{
-		//Identity: taskCfg.Name.Str() + time.Now().Format(time.RFC3339),
+		//Id: taskCfg.Id.Str() + time.Now().Format(time.RFC3339),
 		Config:   taskCfg,
 		TargetDB: make([]*config.DBConfig, 0, len(taskCfg.TargetDB)),
 		Inspects: []*insp.Node{},
 	}
 	for _, val := range taskCfg.TargetDB {
-		dbcfg, err := config2.Get[*config.DBConfig](&config.DBConfig{Name: val})
+		dbcfg, err := config2.Get[*config.DBConfig](&config.DBConfig{Identity: val})
 		if err != nil {
 			return nil, err
 		}
@@ -47,13 +47,13 @@ func NewTask(taskCfg *config.TaskConfig) (res *Task, err error) {
 		res.Inspects = append(res.Inspects, config2.GetInsp(val))
 	}
 	//去掉not to do的insp (使用hash连接)
-	notToDo := make(map[config.Name]bool, len(taskCfg.NotTodo))
+	notToDo := make(map[config.Identity]bool, len(taskCfg.NotTodo))
 	for _, val := range taskCfg.NotTodo {
 		notToDo[val] = true
 	}
 	newArr := make([]*insp.Node, 0, len(res.Inspects))
 	for _, val := range res.Inspects {
-		if !notToDo[config.Name(val.Name)] {
+		if !notToDo[config.Identity(val.Name)] {
 			newArr = append(newArr, val)
 		}
 	}

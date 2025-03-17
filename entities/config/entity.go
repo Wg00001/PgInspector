@@ -12,40 +12,39 @@ import (
 
 type Config struct {
 	Default DefaultConfig
-	Task    map[Name]*TaskConfig
-	DB      map[Name]*DBConfig
-	Log     map[ID]*LogConfig
-	Alert   map[ID]*AlertConfig
+	Task    map[Identity]*TaskConfig
+	DB      map[Identity]*DBConfig
+	Log     map[Identity]*LogConfig
+	Alert   map[Identity]*AlertConfig
 
 	Ai     AgentConfig
-	AiTask map[Name]*AgentTaskConfig
-	KBase  map[Name]*KnowledgeBaseConfig
+	AiTask map[Identity]*AgentTaskConfig
+	KBase  map[Identity]*KnowledgeBaseConfig
 	//Insp    *insp.Tree //insp不放在此处，避免循环引用
 }
 
-type Name string
-type ID int
+type Identity string
 
 type DefaultConfig struct {
 	DefaultDriver     string
-	DefaultLogLevel   ID
-	DefaultAlertLevel ID
+	DefaultLogLevel   Identity
+	DefaultAlertLevel Identity
 }
 
 type DBConfig struct {
-	Name   Name
+	Identity
 	Driver string
 	DSN    string
 }
 
 type LogConfig struct {
-	ID     ID
+	Identity
 	Driver string
 	Header map[string]string
 }
 
 type AlertConfig struct {
-	ID     ID
+	Identity
 	Driver string
 	Header map[string]string
 }
@@ -53,16 +52,16 @@ type AlertConfig struct {
 // ---task(任务)相关配置
 
 type TaskConfig struct {
-	Name         Name
+	Identity
 	Cron         *Cron
 	AllInspector bool
 	//todo:async
 
-	LogID    ID
-	TargetDB []Name
+	LogID    Identity
+	TargetDB []Identity
 
-	Todo    []Name
-	NotTodo []Name
+	Todo    []Identity
+	NotTodo []Identity
 }
 
 type Cron struct {
@@ -77,7 +76,7 @@ type Cron struct {
 
 // AgentConfig 用户只能指定一个全局Ai，所有的分析均由此Ai完成
 type AgentConfig struct {
-	//AiName      Name
+	//AiName      Id
 	Driver        string
 	Url           string
 	ApiKey        string
@@ -87,12 +86,12 @@ type AgentConfig struct {
 }
 
 type AgentTaskConfig struct {
-	Name          Name
+	Identity
 	Cron          *Cron
-	LogID         ID
+	LogID         Identity
 	LogFilter     LogFilter
-	AlertID       ID
-	KBase         []Name
+	AlertID       Identity
+	KBase         []Identity
 	KBaseResults  int
 	KBaseMaxLen   int
 	SystemMessage string
@@ -102,14 +101,14 @@ type LogFilter struct {
 	// 时间范围：Timestamp 需在 [StartTime, EndTime] 之间
 	StartTime time.Time
 	EndTime   time.Time
-	TaskNames []Name   // Name 匹配列表
-	DBNames   []Name   // DBName 匹配列表
-	TaskIDs   []string // TaskID 匹配列表
-	InspNames []Name   // Insp匹配列表
+	TaskNames []Identity // Id 匹配列表
+	DBNames   []Identity // DBName 匹配列表
+	TaskIDs   []string   // TaskID 匹配列表
+	InspNames []Identity // Insp匹配列表
 }
 
 type KnowledgeBaseConfig struct {
-	Name
+	Identity
 	Driver string
 	Value  map[string]interface{}
 }

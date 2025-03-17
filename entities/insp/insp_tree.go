@@ -20,7 +20,7 @@ type Node struct {
 	SQL      string
 	Children Map
 
-	AlertID   config.ID
+	AlertID   config.Identity
 	AlertFunc func(alerter.Content) error //包括检查是否符合报警条件，并且发送报警
 }
 

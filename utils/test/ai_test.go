@@ -53,14 +53,14 @@ func TestAiTask(t *testing.T) {
 		fmt.Println(err)
 	}
 	tsk := ai2.NewTask(&config.AgentTaskConfig{
-		Name: "1",
+		Identity: "1",
 		Cron: &config.Cron{
 			Duration: time.Second * 10,
 		},
 		LogID: 1,
 		LogFilter: config.LogFilter{
 			StartTime: time.Now().AddDate(0, 0, -3),
-			InspNames: []config.Name{"1"},
+			InspNames: []config.Identity{"1"},
 		},
 		AlertID: 3,
 	})

@@ -17,15 +17,15 @@ import (
 
 type Logger interface {
 	Log(Content)
-	GetID() config.ID
+	GetID() config.Identity
 	Init(cfg *config.LogConfig) (Logger, error)
 	ReadLog(config.LogFilter) ([]Content, error)
 }
 
 type Content struct {
 	Timestamp time.Time
-	TaskName  config.Name
-	DBName    config.Name
+	TaskName  config.Identity
+	DBName    config.Identity
 	InspName  string
 	TaskID    string //task批次编号
 	Result    db.Result

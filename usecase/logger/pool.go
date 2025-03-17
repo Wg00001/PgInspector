@@ -23,7 +23,7 @@ func Register(lg logger.Logger) error {
 	return nil
 }
 
-func Get(id config.ID) logger.Logger {
+func Get(id config.Identity) logger.Logger {
 	val, ok := pool.Load(id)
 	if !ok {
 		res, _ := GetDriver("default")

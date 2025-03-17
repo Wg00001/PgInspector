@@ -15,5 +15,5 @@ import (
 type Task interface {
 	Do(ctx context.Context) error
 	GetCron() *config.Cron
-	Identity() config.Name
+	Identity() config.Identity
 }

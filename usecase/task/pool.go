@@ -19,22 +19,22 @@ func Register(t *Task) error {
 	if t == nil {
 		return fmt.Errorf("task init err, build task fail")
 	}
-	pool.Store(t.Config.Name, t)
+	pool.Store(t.Config.Identity, t)
 	return nil
 }
 
-func Get(name config.Name) *Task {
+func Get(name config.Identity) *Task {
 	if val, ok := pool.Load(name); ok {
 		return val.(*Task)
 	}
 	return nil
 }
 
-func Delete(name config.Name) {
+func Delete(name config.Identity) {
 	pool.Delete(name)
 }
 
-func Do(name config.Name) error {
+func Do(name config.Identity) error {
 	t := Get(name)
 	if t == nil {
 		return fmt.Errorf("name of task not exist, name: %s\n", name)

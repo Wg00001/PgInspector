@@ -29,7 +29,7 @@ func Build(dbConfig *config.DBConfig) (*db.SqlDB, error) {
 	if err := cur.Ping(); err != nil {
 		return nil, err
 	} else {
-		fmt.Println("	db: connected - " + dbConfig.Name)
+		fmt.Println("	db: connected - " + dbConfig.Identity)
 	}
 	return cur, nil
 }

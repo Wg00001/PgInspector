@@ -22,7 +22,7 @@ func Use(kbaseConfig config.KnowledgeBaseConfig) error {
 	if err != nil {
 		return err
 	}
-	return Register(kbaseConfig.Name, init)
+	return Register(kbaseConfig.Identity, init)
 }
 
 var (

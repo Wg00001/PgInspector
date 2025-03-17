@@ -22,7 +22,7 @@ import (
  */
 
 type Task struct {
-	//Identity string //批次编号, task每次启动会生成一个
+	//Id string //批次编号, task每次启动会生成一个
 	Config   *config.TaskConfig
 	TargetDB []*config.DBConfig
 	Inspects []*insp.Node
@@ -45,7 +45,7 @@ func (t *Task) Do(ctx context.Context) error {
 				continue
 			}
 			//执行SQL
-			query, err := db.Get(tdb.Name).Query(inspect.SQL)
+			query, err := db.Get(tdb.Identity).Query(inspect.SQL)
 			if err != nil {
 				return err
 			}
@@ -57,19 +57,19 @@ func (t *Task) Do(ctx context.Context) error {
 			//记录
 			logger2.Get(t.Config.LogID).Log(logger.Content{
 				Timestamp: time.Now(),
-				TaskName:  t.Config.Name,
+				TaskName:  t.Config.Identity,
 				TaskID:    taskid,
 				InspName:  inspect.Name,
-				DBName:    tdb.Name,
+				DBName:    tdb.Identity,
 				Result:    result,
 			})
 
 			//报警
 			err = inspect.AlertFunc(alerter.Content{
 				TimeStamp: time.Now(),
-				TaskName:  t.Config.Name,
+				TaskName:  t.Config.Identity,
 				TaskID:    taskid,
-				DBName:    tdb.Name,
+				DBName:    tdb.Identity,
 				InspName:  inspect.Name,
 				Result:    result,
 			})
@@ -79,7 +79,7 @@ func (t *Task) Do(ctx context.Context) error {
 
 		}
 	}
-	log.Printf("task finish: %s\n", t.Config.Name)
+	log.Printf("task finish: %s\n", t.Config.Identity)
 	return nil
 }
 
@@ -87,6 +87,6 @@ func (t *Task) GetCron() *config.Cron {
 	return t.Config.Cron
 }
 
-func (t *Task) Identity() config.Name {
-	return "insp_task:" + t.Config.Name
+func (t *Task) Identity() config.Identity {
+	return "insp_task:" + t.Config.Identity
 }
