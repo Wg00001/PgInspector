@@ -12,7 +12,15 @@ import (
  * @date 2025/2/15
  */
 
-func InitDB(dbConfig *config.DBConfig) (*db.SqlDB, error) {
+func Use(dbConfig *config.DBConfig) error {
+	sqlDB, err := Build(dbConfig)
+	if err != nil {
+		return err
+	}
+	return Register(sqlDB)
+}
+
+func Build(dbConfig *config.DBConfig) (*db.SqlDB, error) {
 	if dbConfig == nil {
 		return nil, fmt.Errorf("db config is nil")
 	}
@@ -21,7 +29,7 @@ func InitDB(dbConfig *config.DBConfig) (*db.SqlDB, error) {
 	if err := cur.Ping(); err != nil {
 		return nil, err
 	} else {
-		fmt.Println("    db: connected - " + dbConfig.Name)
+		fmt.Println("	db: connected - " + dbConfig.Name)
 	}
 	return cur, nil
 }

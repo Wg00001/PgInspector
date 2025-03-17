@@ -31,7 +31,11 @@ func NewTask(taskCfg *config.TaskConfig) (res *Task, err error) {
 		Inspects: []*insp.Node{},
 	}
 	for _, val := range taskCfg.TargetDB {
-		res.TargetDB = append(res.TargetDB, config2.GetDbConfig(val))
+		dbcfg, err := config2.Get[*config.DBConfig](&config.DBConfig{Name: val})
+		if err != nil {
+			return nil, err
+		}
+		res.TargetDB = append(res.TargetDB, dbcfg)
 	}
 
 	//是否全选 (全部insp)

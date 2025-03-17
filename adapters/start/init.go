@@ -74,11 +74,7 @@ func InitDB() error {
 	defer config2.RUnlock()
 	dbConfigs := wg.MapToValueSlice(config2.Config.DB)
 	for _, v := range dbConfigs {
-		sqlDB, err := db.InitDB(v)
-		if err != nil {
-			return err
-		}
-		err = db.Register(sqlDB)
+		err := db.Use(v)
 		if err != nil {
 			return err
 		}
@@ -117,15 +113,6 @@ func InitTask() error {
 	return nil
 }
 
-func initCron() error {
-	cron.Init()
-	//taskConfigs := wg.MapToValueSlice(usecase.Config.Task)
-	//for _, cfg := range taskConfigs {
-	//	cron.AddTask(task.Get(cfg.Name))
-	//}
-	return nil
-}
-
 func InitAlert() error {
 	config2.RLock()
 	defer config2.RUnlock()
@@ -148,7 +135,6 @@ func InitAiConfig() error {
 func InitAiTask() error {
 	config2.RLock()
 	defer config2.RUnlock()
-
 	aiTasks := wg.MapToValueSlice(config2.Config.AiTask)
 	for _, v := range aiTasks {
 		cron.AddTask(agent.NewTask(v))
@@ -166,5 +152,10 @@ func InitKBase() error {
 			return err
 		}
 	}
+	return nil
+}
+
+func InitCron() error {
+	cron.Init()
 	return nil
 }

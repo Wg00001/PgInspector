@@ -3,7 +3,7 @@ package config
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/insp"
-	"log"
+	"fmt"
 	"sync"
 )
 
@@ -36,21 +36,6 @@ func RUnlock() {
 	mu.RUnlock()
 }
 
-func GetConfig() *config.Config {
-	mu.RLock()
-	defer mu.RUnlock()
-	return &Config
-}
-
-func GetDbConfig(name config.Name) *config.DBConfig {
-	mu.RLock()
-	defer mu.RUnlock()
-	if res, ok := Config.DB[name]; ok {
-		return res
-	}
-	return nil
-}
-
 func GetInsp(path config.Name) *insp.Node {
 	mu.RLock()
 	defer mu.RUnlock()
@@ -63,87 +48,137 @@ func GetAllInsp() []*insp.Node {
 	return Insp.AllInsp
 }
 
-func GetTaskConfig(name config.Name) *config.TaskConfig {
-	mu.RLock()
-	defer mu.RUnlock()
-	if res, ok := Config.Task[name]; ok {
-		return res
-	}
-	return nil
+type ParamType interface {
+	config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig |
+		config.AgentConfig | config.AgentTaskConfig | config.KnowledgeBaseConfig | *insp.Tree
 }
 
-func GetLoggerConfig(id config.ID) *config.LogConfig {
-	mu.RLock()
-	defer mu.RUnlock()
-	if res, ok := Config.Log[id]; ok {
-		return res
-	}
-	return nil
+type GetType interface {
+	*config.DefaultConfig | *config.DBConfig | *config.TaskConfig | *config.LogConfig | *config.AlertConfig |
+		*config.AgentConfig | *config.AgentTaskConfig | *config.KnowledgeBaseConfig | *insp.Tree
 }
 
-func GetAgentConfig() config.AgentConfig {
-	mu.RLock()
-	defer mu.RUnlock()
-	return Config.Ai
-}
-
-func AddConfigs[T config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig | config.AgentConfig | *insp.Tree | config.AgentTaskConfig | config.KnowledgeBaseConfig](configs ...T) {
-	if configs == nil || len(configs) == 0 {
-		log.Println("AddConfigs params is nil or empty")
-		return
-	}
-	rangeFunc := func(f func(cfg T)) {
-		for _, v := range configs {
-			f(v)
+func Sets[T ParamType](configs ...T) (err error) {
+	for i := range configs {
+		err = Set(configs[i])
+		if err != nil {
+			return err
 		}
 	}
+	return
+}
+
+func Set[T ParamType](cfg T) error {
 	mu.Lock()
 	defer mu.Unlock()
-	switch t := any(configs[0]).(type) {
+	switch t := any(cfg).(type) {
 	case config.DefaultConfig:
-		rangeFunc(func(cfg T) {
-			Config.Default = any(cfg).(config.DefaultConfig)
-		})
+		Config.Default = t
 	case config.DBConfig:
-		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.DBConfig)
-			Config.DB[val.Name] = &val
-		})
+		Config.DB[t.Name] = &t
 	case config.TaskConfig:
-		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.TaskConfig)
-			Config.Task[val.Name] = &val
-		})
+		Config.Task[t.Name] = &t
 	case config.LogConfig:
-		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.LogConfig)
-			Config.Log[val.ID] = &val
-		})
+		Config.Log[t.ID] = &t
 	case config.AlertConfig:
-		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.AlertConfig)
-			Config.Alert[val.ID] = &val
-		})
+		Config.Alert[t.ID] = &t
 	case config.AgentConfig:
-		rangeFunc(func(cfg T) {
-			Config.Ai = any(cfg).(config.AgentConfig)
-		})
+		Config.Ai = t
 	case *insp.Tree:
-		rangeFunc(func(cfg T) {
-			val := any(cfg).(*insp.Tree)
-			Insp = val
-		})
+		Insp = t
 	case config.AgentTaskConfig:
-		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.AgentTaskConfig)
-			Config.AiTask[val.Name] = &val
-		})
+		Config.AiTask[t.Name] = &t
 	case config.KnowledgeBaseConfig:
-		rangeFunc(func(cfg T) {
-			val := any(cfg).(config.KnowledgeBaseConfig)
-			Config.KBase[val.Name] = &val
-		})
+		Config.KBase[t.Name] = &t
 	default:
-		log.Printf("type of config nonsupport to Add: %s\n", t)
+		return fmt.Errorf("type of config nonsupport to Add: %s\n", t)
 	}
+	return nil
+}
+
+func Del[T ParamType](cfg T) error {
+	mu.Lock()
+	defer mu.Unlock()
+	switch t := any(cfg).(type) {
+	case config.DefaultConfig:
+		Config.Default = config.DefaultConfig{} // 非 map 类型保持清空值
+	case config.DBConfig:
+		delete(Config.DB, t.Name)
+	case config.TaskConfig:
+		delete(Config.Task, t.Name)
+	case config.LogConfig:
+		delete(Config.Log, t.ID)
+	case config.AlertConfig:
+		delete(Config.Alert, t.ID)
+	case config.AgentConfig:
+		Config.Ai = config.AgentConfig{}
+	case *insp.Tree:
+		Insp = nil // 指针类型置空
+	case config.AgentTaskConfig:
+		delete(Config.AiTask, t.Name)
+	case config.KnowledgeBaseConfig:
+		delete(Config.KBase, t.Name)
+	default:
+		return fmt.Errorf("type of config nonsupport to Del: %T", t) // 修正错误提示类型格式符
+	}
+	return nil
+}
+
+func Get[T GetType](target T) (res T, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("config get fail: params = %#v", res)
+		}
+	}()
+	mu.RLock()
+	defer mu.RUnlock()
+
+	switch t := any(target).(type) {
+	case *config.DefaultConfig:
+		res = any(Config.Default).(T)
+	case *config.DBConfig:
+		if db, ok := Config.DB[t.Name]; ok {
+			res = any(db).(T)
+		} else {
+			err = fmt.Errorf("DB config %q not found", t.Name)
+		}
+	case *config.TaskConfig:
+		if task, ok := Config.Task[t.Name]; ok {
+			res = any(task).(T)
+		} else {
+			err = fmt.Errorf("task config %q not found", t.Name)
+		}
+	case *config.LogConfig:
+		if log, ok := Config.Log[t.ID]; ok {
+			res = any(log).(T)
+		} else {
+			err = fmt.Errorf("log config %q not found", t.ID)
+		}
+	case *config.AlertConfig:
+		if alert, ok := Config.Alert[t.ID]; ok {
+			res = any(alert).(T)
+		} else {
+			err = fmt.Errorf("alert config %q not found", t.ID)
+		}
+	case *config.AgentConfig:
+		res = any(Config.Ai).(T)
+	case *insp.Tree:
+		res = any(Insp).(T) // 直接返回指针
+	case *config.AgentTaskConfig:
+		if task, ok := Config.AiTask[t.Name]; ok {
+			res = any(task).(T)
+		} else {
+			err = fmt.Errorf("agent task %q not found", t.Name)
+		}
+	case *config.KnowledgeBaseConfig:
+		if kb, ok := Config.KBase[t.Name]; ok {
+			res = any(kb).(T)
+		} else {
+			err = fmt.Errorf("knowledge base %q not found", t.Name)
+		}
+	default:
+		err = fmt.Errorf("unsupported config type: %T", t)
+	}
+
+	return
 }

@@ -39,14 +39,14 @@ type KBaseChroma struct {
 
 var _ agent.KnowledgeBase = (*KBaseChroma)(nil)
 
-func (k KBaseChroma) Init(config *config.KnowledgeBaseConfig) (_ agent.KnowledgeBase, err error) {
+func (k KBaseChroma) Init(cfg *config.KnowledgeBaseConfig) (_ agent.KnowledgeBase, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("kbase: chroma init fail - panic: %s\n", r)
 		}
 	}()
-	k.Config = config
-	value := utils.UseMap(config.Value)
+	k.Config = cfg
+	value := utils.UseMap(cfg.Value)
 	k.Path = value.GetString("path")
 	k.Collection = value.GetString("collection")
 	k.Tenant = value.GetString("tenant")
@@ -68,7 +68,8 @@ func (k KBaseChroma) Init(config *config.KnowledgeBaseConfig) (_ agent.Knowledge
 		}
 	case "openai":
 	default:
-		agentConfig := config2.GetAgentConfig()
+		//agentConfig := config2.GetAgentConfig()
+		agentConfig, _ := config2.Get[*config.AgentConfig](nil)
 		k.Efunc, err = openai.NewOpenAIEmbeddingFunction(
 			agentConfig.ApiKey,
 			func(c *openai.OpenAIClient) error {

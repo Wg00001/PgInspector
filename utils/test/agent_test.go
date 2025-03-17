@@ -2,6 +2,7 @@ package test
 
 import (
 	_ "PgInspector/adapters/agent/kbase/chroma"
+	"PgInspector/adapters/cron"
 	"PgInspector/adapters/start"
 	"PgInspector/entities/agent"
 	"PgInspector/entities/config"
@@ -31,9 +32,9 @@ func TestAgentRAU(t *testing.T) {
 	//start.Run(context.Background())
 	nt := agent2.NewTask(&config.AgentTaskConfig{
 		Name: "agent_test",
-		//Cron: &config.Cron{
-		//	AtTime: []string{time.Now().Add(time.Second * 3).Format(time.DateTime)},
-		//},
+		Cron: &config.Cron{
+			AtTime: []string{time.Now().Add(time.Second * 3).Format(time.TimeOnly)},
+		},
 		LogID: 1,
 		LogFilter: config.LogFilter{
 			StartTime: func() time.Time {
@@ -51,10 +52,12 @@ func TestAgentRAU(t *testing.T) {
 		KBaseResults: 3,
 		KBaseMaxLen:  100000,
 	})
-	err := nt.Do(context.TODO())
-	if err != nil {
-		fmt.Println(err)
-	}
+	cron.AddTask(nt)
+	start.Run(context.Background())
+	//err := nt.Do(context.TODO())
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
 }
 
 func TestKBase(t *testing.T) {

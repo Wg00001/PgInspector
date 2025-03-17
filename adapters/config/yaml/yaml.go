@@ -302,14 +302,14 @@ func (c *ConfigReaderYaml) ReadAgent() error {
 	return err
 }
 func (c *ConfigReaderYaml) SaveIntoConfig() {
-	config2.AddConfigs(c.cyaml.DBConfigs...)
-	config2.AddConfigs(c.cyaml.TaskConfigs...)
-	config2.AddConfigs(c.cyaml.LogConfig...)
-	config2.AddConfigs(c.cyaml.AlertConfig...)
-	config2.AddConfigs(c.acyaml.AiConfig)
-	config2.AddConfigs(c.acyaml.AiTaskConfig...)
-	config2.AddConfigs(c.acyaml.KBaseConfig...)
-	config2.AddConfigs(c.insp)
+	config2.Sets(c.cyaml.DBConfigs...)
+	config2.Sets(c.cyaml.TaskConfigs...)
+	config2.Sets(c.cyaml.LogConfig...)
+	config2.Sets(c.cyaml.AlertConfig...)
+	config2.Sets(c.acyaml.AiConfig)
+	config2.Sets(c.acyaml.AiTaskConfig...)
+	config2.Sets(c.acyaml.KBaseConfig...)
+	config2.Sets(c.insp)
 }
 
 func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuilder, err error) {

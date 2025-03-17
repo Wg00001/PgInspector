@@ -49,7 +49,7 @@ func (t *AgentTask) Do(context.Context) error {
 	kbaseContent, err := t.KBaseSearch(msg)
 	if err != nil || kbaseContent == nil {
 		// 根据业务需求，不需要阻断流程
-		log.Println("Agent task warring: kbase search fail but continue to execute, Err :%v", err)
+		log.Printf("Agent task warring: kbase search fail but continue to execute, Err :%v\n", err)
 		f := "知识库无相关内容\n"
 		kbaseContent = &f
 	}
@@ -116,9 +116,9 @@ func (t *AgentTask) KBaseSearch(msg *string) (*string, error) {
 	return formatKBaseContent(kDocs, t.KBaseMaxLen), nil
 }
 
-func (t *AgentTask) K() {
-	//置信度评估
-	//关键词提取
+func (t *AgentTask) KBaseSave() {
+	//todo:置信度评估
+	//todo:关键词提取
 	//对比去重
 	//人工审核
 	//入库
