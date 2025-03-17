@@ -52,11 +52,11 @@ func AddTask(task task.Task) {
 		gocron.NewTask(func() {
 			err := task.Do(context.Background())
 			if err != nil {
-				log.Printf("gocron do task Err\n- task name: %s\n- err: %v\n--- \n", task.GetName(), err)
+				log.Printf("gocron do task Err\n- task name: %s\n- err: %v\n--- \n", task.Identity(), err)
 				return
 			}
 		}), // 任务函数和参数
-		gocron.WithName(task.GetName().Str()),
+		gocron.WithName(task.Identity().Str()),
 	)
 	if err != nil {
 		log.Println(err)

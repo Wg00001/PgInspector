@@ -57,7 +57,7 @@ func (t *Task) Do(ctx context.Context) error {
 			//记录
 			logger2.Get(t.Config.LogID).Log(logger.Content{
 				Timestamp: time.Now(),
-				TaskName:  t.Config.GetName(),
+				TaskName:  t.Config.Name,
 				TaskID:    taskid,
 				InspName:  inspect.Name,
 				DBName:    tdb.Name,
@@ -67,7 +67,7 @@ func (t *Task) Do(ctx context.Context) error {
 			//报警
 			err = inspect.AlertFunc(alerter.Content{
 				TimeStamp: time.Now(),
-				TaskName:  t.Config.GetName(),
+				TaskName:  t.Config.Name,
 				TaskID:    taskid,
 				DBName:    tdb.Name,
 				InspName:  inspect.Name,
@@ -87,6 +87,6 @@ func (t *Task) GetCron() *config.Cron {
 	return t.Config.Cron
 }
 
-func (t *Task) GetName() config.Name {
+func (t *Task) Identity() config.Name {
 	return "insp_task:" + t.Config.Name
 }

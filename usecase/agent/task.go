@@ -77,7 +77,7 @@ func (t *AgentTask) GetCron() *config.Cron {
 	return t.Cron
 }
 
-func (t *AgentTask) GetName() config.Name {
+func (t *AgentTask) Identity() config.Name {
 	return "ai_task:" + t.Name
 }
 
