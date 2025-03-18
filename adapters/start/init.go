@@ -21,7 +21,7 @@ import (
 	_ "PgInspector/adapters/alerter/default"
 	_ "PgInspector/adapters/alerter/empty"
 	_ "PgInspector/adapters/alerter/feishu"
-	_ "PgInspector/adapters/config/yaml"
+	_ "PgInspector/adapters/config/local_file"
 	_ "PgInspector/adapters/logger/default"
 	_ "PgInspector/adapters/logger/postgres"
 )

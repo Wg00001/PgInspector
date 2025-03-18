@@ -1,7 +1,7 @@
 package etcd
 
 import (
-	"PgInspector/adapters/config/yaml"
+	"PgInspector/adapters/config/parser/yaml"
 	"PgInspector/entities/config"
 	config2 "PgInspector/usecase/config"
 	"context"

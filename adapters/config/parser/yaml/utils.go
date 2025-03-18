@@ -13,6 +13,12 @@ import (
  * @date 2025/3/18
  */
 
+const (
+	keyAlertId   = "_alertId"
+	keyAlertWhen = "_alertWhen"
+	keySQL       = "_sql"
+)
+
 func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuilder, err error) {
 	defer func() {
 		if r := recover(); r != nil {

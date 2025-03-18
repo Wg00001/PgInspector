@@ -1,6 +1,7 @@
-package yaml
+package local_file
 
 import (
+	"PgInspector/adapters/config/parser/yaml"
 	"PgInspector/entities/config"
 	config2 "PgInspector/usecase/config"
 	"fmt"
@@ -19,27 +20,24 @@ const (
 	optionConfigName = "config"
 	optionInspName   = "inspect"
 	optionAgentName  = "agent"
-
-	keyAlertId   = "_alertId"
-	keyAlertWhen = "_alertWhen"
-	keySQL       = "_sql"
+	optionParser     = "parser"
 )
 
 func init() {
-	config2.RegisterDriver("yaml", &ConfigReaderYaml{})
+	config2.RegisterDriver("yaml", &ConfigReaderLocalFile{})
 }
 
-type ConfigReaderYaml struct {
+type ConfigReaderLocalFile struct {
 	FilePath   string
 	ConfigName string
 	InspName   string
 	AgentName  string
-	parser     *ConfigYamlParser
+	parser     *yaml.ConfigYamlParser
 }
 
-var _ config.Reader = (*ConfigReaderYaml)(nil)
+var _ config.Reader = (*ConfigReaderLocalFile)(nil)
 
-func (c *ConfigReaderYaml) NewReader(option map[string]string) (_ config.Reader, err error) {
+func (c *ConfigReaderLocalFile) NewReader(option map[string]string) (_ config.Reader, err error) {
 	filepath, ok := option[optionFilepath]
 	if !ok {
 		return nil, fmt.Errorf("config reader: option deficiency - %s\n", optionFilepath)
@@ -60,16 +58,16 @@ func (c *ConfigReaderYaml) NewReader(option map[string]string) (_ config.Reader,
 	if !strings.HasSuffix(filepath, "/") {
 		filepath += "/"
 	}
-	return &ConfigReaderYaml{
+	return &ConfigReaderLocalFile{
 		FilePath:   filepath,
 		ConfigName: configName,
 		InspName:   inspName,
 		AgentName:  agentName,
-		parser:     &ConfigYamlParser{},
+		parser:     &yaml.ConfigYamlParser{},
 	}, nil
 }
 
-func (c *ConfigReaderYaml) ReadConfig() (err error) {
+func (c *ConfigReaderLocalFile) ReadConfig() (err error) {
 	file, err := os.ReadFile(c.FilePath + c.ConfigName)
 	if err != nil {
 		return err
@@ -77,7 +75,7 @@ func (c *ConfigReaderYaml) ReadConfig() (err error) {
 	return c.parser.ParseConfig(file)
 }
 
-func (c *ConfigReaderYaml) ReadInspector() error {
+func (c *ConfigReaderLocalFile) ReadInspector() error {
 	file, err := os.ReadFile(c.FilePath + c.InspName)
 	if err != nil {
 		return err
@@ -85,14 +83,14 @@ func (c *ConfigReaderYaml) ReadInspector() error {
 	return c.parser.ParseInsp(file)
 }
 
-func (c *ConfigReaderYaml) ReadAgent() error {
+func (c *ConfigReaderLocalFile) ReadAgent() error {
 	file, err := os.ReadFile(c.FilePath + c.AgentName)
 	if err != nil {
 		return err
 	}
 	return c.parser.ParseAgent(file)
 }
-func (c *ConfigReaderYaml) SaveIntoConfig() {
+func (c *ConfigReaderLocalFile) SaveIntoConfig() {
 	config2.Sets(c.parser.ConfigYaml.DBConfigs...)
 	config2.Sets(c.parser.ConfigYaml.TaskConfigs...)
 	config2.Sets(c.parser.ConfigYaml.LogConfig...)
@@ -103,7 +101,7 @@ func (c *ConfigReaderYaml) SaveIntoConfig() {
 	config2.Sets(c.parser.InspTree)
 }
 
-func (c *ConfigReaderYaml) Watch() {
+func (c *ConfigReaderLocalFile) Watch() {
 	//TODO implement me
 	panic("implement me")
 }
