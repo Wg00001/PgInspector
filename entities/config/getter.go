@@ -9,11 +9,11 @@ import "fmt"
  */
 
 type Id interface {
-	Identity() Id
+	Identity() string
 }
 
-func (n Identity) Identity() Id {
-	return n
+func (n Identity) Identity() string {
+	return n.Str()
 }
 
 func (n Identity) Str() string {

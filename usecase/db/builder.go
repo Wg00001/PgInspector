@@ -4,6 +4,7 @@ import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/db"
 	"fmt"
+	"log"
 )
 
 /**
@@ -25,11 +26,14 @@ func Build(dbConfig *config.DBConfig) (*db.SqlDB, error) {
 		return nil, fmt.Errorf("db config is nil")
 	}
 	cur := &db.SqlDB{Config: dbConfig}
-	cur.Connect()
+	err := cur.Connect()
+	if err != nil {
+		return nil, err
+	}
 	if err := cur.Ping(); err != nil {
 		return nil, err
 	} else {
-		fmt.Println("	db: connected - " + dbConfig.Identity)
+		log.Println("	db: connected - " + dbConfig.Identity)
 	}
 	return cur, nil
 }

@@ -44,6 +44,11 @@ type ConfigReaderYaml struct {
 	insp       *insp.Tree
 }
 
+func (c *ConfigReaderYaml) Watch() {
+	//TODO implement me
+	panic("implement me")
+}
+
 type ConfigYaml struct {
 	Default           config.DefaultConfig     `yaml:"default"`
 	DBConfigs         []config.DBConfig        `yaml:"db"`

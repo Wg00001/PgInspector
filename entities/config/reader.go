@@ -12,4 +12,5 @@ type Reader interface {
 	ReadInspector() error
 	ReadAgent() error
 	SaveIntoConfig()
+	Watch() //todo
 }

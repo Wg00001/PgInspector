@@ -19,8 +19,12 @@ type SqlDB struct {
 	Err    error
 }
 
-func (c *SqlDB) Connect() {
+func (c *SqlDB) Connect() error {
 	c.DB, c.Err = sql.Open(c.Config.Driver, c.Config.DSN)
+	if c.Err != nil {
+		return c.Err
+	}
+	return nil
 }
 
 func (c *SqlDB) Error() error {
