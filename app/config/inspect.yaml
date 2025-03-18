@@ -1,5 +1,5 @@
 1:
-  _alertId : 3
+  _alertId : "3"
   _alertWhen: "Value>0"
   _sql: "SHOW STATUS LIKE 'Threads_connected'"
 

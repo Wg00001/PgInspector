@@ -14,13 +14,13 @@ Agent:
   Temperature: 0.8
 
 AgentTask:
-  - Name: "task1"
+  - Identity: "task1"
     Cron:
       AtTime:
         - "17:11:30"
     #      Duration: 1m
-    LogID: 1
-    AlertID: 3
+    LogID: "1"
+    AlertID: "3"
     KBase:
       - "chroma"
     LogFilter:
@@ -29,7 +29,7 @@ AgentTask:
         - "1"
 
 KBase:
-  - Name: "chroma"
+  - Identity: "chroma"
     Driver: "chroma"
     Path: "http://localhost:8000"
     Collection: "ollama_embedding"

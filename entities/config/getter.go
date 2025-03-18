@@ -1,5 +1,7 @@
 package config
 
+import "fmt"
+
 /**
  * @description:
  * @author Wg
@@ -16,4 +18,8 @@ func (n Identity) Identity() Id {
 
 func (n Identity) Str() string {
 	return string(n)
+}
+
+func NewIdentity[T any](arg T) Identity {
+	return Identity(fmt.Sprintf("%v", arg))
 }

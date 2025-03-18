@@ -57,12 +57,12 @@ func TestAiTask(t *testing.T) {
 		Cron: &config.Cron{
 			Duration: time.Second * 10,
 		},
-		LogID: 1,
+		LogID: "1",
 		LogFilter: config.LogFilter{
 			StartTime: time.Now().AddDate(0, 0, -3),
 			InspNames: []config.Identity{"1"},
 		},
-		AlertID: 3,
+		AlertID: "3",
 	})
 	fmt.Println(tsk.Do(context.Background()))
 }

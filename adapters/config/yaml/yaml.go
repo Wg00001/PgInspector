@@ -115,7 +115,7 @@ func (c *ConfigReaderYaml) ReadConfig() (err error) {
 					}
 				}()
 				cur := config.LogConfig{
-					Identity: config.Identity(origin["id"].(int)),
+					Identity: config.NewIdentity(origin["identity"]),
 					Driver:   origin["driver"].(string),
 					Header:   make(map[string]string),
 				}
@@ -141,7 +141,7 @@ func (c *ConfigReaderYaml) ReadConfig() (err error) {
 					}
 				}()
 				cur := config.AlertConfig{
-					Identity: config.Identity(origin["id"].(int)),
+					Identity: config.NewIdentity(origin["identity"]),
 					Driver:   origin["driver"].(string),
 					Header:   make(map[string]string),
 				}
@@ -235,7 +235,7 @@ func (c *ConfigReaderYaml) ReadAgent() error {
 			m := utils.UseMap(o)
 
 			// Basic configurations
-			result.Identity = config.Identity(m.GetString("name"))
+			result.Identity = config.Identity(m.GetString("identity"))
 			result.LogID = config.Identity(m.GetInt("logid"))
 			result.AlertID = config.Identity(m.GetInt("alertid"))
 			result.KBaseResults = m.GetInt("kbaseresults")
@@ -322,7 +322,7 @@ func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuil
 	if !ok {
 		return n, nil
 	} else {
-		n.AlertID = config.Identity(alertId.(int))
+		n.AlertID = config.NewIdentity(alertId)
 		delete(arg, keyAlertId)
 	}
 	alertWhen, ok := arg[keyAlertWhen]

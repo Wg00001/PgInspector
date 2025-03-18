@@ -1,25 +1,25 @@
 Default:
   DefaultDriver: "mysql"
-  DefaultLogLevel: 2
-  DefaultAlertLevel: 3
+  DefaultLogLevel: "2"
+  DefaultAlertLevel: "3"
 
 DB:
-  - Name: "example1"
+  - Identity: "example1"
     Driver: "mysql"
     DSN: "root:03719@tcp(127.0.0.1:3306)/example1"
-  - Name: "example2"
+  - Identity: "example2"
     Driver: "postgres"
     DSN: "host=127.0.0.1 port=5432 user=postgres dbname=postgres password=03719 sslmode=disable"
 
 Table:
-  - Name: "example_table1"
+  - Identity: "example_table1"
     DBConfig: "example_db1"
   - TableName: "example_table2"
     DBConfig: "example_db2"
 
 Task:
-  - Name: "task1"
-    LogID: 1
+  - Identity: "task1"
+    LogID: "1"
     TargetDB:
       - "example1"
     Todo:
@@ -31,12 +31,12 @@ Task:
 #      - "13:00:01"
 
 Log:
-  - ID: 1
+  - Identity: "1"
     Driver: "postgres"
     DBName: "example2"
     TableName: ""
 
 Alert:
-  - ID: 3
+  - Identity: "3"
     Driver: "feishu"
     WebHook: "https://www.feishu.cn/flow/api/trigger-webhook/49e2149a6a2cbcfaa4baf7e46eadeae5"

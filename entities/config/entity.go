@@ -55,7 +55,6 @@ type TaskConfig struct {
 	Identity
 	Cron         *Cron
 	AllInspector bool
-	//todo:async
 
 	LogID    Identity
 	TargetDB []Identity
