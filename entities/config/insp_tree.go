@@ -1,7 +1,6 @@
-package insp
+package config
 
 import (
-	"PgInspector/entities/alerter"
 	"fmt"
 	"sort"
 	"strings"
@@ -13,39 +12,40 @@ import (
  * @date 2025/1/19
  */
 
-// Node 分为Insp节点和索引节点，Insp节点也是叶子节点
-type Node struct {
-	Name     string
+// InspNode 分为Insp节点和索引节点，Insp节点也是叶子节点
+type InspNode struct {
+	Name     Identity
 	SQL      string
 	Children Map
 
-	AlertID   string
-	AlertFunc func(alerter.Content) error //包括检查是否符合报警条件，并且发送报警
+	AlertID   Identity
+	AlertWhen string
+	//AlertFunc func(alerter.Content) error //包括检查是否符合报警条件，并且发送报警
 }
 
-type Tree struct {
+type InspTree struct {
 	Roots   Map
-	Num     int     //Insp节点数量
-	AllInsp []*Node //所有的Insp节点
+	Num     int         //Insp节点数量
+	AllInsp []*InspNode //所有的Insp节点
 }
 
-type Map map[string]*Node
+type Map map[string]*InspNode
 
-func NewTree() *Tree {
-	return &Tree{
+func NewTree() *InspTree {
+	return &InspTree{
 		Roots:   make(Map),
-		AllInsp: []*Node{},
+		AllInsp: []*InspNode{},
 	}
 }
 
 // GetNode 获取单个子节点
-func (t *Tree) GetNode(path string) *Node {
+func (t *InspTree) GetNode(path string) *InspNode {
 	if len(path) == 0 {
 		return nil
 	}
 	paths := strings.Split(path, ".")
 
-	var cur *Node
+	var cur *InspNode
 	if val, ok := t.Roots[paths[0]]; ok {
 		cur = val
 	} else {
@@ -63,29 +63,29 @@ func (t *Tree) GetNode(path string) *Node {
 }
 
 // Arr 获取Map的第一层子节点，会按照字典序排序
-func (m Map) Arr() []*Node {
+func (m Map) Arr() []*InspNode {
 	keys := make([]string, 0, len(m))
 	for k, _ := range m {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	res := make([]*Node, 0, len(m))
+	res := make([]*InspNode, 0, len(m))
 	for _, k := range keys {
 		res = append(res, m[k])
 	}
 	return res
 }
 
-func (n *Node) IsInsp() bool {
+func (n *InspNode) IsInsp() bool {
 	return n.SQL != ""
 }
 
 // GetAllInsp 获取该节点的所有insp节点，会寻找至叶子节点
-func (n *Node) GetAllInsp() []*Node {
-	var res, idx []*Node
+func (n *InspNode) GetAllInsp() []*InspNode {
+	var res, idx []*InspNode
 	idx = n.Children.Arr()
 	for len(idx) != 0 {
-		var nextIdx []*Node
+		var nextIdx []*InspNode
 		for _, v := range idx {
 			if v.IsInsp() {
 				res = append(res, v)
@@ -98,7 +98,7 @@ func (n *Node) GetAllInsp() []*Node {
 	return res
 }
 
-func (n *Node) AddChild(node *Node) error {
+func (n *InspNode) AddChild(node *InspNode) error {
 	if n == nil {
 		return fmt.Errorf("insp parent is nil")
 	}
@@ -108,11 +108,11 @@ func (n *Node) AddChild(node *Node) error {
 	if n.Children == nil {
 		n.Children = make(Map)
 	}
-	n.Children[node.Name] = node
+	n.Children[node.Name.Str()] = node
 	return nil
 }
 
-func (t *Tree) AddChild(path string, node *Node) error {
+func (t *InspTree) AddChild(path string, node *InspNode) error {
 	if node == nil {
 		return fmt.Errorf("Insp tree new child node is nil, path: %s\n", path)
 	}
@@ -122,7 +122,7 @@ func (t *Tree) AddChild(path string, node *Node) error {
 	}
 	//根目录层
 	if path == "" {
-		t.Roots[node.Name] = node
+		t.Roots[node.Name.Str()] = node
 		return nil
 	}
 
@@ -131,7 +131,7 @@ func (t *Tree) AddChild(path string, node *Node) error {
 	if n == nil {
 		return fmt.Errorf("Insp tree err: path is not exist: %s\n", path)
 	}
-	if _, ok := n.Children[node.Name]; ok {
+	if _, ok := n.Children[node.Name.Str()]; ok {
 		return fmt.Errorf("node is already exist, path: %s, name: %s \n", path, node.Name)
 	}
 	return n.AddChild(node)

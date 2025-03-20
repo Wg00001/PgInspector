@@ -2,7 +2,6 @@ package task
 
 import (
 	"PgInspector/entities/config"
-	"PgInspector/entities/insp"
 	config2 "PgInspector/usecase/config"
 	"fmt"
 )
@@ -28,7 +27,7 @@ func NewTask(taskCfg *config.TaskConfig) (res *Task, err error) {
 		//Id: taskCfg.Id.Str() + time.Now().Format(time.RFC3339),
 		Config:   taskCfg,
 		TargetDB: make([]*config.DBConfig, 0, len(taskCfg.TargetDB)),
-		Inspects: []*insp.Node{},
+		Inspects: []*config.InspNode{},
 	}
 	for _, val := range taskCfg.TargetDB {
 		dbcfg, err := config2.Get[*config.DBConfig](&config.DBConfig{Identity: val})
@@ -51,7 +50,7 @@ func NewTask(taskCfg *config.TaskConfig) (res *Task, err error) {
 	for _, val := range taskCfg.NotTodo {
 		notToDo[val] = true
 	}
-	newArr := make([]*insp.Node, 0, len(res.Inspects))
+	newArr := make([]*config.InspNode, 0, len(res.Inspects))
 	for _, val := range res.Inspects {
 		if !notToDo[config.Identity(val.Name)] {
 			newArr = append(newArr, val)

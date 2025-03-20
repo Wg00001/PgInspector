@@ -14,6 +14,7 @@ type ConfigMeta struct {
 	CommonConfigGroup
 	TaskConfigGroup
 	AgentConfigGroup
+	*InspTree
 }
 
 type CommonConfigGroup struct {
@@ -25,7 +26,7 @@ type CommonConfigGroup struct {
 // TaskConfigGroup 可以被Agent修改的
 type TaskConfigGroup struct {
 	Tasks []TaskConfig
-	//Insp  insp.Tree
+	//Insp  insp.InspTree
 }
 
 type AgentConfigGroup struct {
@@ -44,7 +45,7 @@ type ConfigIndex struct {
 	Agent     *AgentConfig
 	AgentTask map[Identity]*AgentTaskConfig
 	KBase     map[Identity]*KnowledgeBaseConfig
-	//Insp      *insp.Tree
+	//Insp      *insp.InspTree
 }
 
 type Identity string

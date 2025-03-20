@@ -38,6 +38,7 @@ func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuil
 	} else {
 		delete(arg, keyAlertWhen)
 	}
+	//todo:alert when save in struct
 	n = n.BuildAlertFunc(alertWhen.(string))
 
 	sql, ok := arg[keySQL]

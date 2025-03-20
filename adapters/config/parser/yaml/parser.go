@@ -2,7 +2,6 @@ package yaml
 
 import (
 	"PgInspector/entities/config"
-	"PgInspector/entities/insp"
 	config2 "PgInspector/usecase/config"
 	insp2 "PgInspector/usecase/insp"
 	"PgInspector/utils"
@@ -23,19 +22,19 @@ func init() {
 }
 
 type ConfigYamlParser struct {
-	ConfigYaml      ConfigYaml
-	AgentConfigYaml AgentConfigYaml
-	InspTree        *insp.Tree
 }
 
 type ConfigYaml struct {
 	Default           config.DefaultConfig     `yaml:"default"`
 	DBConfigs         []config.DBConfig        `yaml:"db"`
-	TaskConfigs       []config.TaskConfig      `yaml:"task"`
 	LogConfigOrigin   []map[string]interface{} `yaml:"log"`
 	LogConfig         []config.LogConfig       `yaml:"-"`
 	AlertConfigOrigin []map[string]interface{} `yaml:"alert"`
 	AlertConfig       []config.AlertConfig     `yaml:"-"`
+}
+
+type TaskYaml struct {
+	TaskConfigs []config.TaskConfig `yaml:"task"`
 }
 
 type AgentConfigYaml struct {
@@ -49,15 +48,16 @@ type AgentConfigYaml struct {
 var _ config.Parser = (*ConfigYamlParser)(nil)
 
 func (c *ConfigYamlParser) ParseConfig(file []byte) (_ config.CommonConfigGroup, err error) {
+	cyaml := ConfigYaml{}
 	file = []byte(strings.ToLower(string(file)))
-	err = yaml.Unmarshal(file, &c.ConfigYaml)
+	err = yaml.Unmarshal(file, &cyaml)
 	if err != nil {
 		return
 	}
 	//处理logger设置
-	c.ConfigYaml.LogConfig = make([]config.LogConfig, 0, len(c.ConfigYaml.LogConfigOrigin))
-	for _, o := range c.ConfigYaml.LogConfigOrigin {
-		c.ConfigYaml.LogConfig = append(c.ConfigYaml.LogConfig,
+	cyaml.LogConfig = make([]config.LogConfig, 0, len(cyaml.LogConfigOrigin))
+	for _, o := range cyaml.LogConfigOrigin {
+		cyaml.LogConfig = append(cyaml.LogConfig,
 			func(origin map[string]interface{}) config.LogConfig {
 				defer func() {
 					if r := recover(); r != nil {
@@ -81,9 +81,9 @@ func (c *ConfigYamlParser) ParseConfig(file []byte) (_ config.CommonConfigGroup,
 		return
 	}
 
-	c.ConfigYaml.AlertConfig = make([]config.AlertConfig, 0, len(c.ConfigYaml.AlertConfigOrigin))
-	for _, o := range c.ConfigYaml.AlertConfigOrigin {
-		c.ConfigYaml.AlertConfig = append(c.ConfigYaml.AlertConfig,
+	cyaml.AlertConfig = make([]config.AlertConfig, 0, len(cyaml.AlertConfigOrigin))
+	for _, o := range cyaml.AlertConfigOrigin {
+		cyaml.AlertConfig = append(cyaml.AlertConfig,
 			func(origin map[string]interface{}) config.AlertConfig {
 				defer func() {
 					if r := recover(); r != nil {
@@ -103,27 +103,41 @@ func (c *ConfigYamlParser) ParseConfig(file []byte) (_ config.CommonConfigGroup,
 				return cur
 			}(o))
 	}
-	return
+	return config.CommonConfigGroup{
+		DBs:    cyaml.DBConfigs,
+		Logs:   cyaml.LogConfig,
+		Alerts: cyaml.AlertConfig,
+	}, nil
 }
 
-func (c *ConfigYamlParser) ParseInspector(file []byte) (_ config.TaskConfigGroup, err error) {
+func (c *ConfigYamlParser) ParseTask(file []byte) (_ config.TaskConfigGroup, err error) {
+	cyaml := TaskYaml{}
+	file = []byte(strings.ToLower(string(file)))
+	err = yaml.Unmarshal(file, &cyaml)
+	if err != nil {
+		return
+	}
+	return config.TaskConfigGroup{Tasks: cyaml.TaskConfigs}, err
+}
+
+func (c *ConfigYamlParser) ParseInspector(file []byte) (_ *config.InspTree, err error) {
 	var origin map[string]interface{}
 	err = yaml.Unmarshal(file, &origin)
 	if err != nil {
 		return
 	}
-
-	c.InspTree = insp.NewTree()
+	inspTree := config.NewTree()
 	var dfs func(nowPath string, node map[string]interface{}) error
 	dfs = func(nowPath string, node map[string]interface{}) error {
 		for k, v := range node {
 			switch t := v.(type) {
 			case string: //配置里直接是string说明是SQL，未配置alert
-				n, err := insp2.NodeBuilder{}.WithName(k).WithSQL(t).WithEmptyAlert().Build()
+				n, err := insp2.NodeBuilder{}.WithName(k).WithSQL(t).Build()
+				//n, err := insp2.NodeBuilder{}.WithName(k).WithSQL(t).WithEmptyAlert().Build()
 				if err != nil {
 					return err
 				}
-				err = c.InspTree.AddChild(nowPath, &n)
+				err = inspTree.AddChild(nowPath, &n)
 				if err != nil {
 					return err
 				}
@@ -138,7 +152,7 @@ func (c *ConfigYamlParser) ParseInspector(file []byte) (_ config.TaskConfigGroup
 					return err
 
 				}
-				err = c.InspTree.AddChild(nowPath, &n)
+				err = inspTree.AddChild(nowPath, &n)
 				if err != nil {
 					return err
 				}
@@ -151,19 +165,20 @@ func (c *ConfigYamlParser) ParseInspector(file []byte) (_ config.TaskConfigGroup
 		}
 		return nil
 	}
-	return config.TaskConfigGroup{}, dfs("", origin)
+	return inspTree, dfs("", origin)
 }
 
 func (c *ConfigYamlParser) ParseAgent(file []byte) (_ config.AgentConfigGroup, err error) {
 	file = []byte(strings.ToLower(string(file)))
-	err = yaml.Unmarshal(file, &c.AgentConfigYaml)
+	ayaml := AgentConfigYaml{}
+	err = yaml.Unmarshal(file, &ayaml)
 	if err != nil {
 		return
 	}
 
 	// Process agent task configurations
-	c.AgentConfigYaml.AiTaskConfig = make([]config.AgentTaskConfig, 0, len(c.AgentConfigYaml.AiTaskConfigOrigin))
-	for _, origin := range c.AgentConfigYaml.AiTaskConfigOrigin {
+	ayaml.AiTaskConfig = make([]config.AgentTaskConfig, 0, len(ayaml.AiTaskConfigOrigin))
+	for _, origin := range ayaml.AiTaskConfigOrigin {
 		funcResult := func(o map[string]interface{}) (result config.AgentTaskConfig) {
 			defer func() {
 				if r := recover(); r != nil {
@@ -214,15 +229,15 @@ func (c *ConfigYamlParser) ParseAgent(file []byte) (_ config.AgentConfigGroup, e
 			result.KBase = parseNames(m["kbase"])
 			return
 		}(origin)
-		c.AgentConfigYaml.AiTaskConfig = append(c.AgentConfigYaml.AiTaskConfig, funcResult)
+		ayaml.AiTaskConfig = append(ayaml.AiTaskConfig, funcResult)
 	}
 	if err != nil {
 		return
 	}
 
 	// Process knowledge base configurations
-	c.AgentConfigYaml.KBaseConfig = make([]config.KnowledgeBaseConfig, 0, len(c.AgentConfigYaml.KBaseConfigOrigin))
-	for _, origin := range c.AgentConfigYaml.KBaseConfigOrigin {
+	ayaml.KBaseConfig = make([]config.KnowledgeBaseConfig, 0, len(ayaml.KBaseConfigOrigin))
+	for _, origin := range ayaml.KBaseConfigOrigin {
 		funcResult := func(o map[string]interface{}) (result config.KnowledgeBaseConfig) {
 			defer func() {
 				if r := recover(); r != nil {
@@ -236,7 +251,11 @@ func (c *ConfigYamlParser) ParseAgent(file []byte) (_ config.AgentConfigGroup, e
 			result.Value = m
 			return
 		}(origin)
-		c.AgentConfigYaml.KBaseConfig = append(c.AgentConfigYaml.KBaseConfig, funcResult)
+		ayaml.KBaseConfig = append(ayaml.KBaseConfig, funcResult)
 	}
-	return
+	return config.AgentConfigGroup{
+		Agent:          ayaml.AiConfig,
+		AgentTasks:     ayaml.AiTaskConfig,
+		KnowledgeBases: ayaml.KBaseConfig,
+	}, nil
 }

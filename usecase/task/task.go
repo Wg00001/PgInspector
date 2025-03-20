@@ -4,9 +4,9 @@ import (
 	"PgInspector/entities/alerter"
 	"PgInspector/entities/config"
 	db2 "PgInspector/entities/db"
-	"PgInspector/entities/insp"
 	"PgInspector/entities/logger"
 	"PgInspector/entities/task"
+	alerter2 "PgInspector/usecase/alerter"
 	"PgInspector/usecase/db"
 	logger2 "PgInspector/usecase/logger"
 	"context"
@@ -25,7 +25,7 @@ type Task struct {
 	//Id string //批次编号, task每次启动会生成一个
 	Config   *config.TaskConfig
 	TargetDB []*config.DBConfig
-	Inspects []*insp.Node
+	Inspects []*config.InspNode
 }
 
 var _ task.Task = (*Task)(nil)
@@ -65,7 +65,7 @@ func (t *Task) Do(ctx context.Context) error {
 			})
 
 			//报警
-			err = inspect.AlertFunc(alerter.Content{
+			err = alerter2.GetAlert(inspect.AlertID).Send(alerter.Content{
 				TimeStamp: time.Now(),
 				TaskName:  t.Config.Identity,
 				TaskID:    taskid,
@@ -73,6 +73,7 @@ func (t *Task) Do(ctx context.Context) error {
 				InspName:  inspect.Name,
 				Result:    result,
 			})
+			//err = inspect.AlertFunc()
 			if err != nil {
 				return err
 			}

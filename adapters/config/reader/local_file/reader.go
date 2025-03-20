@@ -19,6 +19,7 @@ const (
 	optionConfigName = "config"
 	optionInspName   = "inspect"
 	optionAgentName  = "agent"
+	optionTaskName   = "task"
 	optionParser     = "parser"
 )
 
@@ -32,8 +33,10 @@ type ConfigReaderLocalFile struct {
 	ConfigName string
 	InspName   string
 	AgentName  string
-	meta       config.ConfigMeta
+	TaskName   string
 	parser     config.Parser
+	meta       config.ConfigMeta
+	insp       *config.InspTree
 }
 
 var _ config.Reader = (*ConfigReaderLocalFile)(nil)
@@ -81,28 +84,30 @@ func (c *ConfigReaderLocalFile) ReadConfig() (err error) {
 		return err
 	}
 	c.meta.CommonConfigGroup, err = c.parser.ParseConfig(file)
-	return
-}
 
-func (c *ConfigReaderLocalFile) ReadInspector() error {
-	file, err := os.ReadFile(c.FilePath + c.InspName)
+	file, err = os.ReadFile(c.FilePath + c.InspName)
 	if err != nil {
 		return err
 	}
-	c.meta.TaskConfigGroup, err = c.parser.ParseInspector(file)
-	return err
-}
+	c.insp, err = c.parser.ParseInspector(file)
 
-func (c *ConfigReaderLocalFile) ReadAgent() error {
-	file, err := os.ReadFile(c.FilePath + c.AgentName)
+	file, err = os.ReadFile(c.FilePath + c.TaskName)
+	if err != nil {
+		return err
+	}
+	c.meta.TaskConfigGroup, err = c.parser.ParseTask(file)
+
+	file, err = os.ReadFile(c.FilePath + c.AgentName)
 	if err != nil {
 		return err
 	}
 	c.meta.AgentConfigGroup, err = c.parser.ParseAgent(file)
-	return err
+	return
 }
+
 func (c *ConfigReaderLocalFile) SaveIntoConfig() {
 	config2.SetConfigMeta(c.meta)
+	config2.SetInsp(c.insp)
 }
 
 func (c *ConfigReaderLocalFile) Watch() {

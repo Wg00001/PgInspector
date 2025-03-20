@@ -9,14 +9,13 @@ package config
 type Reader interface {
 	NewReader(option map[string]string) (Reader, error)
 	ReadConfig() error
-	ReadInspector() error
-	ReadAgent() error
 	SaveIntoConfig()
 	Watch() //todo
 }
 
 type Parser interface {
 	ParseConfig([]byte) (CommonConfigGroup, error)
-	ParseInspector([]byte) (TaskConfigGroup, error)
+	ParseTask([]byte) (TaskConfigGroup, error)
+	ParseInspector([]byte) (*InspTree, error)
 	ParseAgent([]byte) (AgentConfigGroup, error)
 }

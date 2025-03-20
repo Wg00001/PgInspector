@@ -2,7 +2,6 @@ package config
 
 import (
 	"PgInspector/entities/config"
-	"PgInspector/entities/insp"
 	"fmt"
 	"sync"
 )
@@ -25,7 +24,7 @@ var (
 		AgentTask: make(map[config.Identity]*config.AgentTaskConfig),
 		KBase:     make(map[config.Identity]*config.KnowledgeBaseConfig),
 	}
-	Insp = insp.NewTree()
+	Insp = config.NewTree()
 	mu   sync.RWMutex
 )
 
@@ -37,13 +36,13 @@ func RUnlock() {
 	mu.RUnlock()
 }
 
-func GetInsp(path config.Identity) *insp.Node {
+func GetInsp(path config.Identity) *config.InspNode {
 	mu.RLock()
 	defer mu.RUnlock()
 	return Insp.GetNode(path.Str())
 }
 
-func GetAllInsp() []*insp.Node {
+func GetAllInsp() []*config.InspNode {
 	mu.RLock()
 	defer mu.RUnlock()
 	return Insp.AllInsp
@@ -51,12 +50,12 @@ func GetAllInsp() []*insp.Node {
 
 type ParamType interface {
 	config.DefaultConfig | config.DBConfig | config.TaskConfig | config.LogConfig | config.AlertConfig |
-		config.AgentConfig | config.AgentTaskConfig | config.KnowledgeBaseConfig | insp.Tree | *insp.Tree
+		config.AgentConfig | config.AgentTaskConfig | config.KnowledgeBaseConfig | config.InspTree | *config.InspTree
 }
 
 type GetType interface {
 	*config.DefaultConfig | *config.DBConfig | *config.TaskConfig | *config.LogConfig | *config.AlertConfig |
-		*config.AgentConfig | *config.AgentTaskConfig | *config.KnowledgeBaseConfig | *insp.Tree
+		*config.AgentConfig | *config.AgentTaskConfig | *config.KnowledgeBaseConfig | *config.InspTree
 }
 
 func SetConfigMeta(c config.ConfigMeta) error {
@@ -70,7 +69,7 @@ func SetConfigMeta(c config.ConfigMeta) error {
 	return nil
 }
 
-func SetInsp(tree *insp.Tree) error {
+func SetInsp(tree *config.InspTree) error {
 	Insp = tree
 	return nil
 }
@@ -104,7 +103,7 @@ func Add[T ParamType](cfg T) error {
 	case config.AgentConfig:
 		Meta.Agent = t
 		Index.Agent = &Meta.Agent
-	case *insp.Tree:
+	case *config.InspTree:
 		Insp = t
 	case config.AgentTaskConfig:
 		Meta.AgentTasks = append(Meta.AgentTasks, t)
@@ -139,10 +138,10 @@ func Del[T ParamType](cfg T) error {
 	case config.AgentConfig:
 		Index.Agent = nil
 		Meta.Agent = config.AgentConfig{}
-	case insp.Tree:
+	case config.InspTree:
 		//todo：增删某个命令
 		Insp = nil // 指针类型置空
-	case *insp.Tree:
+	case *config.InspTree:
 		Insp = nil // 指针类型置空
 	case config.AgentTaskConfig:
 		delete(Index.AgentTask, t.Identity)
@@ -206,7 +205,7 @@ func Get[T GetType](target T) (res T, err error) {
 		}
 	case *config.AgentConfig:
 		res = any(Index.Agent).(T)
-	case *insp.Tree:
+	case *config.InspTree:
 		res = any(Insp).(T) // 直接返回指针
 	case *config.AgentTaskConfig:
 		if task, ok := Index.AgentTask[t.Identity]; ok {
