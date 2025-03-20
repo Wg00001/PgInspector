@@ -10,17 +10,41 @@ import (
  * @date 2025/1/19
  */
 
-type Config struct {
-	Default DefaultConfig
+type ConfigMeta struct {
+	CommonConfigGroup
+	TaskConfigGroup
+	AgentConfigGroup
+}
+
+type CommonConfigGroup struct {
+	DBs    []DBConfig
+	Logs   []LogConfig
+	Alerts []AlertConfig
+}
+
+// TaskConfigGroup 可以被Agent修改的
+type TaskConfigGroup struct {
+	Tasks []TaskConfig
+	//Insp  insp.Tree
+}
+
+type AgentConfigGroup struct {
+	Agent          AgentConfig
+	AgentTasks     []AgentTaskConfig
+	KnowledgeBases []KnowledgeBaseConfig
+}
+
+type ConfigIndex struct {
+	Default *DefaultConfig
 	Task    map[Identity]*TaskConfig
 	DB      map[Identity]*DBConfig
 	Log     map[Identity]*LogConfig
 	Alert   map[Identity]*AlertConfig
 
-	Ai     AgentConfig
-	AiTask map[Identity]*AgentTaskConfig
-	KBase  map[Identity]*KnowledgeBaseConfig
-	//Insp    *insp.Tree //insp不放在此处，避免循环引用
+	Agent     *AgentConfig
+	AgentTask map[Identity]*AgentTaskConfig
+	KBase     map[Identity]*KnowledgeBaseConfig
+	//Insp      *insp.Tree
 }
 
 type Identity string
@@ -71,7 +95,7 @@ type Cron struct {
 	Monthly  []int
 }
 
-// ---Ai Agent 相关配置
+// ---Agent Agent 相关配置
 
 // AgentConfig 用户只能指定一个全局Ai，所有的分析均由此Ai完成
 type AgentConfig struct {

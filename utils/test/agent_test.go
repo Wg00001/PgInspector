@@ -20,7 +20,7 @@ import (
  */
 
 func TestFullAgentRAU(t *testing.T) {
-	start.SetConfigPath("../../app/config", "yaml")
+	start.SetConfigPath("../../app/config", "local_file")
 	start.Init()
 	start.Run(context.Background())
 }
@@ -188,8 +188,8 @@ func TestKBase(t *testing.T) {
 	//		t.Fatalf("Expected 1 result, got %d", len(results))
 	//	}
 	//
-	//	if results[0].Identity != "doc1" {
-	//		t.Errorf("Expected doc1, got %s", results[0].Identity)
+	//	if results[0].GetIdentity != "doc1" {
+	//		t.Errorf("Expected doc1, got %s", results[0].GetIdentity)
 	//	}
 	//
 	//	// 错误输入测试

@@ -24,14 +24,14 @@ type Config struct {
 func LoadCurrentConfig() {
 	config.RLock()
 	defer config.RUnlock()
-	c := config.Config
+	c := config.Index
 	_ = toSortedSlice(c.DB)
 }
 
 func toSortedSlice[T config2.Id](origin map[config2.Identity]T) []T {
 	arr := wg.MapToValueSlice(origin)
 	sort.Slice(arr, func(i, j int) bool {
-		return arr[i].Identity() > arr[j].Identity()
+		return arr[i].GetIdentity() > arr[j].GetIdentity()
 	})
 	return arr
 }

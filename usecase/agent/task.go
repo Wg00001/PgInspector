@@ -43,7 +43,7 @@ func (t *AgentTask) Do(context.Context) error {
 		return err
 	}
 	if msg == nil {
-		return fmt.Errorf("Ai task err\n- AgentTask name: %v\n- err: log read empty\n---\n", t.Identity)
+		return fmt.Errorf("Agent task err\n- AgentTask name: %v\n- err: log read empty\n---\n", t.Identity)
 	}
 	//3. Ai生成关键词 + 知识库检索 (并且组织格式)
 	kbaseContent, err := t.KBaseSearch(msg)

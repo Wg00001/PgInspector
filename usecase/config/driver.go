@@ -15,7 +15,7 @@ import (
 
 func Open(driverName string, option map[string]string) error {
 	//todo: option封装
-	reader, err := GetDriver(driverName)
+	reader, err := GetReader(driverName)
 	if err != nil {
 		return err
 	}
@@ -41,26 +41,53 @@ func Open(driverName string, option map[string]string) error {
 }
 
 var (
-	drivers  = make(map[string]config.Reader)
-	driverMu sync.RWMutex
+	readerDrivers  = make(map[string]config.Reader)
+	readerDriverMu sync.RWMutex
 )
 
-func RegisterDriver(name string, driver config.Reader) {
-	driverMu.Lock()
-	defer driverMu.Unlock()
-	if drivers == nil {
-		panic("config: drivers map is nil")
+func RegisterReader(name string, driver config.Reader) {
+	readerDriverMu.Lock()
+	defer readerDriverMu.Unlock()
+	if readerDrivers == nil {
+		panic("config: readerDrivers map is nil")
 	}
-	if _, dup := drivers[name]; dup {
+	if _, dup := readerDrivers[name]; dup {
 		panic("config: Register called twice for driver " + name)
 	}
-	drivers[name] = driver
+	readerDrivers[name] = driver
 }
 
-func GetDriver(name string) (config.Reader, error) {
-	driverMu.RLock()
-	defer driverMu.RUnlock()
-	res, ok := drivers[name]
+func GetReader(name string) (config.Reader, error) {
+	readerDriverMu.RLock()
+	defer readerDriverMu.RUnlock()
+	res, ok := readerDrivers[name]
+	if !ok {
+		return nil, fmt.Errorf("config: get driver fail %s\n", name)
+	}
+	return res, nil
+}
+
+var (
+	parserDrivers  = make(map[string]config.Parser)
+	parserDriverMu sync.RWMutex
+)
+
+func RegisterParser(name string, driver config.Parser) {
+	parserDriverMu.Lock()
+	defer parserDriverMu.Unlock()
+	if parserDrivers == nil {
+		panic("config: readerDrivers map is nil")
+	}
+	if _, dup := parserDrivers[name]; dup {
+		panic("config: Register called twice for driver " + name)
+	}
+	parserDrivers[name] = driver
+}
+
+func GetParser(name string) (config.Parser, error) {
+	parserDriverMu.RLock()
+	defer parserDriverMu.RUnlock()
+	res, ok := parserDrivers[name]
 	if !ok {
 		return nil, fmt.Errorf("config: get driver fail %s\n", name)
 	}

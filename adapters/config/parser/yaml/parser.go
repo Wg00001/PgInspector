@@ -3,6 +3,7 @@ package yaml
 import (
 	"PgInspector/entities/config"
 	"PgInspector/entities/insp"
+	config2 "PgInspector/usecase/config"
 	insp2 "PgInspector/usecase/insp"
 	"PgInspector/utils"
 	"fmt"
@@ -16,6 +17,10 @@ import (
  * @author Wg
  * @date 2025/3/18
  */
+
+func init() {
+	config2.RegisterParser("yaml", &ConfigYamlParser{})
+}
 
 type ConfigYamlParser struct {
 	ConfigYaml      ConfigYaml
@@ -41,11 +46,13 @@ type AgentConfigYaml struct {
 	KBaseConfig        []config.KnowledgeBaseConfig `yaml:"-"`
 }
 
-func (c *ConfigYamlParser) ParseConfig(file []byte) (err error) {
+var _ config.Parser = (*ConfigYamlParser)(nil)
+
+func (c *ConfigYamlParser) ParseConfig(file []byte) (_ config.CommonConfigGroup, err error) {
 	file = []byte(strings.ToLower(string(file)))
 	err = yaml.Unmarshal(file, &c.ConfigYaml)
 	if err != nil {
-		return err
+		return
 	}
 	//处理logger设置
 	c.ConfigYaml.LogConfig = make([]config.LogConfig, 0, len(c.ConfigYaml.LogConfigOrigin))
@@ -71,7 +78,7 @@ func (c *ConfigYamlParser) ParseConfig(file []byte) (err error) {
 			}(o))
 	}
 	if err != nil {
-		return err
+		return
 	}
 
 	c.ConfigYaml.AlertConfig = make([]config.AlertConfig, 0, len(c.ConfigYaml.AlertConfigOrigin))
@@ -96,14 +103,14 @@ func (c *ConfigYamlParser) ParseConfig(file []byte) (err error) {
 				return cur
 			}(o))
 	}
-	return err
+	return
 }
 
-func (c *ConfigYamlParser) ParseInsp(file []byte) (err error) {
+func (c *ConfigYamlParser) ParseInspector(file []byte) (_ config.TaskConfigGroup, err error) {
 	var origin map[string]interface{}
 	err = yaml.Unmarshal(file, &origin)
 	if err != nil {
-		return err
+		return
 	}
 
 	c.InspTree = insp.NewTree()
@@ -129,6 +136,7 @@ func (c *ConfigYamlParser) ParseInsp(file []byte) (err error) {
 				n, err := nb.Build()
 				if err != nil {
 					return err
+
 				}
 				err = c.InspTree.AddChild(nowPath, &n)
 				if err != nil {
@@ -143,14 +151,14 @@ func (c *ConfigYamlParser) ParseInsp(file []byte) (err error) {
 		}
 		return nil
 	}
-	return dfs("", origin)
+	return config.TaskConfigGroup{}, dfs("", origin)
 }
 
-func (c *ConfigYamlParser) ParseAgent(file []byte) (err error) {
+func (c *ConfigYamlParser) ParseAgent(file []byte) (_ config.AgentConfigGroup, err error) {
 	file = []byte(strings.ToLower(string(file)))
 	err = yaml.Unmarshal(file, &c.AgentConfigYaml)
 	if err != nil {
-		return err
+		return
 	}
 
 	// Process agent task configurations
@@ -209,7 +217,7 @@ func (c *ConfigYamlParser) ParseAgent(file []byte) (err error) {
 		c.AgentConfigYaml.AiTaskConfig = append(c.AgentConfigYaml.AiTaskConfig, funcResult)
 	}
 	if err != nil {
-		return err
+		return
 	}
 
 	// Process knowledge base configurations
@@ -230,5 +238,5 @@ func (c *ConfigYamlParser) ParseAgent(file []byte) (err error) {
 		}(origin)
 		c.AgentConfigYaml.KBaseConfig = append(c.AgentConfigYaml.KBaseConfig, funcResult)
 	}
-	return err
+	return
 }

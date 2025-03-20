@@ -1,7 +1,6 @@
 package local_file
 
 import (
-	"PgInspector/adapters/config/parser/yaml"
 	"PgInspector/entities/config"
 	config2 "PgInspector/usecase/config"
 	"fmt"
@@ -24,7 +23,8 @@ const (
 )
 
 func init() {
-	config2.RegisterDriver("yaml", &ConfigReaderLocalFile{})
+	config2.RegisterReader("file", &ConfigReaderLocalFile{})
+	config2.RegisterReader("local_file", &ConfigReaderLocalFile{})
 }
 
 type ConfigReaderLocalFile struct {
@@ -32,7 +32,8 @@ type ConfigReaderLocalFile struct {
 	ConfigName string
 	InspName   string
 	AgentName  string
-	parser     *yaml.ConfigYamlParser
+	meta       config.ConfigMeta
+	parser     config.Parser
 }
 
 var _ config.Reader = (*ConfigReaderLocalFile)(nil)
@@ -54,16 +55,23 @@ func (c *ConfigReaderLocalFile) NewReader(option map[string]string) (_ config.Re
 	if !ok {
 		agentName = optionAgentName + ".yaml"
 	}
-
+	parserDriver, ok := option[optionParser]
+	if !ok {
+		parserDriver = "yaml"
+	}
 	if !strings.HasSuffix(filepath, "/") {
 		filepath += "/"
+	}
+	parser, err := config2.GetParser(parserDriver)
+	if err != nil {
+		return nil, err
 	}
 	return &ConfigReaderLocalFile{
 		FilePath:   filepath,
 		ConfigName: configName,
 		InspName:   inspName,
 		AgentName:  agentName,
-		parser:     &yaml.ConfigYamlParser{},
+		parser:     parser,
 	}, nil
 }
 
@@ -72,7 +80,8 @@ func (c *ConfigReaderLocalFile) ReadConfig() (err error) {
 	if err != nil {
 		return err
 	}
-	return c.parser.ParseConfig(file)
+	c.meta.CommonConfigGroup, err = c.parser.ParseConfig(file)
+	return
 }
 
 func (c *ConfigReaderLocalFile) ReadInspector() error {
@@ -80,7 +89,8 @@ func (c *ConfigReaderLocalFile) ReadInspector() error {
 	if err != nil {
 		return err
 	}
-	return c.parser.ParseInsp(file)
+	c.meta.TaskConfigGroup, err = c.parser.ParseInspector(file)
+	return err
 }
 
 func (c *ConfigReaderLocalFile) ReadAgent() error {
@@ -88,17 +98,11 @@ func (c *ConfigReaderLocalFile) ReadAgent() error {
 	if err != nil {
 		return err
 	}
-	return c.parser.ParseAgent(file)
+	c.meta.AgentConfigGroup, err = c.parser.ParseAgent(file)
+	return err
 }
 func (c *ConfigReaderLocalFile) SaveIntoConfig() {
-	config2.Sets(c.parser.ConfigYaml.DBConfigs...)
-	config2.Sets(c.parser.ConfigYaml.TaskConfigs...)
-	config2.Sets(c.parser.ConfigYaml.LogConfig...)
-	config2.Sets(c.parser.ConfigYaml.AlertConfig...)
-	config2.Sets(c.parser.AgentConfigYaml.AiConfig)
-	config2.Sets(c.parser.AgentConfigYaml.AiTaskConfig...)
-	config2.Sets(c.parser.AgentConfigYaml.KBaseConfig...)
-	config2.Sets(c.parser.InspTree)
+	config2.SetConfigMeta(c.meta)
 }
 
 func (c *ConfigReaderLocalFile) Watch() {

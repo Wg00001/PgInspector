@@ -9,7 +9,7 @@ import "github.com/wg00001/wgo-sdk/wg"
  */
 
 var (
-	pConfigType = "yaml"
+	pConfigType = "local_file"
 	pFilePath   = wg.GetRelativePath("/app/config")
 )
 

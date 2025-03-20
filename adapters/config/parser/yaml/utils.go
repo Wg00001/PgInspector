@@ -29,7 +29,7 @@ func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuil
 	if !ok {
 		return n, nil
 	} else {
-		n.AlertID = config.NewIdentity(alertId)
+		n.AlertID = config.NewIdentity(alertId).Str()
 		delete(arg, keyAlertId)
 	}
 	alertWhen, ok := arg[keyAlertWhen]

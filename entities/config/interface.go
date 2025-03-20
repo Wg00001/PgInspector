@@ -14,3 +14,9 @@ type Reader interface {
 	SaveIntoConfig()
 	Watch() //todo
 }
+
+type Parser interface {
+	ParseConfig([]byte) (CommonConfigGroup, error)
+	ParseInspector([]byte) (TaskConfigGroup, error)
+	ParseAgent([]byte) (AgentConfigGroup, error)
+}

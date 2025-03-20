@@ -43,7 +43,7 @@ func (n NodeBuilder) WithEmptyAlert() NodeBuilder {
 }
 
 func (n NodeBuilder) BuildAlertFunc(alertWhen string) NodeBuilder {
-	n.AlertFunc, n.error = buildAlertFunc(alertWhen, n.AlertID)
+	n.AlertFunc, n.error = buildAlertFunc(alertWhen, config.Identity(n.AlertID))
 	return n
 }
 

@@ -17,8 +17,9 @@ import (
 type ConfigReaderEtcd struct {
 	client      *clientv3.Client
 	rootContext context.Context
-	cfg         config.Config
+	cfg         config.ConfigIndex
 	parser      yaml.ConfigYamlParser
+	meta        config.ConfigMeta
 }
 
 var _ config.Reader = (*ConfigReaderEtcd)(nil)
@@ -47,14 +48,7 @@ func (c ConfigReaderEtcd) ReadAgent() error {
 }
 
 func (c ConfigReaderEtcd) SaveIntoConfig() {
-	config2.Sets(c.parser.ConfigYaml.DBConfigs...)
-	config2.Sets(c.parser.ConfigYaml.TaskConfigs...)
-	config2.Sets(c.parser.ConfigYaml.LogConfig...)
-	config2.Sets(c.parser.ConfigYaml.AlertConfig...)
-	config2.Sets(c.parser.AgentConfigYaml.AiConfig)
-	config2.Sets(c.parser.AgentConfigYaml.AiTaskConfig...)
-	config2.Sets(c.parser.AgentConfigYaml.KBaseConfig...)
-	config2.Sets(c.parser.InspTree)
+	config2.SetConfigMeta(c.meta)
 }
 
 func (c ConfigReaderEtcd) Watch() {
