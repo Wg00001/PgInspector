@@ -29,7 +29,7 @@ func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuil
 	if !ok {
 		return n, nil
 	} else {
-		n.AlertID = config.NewIdentity(alertId).Str()
+		n.AlertID = config.NewIdentity(alertId)
 		delete(arg, keyAlertId)
 	}
 	alertWhen, ok := arg[keyAlertWhen]
@@ -38,8 +38,9 @@ func ParseMap(n insp2.NodeBuilder, arg map[string]interface{}) (m insp2.NodeBuil
 	} else {
 		delete(arg, keyAlertWhen)
 	}
+	n.AlertWhen = alertWhen.(string)
 	//todo:alert when save in struct
-	n = n.BuildAlertFunc(alertWhen.(string))
+	//n = n.BuildAlertFunc(alertWhen.(string))
 
 	sql, ok := arg[keySQL]
 	if !ok {

@@ -26,7 +26,7 @@ type Content struct {
 	Timestamp time.Time
 	TaskName  config.Identity
 	DBName    config.Identity
-	InspName  string
+	InspName  config.Identity
 	TaskID    string //task批次编号
 	Result    db.Result
 	ResultStr string

@@ -22,7 +22,7 @@ type Content struct {
 	TaskName     config.Identity //发生报警的任务名
 	TaskID       string
 	DBName       config.Identity
-	InspName     string
+	InspName     config.Identity
 	Result       db.Result //发生报警时所产生的结果
 	AlertWhen    string    //AlertWhen会作为配置项读取
 	AlertBecause string

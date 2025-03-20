@@ -24,7 +24,7 @@ func buildAiAlertContent(t *AgentTask, msg string) *alerter2.Content {
 		TimeStamp: time.Now(),
 		TaskName:  t.Identity(),
 		TaskID:    time.Now().Format("20060504_150201"),
-		InspName:  logFilterString(t.LogFilter),
+		InspName:  config.Identity(logFilterString(t.LogFilter)), //todo: log filter
 		Result:    []map[string]interface{}{{"message": msg}},
 	}
 }

@@ -62,6 +62,10 @@ func (c *ConfigReaderLocalFile) NewReader(option map[string]string) (_ config.Re
 	if !ok {
 		parserDriver = "yaml"
 	}
+	taskName, ok := option[optionTaskName]
+	if !ok {
+		taskName = optionTaskName + ".yaml"
+	}
 	if !strings.HasSuffix(filepath, "/") {
 		filepath += "/"
 	}
@@ -75,6 +79,7 @@ func (c *ConfigReaderLocalFile) NewReader(option map[string]string) (_ config.Re
 		InspName:   inspName,
 		AgentName:  agentName,
 		parser:     parser,
+		TaskName:   taskName,
 	}, nil
 }
 

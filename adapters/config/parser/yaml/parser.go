@@ -132,7 +132,7 @@ func (c *ConfigYamlParser) ParseInspector(file []byte) (_ *config.InspTree, err 
 		for k, v := range node {
 			switch t := v.(type) {
 			case string: //配置里直接是string说明是SQL，未配置alert
-				n, err := insp2.NodeBuilder{}.WithName(k).WithSQL(t).Build()
+				n, err := insp2.NodeBuilder{}.WithName(config.Identity(k)).WithSQL(t).Build()
 				//n, err := insp2.NodeBuilder{}.WithName(k).WithSQL(t).WithEmptyAlert().Build()
 				if err != nil {
 					return err
@@ -143,7 +143,7 @@ func (c *ConfigYamlParser) ParseInspector(file []byte) (_ *config.InspTree, err 
 				}
 
 			case map[string]interface{}: //是map说明有配置alert, 进行解析
-				nb, err := ParseMap(insp2.NodeBuilder{}.WithName(k), t)
+				nb, err := ParseMap(insp2.NodeBuilder{}.WithName(config.Identity(k)), t)
 				if err != nil {
 					return err
 				}

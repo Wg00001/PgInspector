@@ -17,19 +17,6 @@ Table:
   - TableName: "example_table2"
     DBConfig: "example_db2"
 
-Task:
-  - Identity: "task1"
-    LogID: "1"
-    TargetDB:
-      - "example1"
-    Todo:
-      - "1"
-      - "2"
-    Cron:
-      Duration: 10m
-#      AtTime:
-#      - "13:00:01"
-
 Log:
   - Identity: "1"
     Driver: "postgres"

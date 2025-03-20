@@ -94,13 +94,13 @@ func (t *Task) Append(c *logger.Content) {
 		}
 	}
 	db := t.DBGroups[c.DBName.Str()]
-	if _, ok := db.InspGroups[c.InspName]; !ok {
-		db.InspGroups[c.InspName] = &Inspect{
-			InspName: c.InspName,
+	if _, ok := db.InspGroups[c.InspName.Str()]; !ok {
+		db.InspGroups[c.InspName.Str()] = &Inspect{
+			InspName: c.InspName.Str(),
 			Contents: []*Content{},
 		}
 	}
-	insp := db.InspGroups[c.InspName]
+	insp := db.InspGroups[c.InspName.Str()]
 	insp.Contents = append(insp.Contents, convertToAIContent(c))
 }
 

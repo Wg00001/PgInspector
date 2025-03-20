@@ -19,7 +19,7 @@ func (n NodeBuilder) Build() (config.InspNode, error) {
 	return n.InspNode, n.error
 }
 
-func (n NodeBuilder) WithName(name string) NodeBuilder {
+func (n NodeBuilder) WithName(name config.Identity) NodeBuilder {
 	n.Name = name
 	return n
 }
@@ -34,8 +34,8 @@ func (n NodeBuilder) WithSQL(sql string) NodeBuilder {
 //			return nil
 //		}
 //		return n
-//	}
-func (n NodeBuilder) BuildAlertFunc(alertWhen string) NodeBuilder {
-	n.AlertFunc, n.error = buildAlertFunc(alertWhen, config.Identity(n.AlertID))
-	return n
-}
+//
+//func (n NodeBuilder) BuildAlertFunc(alertWhen string) NodeBuilder {
+//	n.AlertFunc, n.error = buildAlertFunc(alertWhen, config.Identity(n.AlertID))
+//	return n
+//}
